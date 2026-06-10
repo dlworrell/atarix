@@ -45,6 +45,8 @@ See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 - [Hardware Architecture](docs/hardware.md)
 - [Software Architecture](docs/software.md)
 - [Project Roadmap](docs/roadmap.md)
+- [Development Philosophy](docs/development-philosophy.md)
+- [Architecture Decision Records](docs/adr/README.md)
 
 ### Hardware Architecture
 
@@ -60,6 +62,7 @@ See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 
 ### Addressing, Memory, and Registers
 
+- [Data Model and Endianness](docs/data-model-and-endianness.md)
 - [Memory Map](docs/memory-map.md)
 - [Address Space Architecture](docs/address-space-architecture.md)
 - [Register Map v1](docs/register-map-v1.md)
@@ -99,13 +102,15 @@ ATARIX draws inspiration from:
 
 ## Core Principles
 
-1. Keep the W65C816 local bus local to the CPU card.
-2. Use a structured fabric interface instead of a raw shared CPU bus.
-3. Make every major subsystem observable and diagnosable.
-4. Treat devices as untrusted until granted explicit capabilities.
-5. Use the supervisor management plane for reset, recovery, RTC, watchdogs, and fault logging.
-6. Prefer staged bring-up over premature complexity.
-7. Support large memory through managed memory services, not by pretending the 65C816 has a flat server-class address space.
+1. Evidence-based engineering: measure first, decide second, document always.
+2. Keep the W65C816 local bus local to the CPU card.
+3. CPU width is not system width; u24 is CPU-local, not a universal ATARIX address.
+4. Use a structured fabric interface instead of a raw shared CPU bus.
+5. Make every major subsystem observable and diagnosable.
+6. Treat devices as untrusted until granted explicit capabilities.
+7. Use the supervisor management plane for reset, recovery, RTC, watchdogs, and fault logging.
+8. Prefer staged bring-up over premature complexity.
+9. Support large memory through managed memory services, not by pretending the 65C816 has a flat server-class address space.
 
 ## Near-Term Work
 
