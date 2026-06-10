@@ -1,3 +1,30 @@
+name: Autocommit
+
+on:
+  workflow_dispatch:
+
 permissions:
-  contents: write  # Allows writing to repository
-  pull-requests: write
+  contents: write
+
+jobs:
+  autocommit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit changed files
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git add -A
+            git commit -m "Autocommit generated updates"
+            git push
+          else
+            echo "No changes to commit."
+          fi
