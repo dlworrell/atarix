@@ -10,15 +10,17 @@ This document defines the binary data model for ATARIX architecture-defined stru
 
 ATARIX begins with a W65C816 CPU, but the system architecture is larger than the CPU's native execution width.
 
-The W65C816 is an 8/16-bit processor with a 24-bit physical address space. ATARIX also includes an FPGA fabric, mailbox protocols, DMA descriptors, discovery records, supervisor logs, memory-service objects, network boot images, and future accelerators.
+The W65C816 is an 8/16-bit processor with a 24-bit physical address space. ATARIX also includes an FPGA fabric, mailbox protocols, DMA descriptors, discovery records, supervisor logs, memory-service objects, network boot images, and future 32-bit / 64-bit processors or accelerators.
 
-Those structures must not be limited to a 16-bit worldview.
+Those structures must not be limited to a 16-bit or 24-bit worldview.
 
 ## Design Rule
 
 CPU width is not system width.
 
-The W65C816 may execute 8-bit and 16-bit code, but ATARIX architecture-defined binary formats may use 8-bit, 16-bit, 24-bit, 32-bit, and 64-bit fields where appropriate.
+CPU-local address width is not fabric address width.
+
+The W65C816 may execute 8-bit and 16-bit code and use 24-bit native addresses, but ATARIX architecture-defined binary formats may use 8-bit, 16-bit, 24-bit, 32-bit, and 64-bit fields where appropriate.
 
 ## Byte Order
 
@@ -51,14 +53,31 @@ u64  Unsigned 64-bit integer, little-endian
 
 Signed integers should be avoided in hardware-facing protocols unless explicitly required.
 
-## 24-Bit Addresses
+## Address Classes
+
+ATARIX distinguishes several address classes.
+
+```text
+W65C816 native address      u24
+Future 32-bit CPU address   u32
+Future 64-bit CPU address   u64
+Fabric register offset      u32
+Fabric resource address     u64
+Memory object identifier    u64
+Memory object offset        u64
+Persistent storage offset   u64
+```
+
+The existence of u24 CPU-local addresses must not constrain the ATARIX fabric, memory-service architecture, or future processor cards.
+
+## 24-Bit CPU-Local Addresses
 
 The W65C816 directly uses 24-bit physical addresses.
 
-Native CPU-visible addresses should use:
+Native W65C816-visible addresses should use:
 
 ```text
-u24 address
+u24 cpu_address
 ```
 
 Examples:
@@ -66,9 +85,26 @@ Examples:
 - CPU local memory windows.
 - Rev A memory map addresses.
 - CPU-visible I/O apertures.
-- Short DMA descriptors targeting native CPU space.
+- Short descriptors targeting native W65C816 CPU space.
 
 A u24 address is encoded least-significant byte first.
+
+A u24 field is not a universal ATARIX address.
+
+## Fabric Addresses and Resource References
+
+ATARIX fabric resources should not be limited to u24 addressing.
+
+For fabric-level addressing, prefer:
+
+```text
+Address Space ID: u32 or u64
+Resource ID:      u64
+Offset:           u64
+Length:           u32 or u64, depending on resource class
+```
+
+This allows a W65C816 CPU card, future 32-bit CPU card, future 64-bit CPU card, memory service, storage service, and accelerator service to participate in the same system without forcing all participants through the W65C816 native address model.
 
 ## 32-Bit Fields
 
@@ -83,7 +119,8 @@ Recommended u32 uses:
 - Sequence numbers.
 - Performance counters that may wrap acceptably.
 - Fabric register offsets.
-- Memory-window sizes up to 4 GiB.
+- Window sizes up to 4 GiB.
+- Future 32-bit CPU local addresses.
 
 A u32 length has a maximum representable value of 4,294,967,295 bytes.
 
@@ -104,6 +141,8 @@ Recommended u64 uses:
 - Large byte offsets.
 - Long-running performance counters.
 - Future accelerator job IDs.
+- Future 64-bit CPU local addresses.
+- Fabric resource addresses.
 
 A u64 length has a maximum representable value of 18,446,744,073,709,551,615 bytes.
 
@@ -254,7 +293,9 @@ Rationale:
 
 Memory service objects should use u64 identifiers and u64 sizes.
 
-The CPU may map these objects through 16 KiB, 32 KiB, or 64 KiB windows, but the object itself may be much larger than the CPU address space.
+The W65C816 CPU may map these objects through 16 KiB, 32 KiB, or 64 KiB windows, but the object itself may be much larger than the CPU address space.
+
+A future 32-bit or 64-bit CPU card may map larger portions of the same object through a different address aperture without changing the object model.
 
 Example:
 
@@ -272,6 +313,8 @@ Use small fields where the domain is naturally small.
 Use large fields where future capacity, persistence, timestamps, or external resources are involved.
 
 Do not force all structures into 16-bit fields merely because the first CPU is a W65C816.
+
+Do not treat u24 as the universal ATARIX address width merely because the first CPU is a W65C816.
 
 Do not force all structures into 64-bit fields when a small local structure would be simpler and more efficient.
 
@@ -294,3 +337,4 @@ docs/address-space-architecture.md
 - Whether boot images should use u32 length plus u64 extended length or direct u64 length.
 - Whether memory service windows should prefer fixed 64 KiB mappings.
 - Exact ABI naming convention for signed types, if needed.
+- Whether future distributed services require 128-bit object identifiers.
