@@ -1,0 +1,3 @@
+permissions:
+  contents: write  # Allows writing to repository
+  pull-requests: write
