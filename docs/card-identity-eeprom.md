@@ -4,7 +4,7 @@
 
 Draft architecture specification.
 
-This document defines the small nonvolatile identity device that should be present on each ATARIX card.
+This document defines the small nonvolatile identity device that should be present on each ATARIX card, and the minimum independent management objects expected on every card.
 
 ## Purpose
 
@@ -41,6 +41,86 @@ A card should be identifiable before it is trusted.
 A card should be identifiable before its main processor, FPGA, CPLD, or device logic is allowed to perform privileged fabric activity.
 
 Attachment does not imply trust.
+
+## Minimum Card Management Standard
+
+Every ATARIX card should include a small independent management cluster that can be accessed before the card is fully trusted by the fabric.
+
+These management objects should function independently from the card's main processing logic whenever practical.
+
+A failed CPU, FPGA function, accelerator core, or service engine should not prevent the supervisor from reading identity, basic health, power, temperature, and fault state.
+
+### Mandatory Management Objects
+
+Every card should provide:
+
+```text
+Identity EEPROM / FRU EEPROM
+Temperature Sensor
+Voltage Monitor
+Current Monitor
+Status / Control Register
+```
+
+The status / control register should expose at minimum:
+
+```text
+READY
+FAULT
+DEGRADED
+SERVICE_REQUEST
+SELFTEST_PASS
+SELFTEST_FAIL
+WRITE_PROTECT_STATUS
+LAST_RESET_REASON
+```
+
+### Recommended Management Objects
+
+Most nontrivial cards should provide:
+
+```text
+Fan Tachometer
+Fan Controller
+Additional ADC Channels
+Environmental Sensors
+```
+
+Additional ADC channels may monitor local rails, references, battery or supercapacitor rails, analog supplies, or sensor inputs.
+
+Environmental sensors may include board temperature, inlet temperature, outlet temperature, humidity, or other card-relevant conditions.
+
+Cards expected to dissipate significant power should treat fan tachometer, fan control, and thermal sensing as mandatory rather than merely recommended.
+
+### Optional / High-Reliability Management Objects
+
+Cards may provide:
+
+```text
+Secure Element
+Calibration EEPROM
+Management MCU
+```
+
+A secure element may support signed identity, secure boot, certificate storage, firmware authorization, or asset tracking.
+
+A calibration EEPROM may store factory calibration, ADC calibration, temperature offsets, power-monitor calibration, board-specific tuning, and field-service data.
+
+A management MCU may aggregate sensors, run card-local self-tests, supervise local resets, or communicate with the system supervisor.
+
+### Independence Requirement
+
+Each management object should fail independently where practical.
+
+Examples:
+
+- Identity EEPROM remains readable even if the main card logic is held in reset.
+- Temperature and power monitors remain readable before card enable.
+- Status / control register can report FAULT even when the main data plane is disabled.
+- Write-protect state can be observed without booting the card.
+- Calibration data can be read during maintenance or recovery mode.
+
+A card that cannot report its own identity and basic health should not be granted normal operating authority.
 
 ## Relationship to Discovery Records
 
@@ -91,16 +171,19 @@ Rationale:
 
 The backplane should provide an identity-management path that can be accessed by the supervisor and/or fabric controller.
 
+The identity-management path should also support the minimum card management objects where practical.
+
 ## Slot Addressing
 
-The system must be able to distinguish EEPROMs by slot.
+The system must be able to distinguish EEPROMs and management objects by slot.
 
 Possible approaches:
 
 - Slot-specific I2C mux.
-- Slot address pins into the EEPROM address pins.
+- Slot address pins into device address pins.
 - Supervisor-controlled per-slot enable.
 - Fabric-controlled identity bus arbitration.
+- Per-slot management-bus isolation.
 
 Rev A should prefer the simplest electrically reliable scheme.
 
@@ -202,6 +285,13 @@ $0D Manufacturing data
 $0E Field-service data
 $0F Calibration data
 $10 Boot cache pointer
+$11 Management object inventory
+$12 Thermal sensor description
+$13 Power monitor description
+$14 Fan controller description
+$15 Environmental sensor description
+$16 Secure element description
+$17 Calibration EEPROM description
 $80-$FF Vendor-specific
 ```
 
@@ -219,6 +309,7 @@ Hardware revision
 Serial number or board ID
 Capability summary
 Power requirement summary
+Management object inventory
 ```
 
 ## Capability Summary
@@ -240,6 +331,9 @@ Storage service capable
 Accelerator capable
 Supervisor visible
 Fabric configuration required
+Management sensor capable
+Secure identity capable
+Calibration data present
 ```
 
 ## Boot Flow
@@ -247,16 +341,17 @@ Fabric configuration required
 Recommended boot sequence:
 
 ```text
-1. Supervisor powers identity bus.
+1. Supervisor powers identity and management bus.
 2. Supervisor scans slots.
 3. Supervisor reads each identity EEPROM.
 4. Supervisor validates checksum and version.
-5. Supervisor records slot inventory.
-6. Fabric controller receives slot identity summary.
-7. Boot firmware queries fabric identity table.
-8. Full discovery records are read or generated.
-9. Capability broker assigns permissions.
-10. Devices become usable only after authorization.
+5. Supervisor reads mandatory management objects.
+6. Supervisor records slot inventory and health baseline.
+7. Fabric controller receives slot identity summary.
+8. Boot firmware queries fabric identity table.
+9. Full discovery records are read or generated.
+10. Capability broker assigns permissions.
+11. Devices become usable only after authorization.
 ```
 
 ## Identity Fabric
@@ -286,6 +381,8 @@ Security rules:
 4. Do not allow unrestricted EEPROM writes.
 5. Record identity mismatches in supervisor logs.
 6. Quarantine cards with invalid or inconsistent identity data where appropriate.
+7. Treat sensor data as advisory unless validated by policy.
+8. Secure elements may strengthen identity but do not replace capability authorization.
 
 ## Diagnostics
 
@@ -297,6 +394,11 @@ IDENT SHOW <slot>
 IDENT RAW <slot>
 IDENT VERIFY <slot>
 IDENT CACHE REFRESH
+HEALTH SHOW <slot>
+SENSOR SHOW <slot>
+POWER SHOW <slot>
+FAN SHOW <slot>
+CALIBRATION SHOW <slot>
 ```
 
 ## Relationship to Testing
@@ -310,6 +412,12 @@ Testing should include:
 - Conflicting discovery-record handling.
 - Write-protection checks.
 - Slot inventory stability.
+- Mandatory management-object detection.
+- Temperature sensor readout.
+- Voltage and current monitor readout.
+- Fan tachometer and fan controller behavior where present.
+- Calibration EEPROM readout where present.
+- Secure-element presence and failure handling where present.
 
 See:
 
@@ -320,6 +428,8 @@ docs/testing-strategy.md
 ## Design Principle
 
 The identity EEPROM provides early, minimal, stable identity.
+
+Management objects provide early, minimal, independent health information.
 
 Discovery records provide rich, versioned system description.
 
