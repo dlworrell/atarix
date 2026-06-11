@@ -18,6 +18,8 @@ The W65C816 local bus stays on the CPU card.
 
 The backplane sees a structured ATARIX fabric interface, not every raw W65C816 signal.
 
+The CPU card shall be able to self-boot into a recovery monitor, but when a valid ATARIX backplane BIOS is discovered and validated, the CPU card shall hand off system boot policy to the backplane BIOS.
+
 ## Architectural Position
 
 ```text
@@ -25,7 +27,7 @@ W65C816 CPU
     |
 Local CPU Bus
     |
-Local ROM / SRAM / I/O decode
+Local ROM / RAM / I/O decode
     |
 CPU Shim and Buffer Logic
     |
@@ -47,6 +49,8 @@ DIN41612 Backplane
 7. Support local boot even when the wider fabric is unavailable.
 8. Support fabric-mediated DMA, discovery, interrupts, and mailboxes.
 9. Prepare for future secondary CPU cards.
+10. Support backplane BIOS discovery and handoff.
+11. Populate the W65C816 native address space with the maximum practical CPU-local RAM.
 
 ## Required Functional Blocks
 
@@ -81,17 +85,33 @@ MX
 
 The CPU card should expose these signals for diagnostics, but they are not all backplane signals.
 
-### Local ROM
+### Local ROM / Bootstrap ROM
 
 The CPU card should contain local boot ROM or a reliable ROM mapping path.
 
 ROM responsibilities:
 
 - Reset vector.
+- Minimal CPU-card initialization.
 - ROM monitor.
 - Serial/network loader support.
 - Recovery diagnostics.
 - Basic memory and fabric tests.
+- Backplane BIOS discovery.
+- Backplane BIOS validation.
+- Backplane BIOS handoff.
+
+The CPU-card ROM is not the final system BIOS when a valid backplane BIOS is present.
+
+Instead:
+
+```text
+CPU-Card ROM
+    Local bootstrap and recovery authority.
+
+Backplane BIOS
+    System boot and platform policy authority after discovery and validation.
+```
 
 ROM may later become selectable between:
 
@@ -102,9 +122,55 @@ Network-loaded image
 Supervisor-selected image
 ```
 
-### Local SRAM
+### Backplane BIOS Handoff
 
-The CPU card should provide local SRAM sufficient for:
+At boot, the CPU-card ROM should determine whether it is running as:
+
+```text
+Standalone CPU-card recovery environment
+```
+
+or:
+
+```text
+CPU card installed in an ATARIX backplane
+```
+
+If a valid backplane BIOS is discovered, the CPU-card ROM should subordinate system boot policy to it.
+
+Handoff requirements:
+
+```text
+Backplane BIOS identity verified
+Backplane BIOS checksum or signature validated where practical
+Supervisor state queried
+Fabric identity queried
+Memory baseline established
+Recovery override checked
+```
+
+If validation fails, the CPU-card ROM must remain capable of entering recovery mode.
+
+This design allows a CPU card to be self-testable outside the system while still allowing the backplane to own platform policy inside a complete ATARIX machine.
+
+### Local RAM
+
+The CPU card should provide the maximum practical CPU-local RAM directly addressable by the W65C816.
+
+Target:
+
+```text
+16 MiB CPU-local addressable RAM
+```
+
+Rationale:
+
+```text
+The W65C816 exposes a 24-bit native address space.
+The CPU card should not artificially constrain that address space below 16 MiB where practical.
+```
+
+The CPU card should still preserve deterministic regions for:
 
 - Stack.
 - Direct page.
@@ -112,8 +178,20 @@ The CPU card should provide local SRAM sufficient for:
 - Upload buffer.
 - Netboot staging.
 - Diagnostics.
+- Recovery operation.
 
 The first CPU card should be useful even if no external memory card exists.
+
+Implementation options may include:
+
+```text
+SRAM
+Pseudo-SRAM
+SDRAM behind bridge logic
+Mixed fast SRAM plus larger bridge-managed RAM
+```
+
+The architecture requires the addressability target, not a specific memory technology.
 
 ### Bank Zero Isolation
 
@@ -149,6 +227,7 @@ Responsibilities:
 - Vector Pull Rewrite support if implemented.
 - Fabric request generation.
 - Debug-state reporting.
+- Backplane BIOS aperture support.
 
 This may be implemented with:
 
@@ -205,32 +284,39 @@ Discovery Read
 Interrupt Acknowledge
 DMA Request Submission
 Fault Report Read
+Backplane BIOS Read
 ```
 
 The bridge should be able to stall the CPU with RDY while a fabric transaction completes.
 
 ## Local Address Map
 
-The CPU card should implement a minimal local map compatible with the Rev A memory map.
+The CPU card should implement a local map compatible with the Rev A memory model while targeting the full W65C816 native address space.
 
 Candidate Rev A local map:
 
 ```text
 $000000-$0000FF  Direct page
 $000100-$0001FF  Stack
-$000200-$007FFF  Local RAM / monitor workspace
-$008000-$00BFFF  Local expansion or staging RAM
+$000200-$00BFFF  Local RAM / monitor workspace
 $00C000-$00DFFF  Local and fabric I/O aperture
 $00E000-$00FFFF  ROM / vectors
+$010000-$EFFFFF  CPU-local RAM
+$F00000-$F7FFFF  Fabric / service windows, configurable
+$F80000-$FBFFFF  Backplane BIOS aperture, configurable
+$FC0000-$FFFFFF  Recovery ROM / vectors / high monitor region, configurable
 ```
 
-Fabric windows may appear inside the I/O aperture or selected higher banks.
+Exact boundaries remain subject to memory-map specification and hardware decode constraints.
+
+Fabric windows and backplane BIOS windows may be remapped or bank-selected by the bridge logic.
 
 See:
 
 ```text
 docs/memory-map.md
 docs/address-space-architecture.md
+docs/backplane-bios-v1.md
 ```
 
 ## Fabric Interface
@@ -249,6 +335,7 @@ Control Plane
 Event Plane
 Data Plane
 Discovery Interface
+Backplane BIOS Interface
 Diagnostic Signals
 ```
 
@@ -260,7 +347,25 @@ docs/backplane-pinout-v1.md
 
 ## Network Support
 
-For Rev A, Ethernet on the CPU card is acceptable and likely preferred.
+For Rev A, a network service path is mandatory because netboot and NTP are baseline capabilities.
+
+Acceptable Rev A implementation:
+
+```text
+W5500 Ethernet Controller on CPU card
+```
+
+Alternative Rev A implementation:
+
+```text
+Dedicated boot-critical network service card
+```
+
+Requirement:
+
+```text
+The base Rev A system must not depend on a missing optional network card in order to perform netboot.
+```
 
 Recommended early network controller:
 
@@ -276,7 +381,7 @@ Reason:
 - Supports remote diagnostics.
 - Reduces dependency on a separate service card during bring-up.
 
-Later revisions may move networking to a service card.
+Later revisions may move networking to a service card, but Rev A must provide a concrete network service path.
 
 See:
 
@@ -306,6 +411,7 @@ ROM Chip Select
 RAM Chip Select
 I/O Chip Select
 Fabric Access Active
+Backplane BIOS Access Active
 Vector Pull Rewrite Active
 Bank Zero Select
 ```
@@ -322,6 +428,7 @@ CPU running LED
 Wait-state LED
 IRQ LED
 Fault LED
+Backplane BIOS handoff LED or status bit
 ```
 
 See:
@@ -407,6 +514,7 @@ Local RAM size
 Supported clock modes
 Supported interrupt features
 Supported fabric features
+Backplane BIOS handoff support
 Diagnostic capability flags
 ```
 
@@ -428,8 +536,15 @@ Candidate functions:
 - ROM version readout.
 - Fault-state reporting.
 - Hold-in-reset support.
+- Backplane BIOS handoff status.
 
 This management interface must remain useful even when the main CPU is not booting.
+
+See:
+
+```text
+docs/card-identity-eeprom.md
+```
 
 ## Relationship to Vega816
 
@@ -465,23 +580,24 @@ The first ATARIX CPU card should contain:
 
 ```text
 W65C816S
-Local SRAM
-Local ROM or flash
+16 MiB target CPU-local addressable RAM
+Local bootstrap / recovery ROM or flash
 CPU-local bus buffer/shim logic
 Small FPGA or CPLD bridge
-W5500 Ethernet
+W5500 Ethernet or equivalent boot-critical network path
 UART console path
 Diagnostic headers and test points
-Discovery EEPROM or ROM block
+Card identity EEPROM and management sensor cluster
 DIN41612 backplane connector
 ```
 
 ## Open Questions
 
-- Exact local SRAM size.
+- Exact local RAM technology and topology.
 - Exact ROM or flash part.
+- Exact backplane BIOS aperture and validation scheme.
 - Whether the first bridge is CPLD, small FPGA, or discrete logic.
-- Whether W5500 lives on Rev A CPU card or a service card.
+- Whether W5500 lives on Rev A CPU card or a boot-critical service card.
 - Exact management-plane electrical interface.
 - Exact DIN41612 pin usage.
 - Whether Vector Pull Rewrite is mandatory in Rev A or reserved for Rev B.
@@ -493,3 +609,5 @@ DIN41612 backplane connector
 The CPU card is not the whole computer.
 
 It is a deterministic W65C816 execution node attached to a workstation-style ATARIX fabric.
+
+It can recover itself locally, but in a complete system it should recognize and hand off platform boot policy to the backplane BIOS.
