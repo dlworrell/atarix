@@ -1,8 +1,42 @@
 # ATARIX
 
-ATARIX is a modular experimental workstation architecture built around W65C816 CPU cards, an ECP5 FPGA fabric controller, a supervisor management plane, capability-mediated resource access, and a Sun/NuBus/UPA-inspired modular backplane.
+ATARIX is a modular experimental workstation architecture built around W65C816 CPU cards, a Fabric Northbridge implemented in an ECP5 FPGA, a supervisor management plane, capability-mediated resource access, and a Sun/NuBus/UPA-inspired modular backplane.
 
 The project is intended to support operating-system research, FPGA-based system architecture, secure device mediation, hardware bring-up, heterogeneous compute experiments, and retro-modern workstation design.
+
+## Fabric Northbridge Architecture
+
+A central architectural concept in ATARIX is the Fabric Northbridge.
+
+The Fabric Northbridge is implemented in the ECP5 FPGA and serves as the integration point between processor cards and the rest of the system.
+
+Responsibilities include:
+
+- Service discovery
+- Mailbox transport
+- DMA services
+- Interrupt routing
+- Memory services
+- Resource management
+- Future multi-processor coordination
+
+Conceptually:
+
+```text
+W65C816 CPU Card
+        ↕
+Fabric Northbridge (ECP5)
+        ↕
+Memory Services
+Storage Services
+Network Services
+Accelerators
+Future CPU Cards
+```
+
+The W65C816 is not exposed directly to a shared system bus.
+
+Instead, all system-wide communication occurs through the Fabric Northbridge.
 
 ## Current Architectural Direction
 
@@ -12,25 +46,84 @@ The current design direction is:
 
 ```text
 W65C816 CPU Card
-    -> CPU-local bus, SRAM, ROM, shim/buffer logic
-    -> ATARIX fabric bridge
+    -> Local SRAM and ROM
+    -> Fabric Northbridge Interface
     -> DIN41612-style modular backplane
-    -> ULX3S LFE5U-85F fabric controller
-    -> service cards, memory services, accelerators, and future CPU cards
+    -> ECP5 Fabric Northbridge
+    -> Service-oriented architecture
+    -> Memory cards, accelerators, networking, and future CPU cards
 ```
 
 The supervisor management plane is separate from the main control/data/event fabric and remains responsible for reset, recovery, RTC, watchdogs, health monitoring, and fault logging.
+
+## Memory Architecture
+
+ATARIX uses a hierarchical memory model.
+
+### CPU-Local Memory
+
+The W65C816 CPU card is expected to contain the maximum directly addressable SRAM supported by the processor.
+
+Target direction:
+
+```text
+16 MiB CPU-local SRAM
+```
+
+CPU-local SRAM is intended for:
+
+- Kernel execution
+- Interrupt handlers
+- Direct page
+- Stack
+- Local buffers
+- Deterministic execution
+
+### Fabric Memory
+
+Large system memory resides behind the Fabric Northbridge.
+
+Target direction:
+
+```text
+ECC DDR5 Memory Cards
+        ↓
+Fabric Northbridge Memory Controller
+        ↓
+Memory Services
+```
+
+Fabric memory is intended for:
+
+- File cache
+- Framebuffers
+- Network buffers
+- Shared memory
+- Large datasets
+- Future processor cards
+
+### Memory Hierarchy
+
+```text
+L0  CPU Registers
+L1  CPU Cache
+L2  CPU Cache
+L3  CPU Cache
+L4  16 MiB CPU-local SRAM
+L5  Fabric Memory Services (ECC DDR5)
+L6  Persistent Storage Services
+```
 
 ## Rev A Baseline
 
 Current Rev A baseline selections:
 
-- **Fabric controller:** ULX3S with Lattice LFE5U-85F ECP5 FPGA
+- **Fabric Northbridge:** ULX3S with Lattice LFE5U-85F ECP5 FPGA
 - **Supervisor MCU:** RP2350
 - **CPU:** WDC W65C816S
 - **Backplane direction:** DIN41612-style modular workstation backplane
-- **CPU-card memory:** local SRAM/ROM for deterministic bring-up
-- **Large memory direction:** fabric-visible memory service rather than flat native 65C816 RAM
+- **CPU-card memory:** maximum directly addressable SRAM
+- **System memory:** ECC DDR5 memory cards behind the Fabric Northbridge
 - **Networking:** early netboot and NTP support, likely using W5500 during bring-up
 - **Diagnostics:** extensive test points, logic-analyzer access, LEDs, DIP switches, and recovery controls
 
@@ -53,80 +146,40 @@ See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 - [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md)
 - [CPU Card Architecture v1](docs/cpu-card-architecture-v1.md)
 - [Supervisor Card Architecture v1](docs/supervisor-card-v1.md)
-- [Bus Architecture](docs/bus-architecture.md)
-- [Backplane Specification](docs/backplane-spec.md)
-- [CPU Card Specification](docs/cpu-card-spec.md)
-- [ULX3S Backplane Fabric Controller](docs/ulx3s-backplane-controller.md)
-- [Clock and Reset Specification](docs/clock-reset-spec.md)
-- [Diagnostic Access v1](docs/diagnostic-access-v1.md)
-
-### Addressing, Memory, and Registers
-
-- [Data Model and Endianness](docs/data-model-and-endianness.md)
-- [Memory Map](docs/memory-map.md)
-- [Address Space Architecture](docs/address-space-architecture.md)
-- [Register Map v1](docs/register-map-v1.md)
-
-### Fabric, Communication, and Devices
-
-- [FPGA Fabric Architecture](docs/fpga-fabric.md)
-- [Mailbox Protocol v1](docs/mailbox-protocol-v1.md)
-- [Interrupt Architecture v1](docs/interrupt-architecture-v1.md)
-- [DMA Engine v1](docs/dma-engine-v1.md)
-- [Discovery ROM Format](docs/discovery-rom-format.md)
-- [Netboot and NTP Boot Services v1](docs/netboot-ntp-v1.md)
-
-### Security, Recovery, and Management
-
-- [Security Architecture](docs/security.md)
-- [Capability Model](docs/capability-model.md)
-- [Management Anomaly Detection v1](docs/management-anomaly-detection-v1.md)
-
-### Tooling and Reference Designs
-
-- [Toolchain Strategy](docs/toolchain.md)
-- [Operating System Architecture](docs/os-architecture.md)
-- [Vega816 Hardware Migration Analysis](docs/vega816-analysis.md)
+- [Fabric Northbridge Architecture v1](docs/fabric-controller-architecture-v1.md)
+- [Boot Firmware and BIOS Architecture v1](docs/boot-firmware-architecture-v1.md)
+- [NuBus and UPA Architectural Influences](docs/nubus-upa-influences-v1.md)
+- [Fabric Service Model v1](docs/fabric-service-model-v1.md)
 
 ## Architectural Influences
 
 ATARIX draws inspiration from:
 
 - W65C816 homebrew and workstation-class experimentation
+- Apple II expansion architecture
+- Apple NuBus declaration ROM architecture
+- Sun UPA and workstation fabric architecture
+- Open Firmware device-tree concepts
+- PCI capability discovery concepts
 - Vega816 CPU shim, buffering, DMA, and vector-pull-rewrite concepts
-- BB816 backplane and interconnect experiments
-- Apple NuBus-style self-description
-- Sun SBus/UPA-style workstation fabric thinking
 - Modern capability-based security and service-processor recovery models
 - Lattice ECP5 / ULX3S FPGA development
 
 ## Core Principles
 
-1. Evidence-based engineering: measure first, decide second, document always.
-2. Keep the W65C816 local bus local to the CPU card.
-3. CPU width is not system width; u24 is CPU-local, not a universal ATARIX address.
-4. Use a structured fabric interface instead of a raw shared CPU bus.
-5. Make every major subsystem observable and diagnosable.
-6. Treat devices as untrusted until granted explicit capabilities.
-7. Use the supervisor management plane for reset, recovery, RTC, watchdogs, and fault logging.
-8. Prefer staged bring-up over premature complexity.
-9. Support large memory through managed memory services, not by pretending the 65C816 has a flat server-class address space.
-
-## Near-Term Work
-
-The next high-value documents and engineering tasks are:
-
-1. `docs/fabric-controller-architecture-v1.md`
-2. `docs/backplane-pinout-v1.md`
-3. `docs/vector-pull-rewrite-v1.md`
-4. KiCad project structure for:
-   - `hardware/atarix-backplane/`
-   - `hardware/atarix-cpu-card/`
-   - `hardware/atarix-supervisor/`
-   - `hardware/atarix-fabric-controller/`
+1. Keep the W65C816 local bus local to the CPU card.
+2. Treat the Fabric Northbridge as the architectural center of the system.
+3. CPU width is not system width.
+4. Service-oriented communication over raw shared buses.
+5. Self-describing hardware and discovery.
+6. DMA-first transport.
+7. Capability-mediated resource access.
+8. Extensive observability and diagnostics.
+9. Support heterogeneous future processor cards.
+10. Separate management, discovery, and transport planes.
 
 ## Status
 
 Architectural design and early hardware-definition phase.
 
-The project is transitioning from broad system architecture into fabric-controller definition, pin allocation, and schematic-capture planning.
+The project is transitioning toward Fabric Northbridge definition, service architecture refinement, memory-card architecture, and schematic-capture planning.
