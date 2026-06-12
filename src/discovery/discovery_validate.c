@@ -40,6 +40,7 @@ static int atarix_discovery_crc_valid(const void *image, size_t image_size) {
     memcpy(header_copy, image, ATARIX_DISCOVERY_HEADER_SIZE_V1);
     mutable_header = (atarix_discovery_header_v1_t *)header_copy;
     mutable_header->header_crc32 = 0;
+    mutable_header->image_crc32 = 0;
     actual_header_crc = atarix_crc32_iso_hdlc(header_copy, ATARIX_DISCOVERY_HEADER_SIZE_V1);
 
     if (actual_header_crc != expected_header_crc) {
