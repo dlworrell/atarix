@@ -3,30 +3,14 @@
 
 #include <stdint.h>
 #include "atarix/discovery.h"
+#include "atarix/operations.h"
+#include "atarix/rings.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define ATARIX_CAPABILITY_RECORD_SIZE_V1 56u
-
-typedef enum atarix_ring {
-    ATARIX_RING_SUPERVISOR = -2,
-    ATARIX_RING_FABRIC = -1,
-    ATARIX_RING_KERNEL = 0,
-    ATARIX_RING_DRIVER = 1,
-    ATARIX_RING_SERVICE = 2,
-    ATARIX_RING_APPLICATION = 3
-} atarix_ring_t;
-
-typedef enum atarix_ring_wire {
-    ATARIX_RING_WIRE_SUPERVISOR = 0xFFFEu,
-    ATARIX_RING_WIRE_FABRIC = 0xFFFFu,
-    ATARIX_RING_WIRE_KERNEL = 0x0000u,
-    ATARIX_RING_WIRE_DRIVER = 0x0001u,
-    ATARIX_RING_WIRE_SERVICE = 0x0002u,
-    ATARIX_RING_WIRE_APPLICATION = 0x0003u
-} atarix_ring_wire_t;
 
 typedef enum atarix_trust_level {
     ATARIX_TRUST_UNTRUSTED = 0,
@@ -38,22 +22,6 @@ typedef enum atarix_trust_level {
     ATARIX_TRUST_RESERVED6 = 6,
     ATARIX_TRUST_REVOKED = 7
 } atarix_trust_level_t;
-
-typedef enum atarix_operation_id {
-    ATARIX_OPERATION_INVALID = 0x00000000u,
-    ATARIX_OPERATION_READ = 0x00000001u,
-    ATARIX_OPERATION_WRITE = 0x00000002u,
-    ATARIX_OPERATION_CONTROL = 0x00000003u,
-    ATARIX_OPERATION_RESET = 0x00000004u,
-    ATARIX_OPERATION_CAPTURE = 0x00000005u,
-    ATARIX_OPERATION_STIMULATE = 0x00000006u,
-    ATARIX_OPERATION_BOOT = 0x00000007u,
-    ATARIX_OPERATION_RECOVER = 0x00000008u,
-    ATARIX_OPERATION_PROVISION = 0x00000009u,
-    ATARIX_OPERATION_ENUMERATE = 0x0000000Au,
-    ATARIX_OPERATION_VALIDATE = 0x0000000Bu,
-    ATARIX_OPERATION_MONITOR = 0x0000000Cu
-} atarix_operation_id_t;
 
 typedef enum atarix_capability_flags {
     ATARIX_CAPABILITY_FLAG_READ_ALLOWED = 1u << 0,
@@ -86,25 +54,6 @@ typedef struct atarix_capability_record_v1 {
 
 _Static_assert(sizeof(atarix_capability_record_v1_t) == ATARIX_CAPABILITY_RECORD_SIZE_V1,
                "ATARIX Capability Record v1 must be 56 bytes");
-
-static inline uint16_t atarix_ring_to_wire(atarix_ring_t ring) {
-    switch (ring) {
-    case ATARIX_RING_SUPERVISOR:
-        return ATARIX_RING_WIRE_SUPERVISOR;
-    case ATARIX_RING_FABRIC:
-        return ATARIX_RING_WIRE_FABRIC;
-    case ATARIX_RING_KERNEL:
-        return ATARIX_RING_WIRE_KERNEL;
-    case ATARIX_RING_DRIVER:
-        return ATARIX_RING_WIRE_DRIVER;
-    case ATARIX_RING_SERVICE:
-        return ATARIX_RING_WIRE_SERVICE;
-    case ATARIX_RING_APPLICATION:
-        return ATARIX_RING_WIRE_APPLICATION;
-    default:
-        return ATARIX_RING_WIRE_APPLICATION;
-    }
-}
 
 static inline int atarix_capability_is_destructive(uint32_t flags) {
     return (flags & ATARIX_CAPABILITY_FLAG_DESTRUCTIVE_OPERATION) != 0;
