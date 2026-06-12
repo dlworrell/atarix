@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install GNU build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            autoconf \
+            automake \
+            libtool \
+            m4
+
+      - name: Bootstrap
+        run: sh bootstrap
+
+      - name: Configure
+        run: ./configure
+
+      - name: Build
+        run: make
+
+      - name: Generate Discovery fixtures
+        run: make -C tools mkdiscovery && mkdir -p tests/reference && ./tools/mkdiscovery --profile minimal --output tests/reference/minimal.discovery && ./tools/mkdiscovery --profile cpu-card --output tests/reference/cpu_card.discovery && ./tools/mkdiscovery --profile supervisor --output tests/reference/supervisor.discovery && ./tools/mkdiscovery --profile instrumentation --output tests/reference/instrumentation.discovery
+
+      - name: Test
+        run: make check
