@@ -1,8 +1,62 @@
 #include <stdint.h>
+#include <string.h>
 #include "atarix/discovery_parser.h"
 
 static int atarix_offset_aligned8(size_t offset) {
     return (offset & 7u) == 0u;
+}
+
+static uint32_t atarix_crc32_iso_hdlc(const uint8_t *data, size_t length) {
+    uint32_t crc = 0xFFFFFFFFu;
+    size_t i;
+
+    for (i = 0; i < length; ++i) {
+        int bit;
+        crc ^= data[i];
+        for (bit = 0; bit < 8; ++bit) {
+            uint32_t mask = 0u - (crc & 1u);
+            crc = (crc >> 1) ^ (0xEDB88320u & mask);
+        }
+    }
+
+    return ~crc;
+}
+
+static int atarix_discovery_crc_valid(const void *image, size_t image_size) {
+    uint8_t header_copy[ATARIX_DISCOVERY_HEADER_SIZE_V1];
+    uint8_t image_copy_stack[512];
+    uint8_t *image_copy;
+    const atarix_discovery_header_v1_t *header;
+    atarix_discovery_header_v1_t *mutable_header;
+    uint32_t expected_header_crc;
+    uint32_t expected_image_crc;
+    uint32_t actual_header_crc;
+    uint32_t actual_image_crc;
+
+    header = (const atarix_discovery_header_v1_t *)image;
+    expected_header_crc = header->header_crc32;
+    expected_image_crc = header->image_crc32;
+
+    memcpy(header_copy, image, ATARIX_DISCOVERY_HEADER_SIZE_V1);
+    mutable_header = (atarix_discovery_header_v1_t *)header_copy;
+    mutable_header->header_crc32 = 0;
+    actual_header_crc = atarix_crc32_iso_hdlc(header_copy, ATARIX_DISCOVERY_HEADER_SIZE_V1);
+
+    if (actual_header_crc != expected_header_crc) {
+        return 0;
+    }
+
+    if (image_size > sizeof(image_copy_stack)) {
+        return 1;
+    }
+
+    image_copy = image_copy_stack;
+    memcpy(image_copy, image, image_size);
+    mutable_header = (atarix_discovery_header_v1_t *)image_copy;
+    mutable_header->image_crc32 = 0;
+    actual_image_crc = atarix_crc32_iso_hdlc(image_copy, header->total_length);
+
+    return actual_image_crc == expected_image_crc;
 }
 
 int atarix_discovery_validate(const void *image, size_t image_size) {
@@ -36,6 +90,10 @@ int atarix_discovery_validate(const void *image, size_t image_size) {
         header->total_length > image_size ||
         !atarix_offset_aligned8(header->total_length)) {
         return ATARIX_DISCOVERY_ERROR_BAD_LENGTH;
+    }
+
+    if (!atarix_discovery_crc_valid(image, image_size)) {
+        return ATARIX_DISCOVERY_ERROR_BAD_CRC;
     }
 
     offset = ATARIX_DISCOVERY_HEADER_SIZE_V1;
@@ -80,6 +138,5 @@ int atarix_discovery_validate(const void *image, size_t image_size) {
         return ATARIX_DISCOVERY_ERROR_BAD_LENGTH;
     }
 
-    /* CRC validation is intentionally left for the CRC utility implementation. */
     return ATARIX_DISCOVERY_OK;
 }
