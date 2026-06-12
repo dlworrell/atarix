@@ -1,4 +1,4 @@
-bin_PROGRAMS = mkdiscovery
+bin_PROGRAMS = atarix-mkdiscovery
 
-mkdiscovery_SOURCES = mkdiscovery/mkdiscovery.c
-mkdiscovery_CPPFLAGS = -I$(top_srcdir)/include
+atarix_mkdiscovery_SOURCES = mkdiscovery/mkdiscovery.c
+atarix_mkdiscovery_CPPFLAGS = -I$(top_srcdir)/include
