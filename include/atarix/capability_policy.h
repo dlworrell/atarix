@@ -66,6 +66,10 @@ int atarix_capability_record_allows_operation(
     const atarix_capability_record_v1_t *capability,
     uint32_t operation_id);
 
+atarix_policy_status_t atarix_capability_delegation_validate(
+    const atarix_capability_record_v1_t *parent,
+    const atarix_capability_record_v1_t *child);
+
 atarix_policy_status_t atarix_policy_evaluate(
     const atarix_policy_request_t *request,
     atarix_policy_result_t *result);
