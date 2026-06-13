@@ -140,6 +140,7 @@ See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 - [Project Roadmap](docs/roadmap.md)
 - [Development Philosophy](docs/development-philosophy.md)
 - [Architecture Decision Records](docs/adr/README.md)
+- [GitHub Project Organization](docs/github-project-organization-v1.md)
 
 ### Hardware Architecture
 
@@ -150,6 +151,22 @@ See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 - [Boot Firmware and BIOS Architecture v1](docs/boot-firmware-architecture-v1.md)
 - [NuBus and UPA Architectural Influences](docs/nubus-upa-influences-v1.md)
 - [Fabric Service Model v1](docs/fabric-service-model-v1.md)
+
+## Project Governance
+
+Repository governance and workflow are documented in [GitHub Project Organization v1](docs/github-project-organization-v1.md).
+
+Key workflow:
+
+```text
+Discussion
+    -> ADR
+    -> Issue
+    -> Implementation
+    -> Test
+    -> CI Green
+    -> Close Issue
+```
 
 ## Architectural Influences
 
