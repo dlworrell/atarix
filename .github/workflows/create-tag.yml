@@ -1,0 +1,40 @@
+name: Create Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag name to create"
+        required: true
+        default: "capability-sprint-1-complete"
+      target_ref:
+        description: "Commit SHA, branch, or ref to tag"
+        required: true
+        default: "main"
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout target ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.target_ref }}
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create annotated tag
+        run: |
+          git tag -a "${{ inputs.tag_name }}" -m "${{ inputs.tag_name }}"
+
+      - name: Push tag
+        run: |
+          git push origin "refs/tags/${{ inputs.tag_name }}"
