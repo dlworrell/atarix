@@ -41,6 +41,24 @@ static int capability_uses_supervisor_authority(const atarix_capability_record_v
            capability->maximum_ring == ATARIX_RING_WIRE_SUPERVISOR;
 }
 
+static int request_capability_revoked(const atarix_policy_request_t *request) {
+    return (request->request_flags & ATARIX_POLICY_REQUEST_FLAG_CAPABILITY_REVOKED) != 0u;
+}
+
+static int request_capability_expired(const atarix_policy_request_t *request) {
+    const atarix_capability_record_v1_t *capability = request->capability;
+
+    if ((capability->flags & ATARIX_CAPABILITY_FLAG_TIME_LIMITED) == 0u) {
+        return 0;
+    }
+
+    if (capability->expiration_or_lifetime == 0u) {
+        return 1;
+    }
+
+    return request->current_time > capability->expiration_or_lifetime;
+}
+
 atarix_policy_status_t atarix_capability_record_validate(
     const atarix_capability_record_v1_t *capability) {
     if (!capability) {
@@ -171,6 +189,16 @@ atarix_policy_status_t atarix_policy_evaluate(
     }
 
     result->matched_capability = request->capability;
+
+    if (request_capability_revoked(request)) {
+        result->status = ATARIX_POLICY_STATUS_REVOKED;
+        return result->status;
+    }
+
+    if (request_capability_expired(request)) {
+        result->status = ATARIX_POLICY_STATUS_EXPIRED;
+        return result->status;
+    }
 
     if (!trust_is_usable(request->issuer_trust)) {
         result->status = ATARIX_POLICY_STATUS_UNTRUSTED_ISSUER;
