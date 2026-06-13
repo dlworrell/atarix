@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#define ATARIX_POLICY_REQUEST_FLAG_CAPABILITY_REVOKED (1u << 0)
+
 typedef enum atarix_policy_status {
     ATARIX_POLICY_STATUS_OK = 0,
     ATARIX_POLICY_STATUS_NULL = 1,
