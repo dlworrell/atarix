@@ -36,6 +36,11 @@ static int ring_in_capability_range(atarix_ring_t caller_ring, const atarix_capa
     return caller >= capability->minimum_ring && caller <= capability->maximum_ring;
 }
 
+static int capability_uses_supervisor_authority(const atarix_capability_record_v1_t *capability) {
+    return capability->minimum_ring == ATARIX_RING_WIRE_SUPERVISOR ||
+           capability->maximum_ring == ATARIX_RING_WIRE_SUPERVISOR;
+}
+
 atarix_policy_status_t atarix_capability_record_validate(
     const atarix_capability_record_v1_t *capability) {
     if (!capability) {
@@ -89,6 +94,56 @@ int atarix_capability_record_allows_operation(
     }
 
     return 1;
+}
+
+atarix_policy_status_t atarix_capability_delegation_validate(
+    const atarix_capability_record_v1_t *parent,
+    const atarix_capability_record_v1_t *child) {
+    atarix_policy_status_t status;
+
+    if (!parent || !child) {
+        return ATARIX_POLICY_STATUS_NULL;
+    }
+
+    status = atarix_capability_record_validate(parent);
+    if (status != ATARIX_POLICY_STATUS_OK) {
+        return status;
+    }
+
+    status = atarix_capability_record_validate(child);
+    if (status != ATARIX_POLICY_STATUS_OK) {
+        return status;
+    }
+
+    if ((parent->flags & ATARIX_CAPABILITY_FLAG_DELEGATION_ALLOWED) == 0u) {
+        return ATARIX_POLICY_STATUS_DELEGATION_DENIED;
+    }
+
+    if (capability_uses_supervisor_authority(parent) || capability_uses_supervisor_authority(child)) {
+        return ATARIX_POLICY_STATUS_DELEGATION_DENIED;
+    }
+
+    if (parent->target_handle != child->target_handle) {
+        return ATARIX_POLICY_STATUS_RESOURCE_DENIED;
+    }
+
+    if (parent->operation_id != child->operation_id) {
+        return ATARIX_POLICY_STATUS_OPERATION_DENIED;
+    }
+
+    if ((child->flags & ~parent->flags) != 0u) {
+        return ATARIX_POLICY_STATUS_DELEGATION_DENIED;
+    }
+
+    if (child->minimum_ring < parent->minimum_ring || child->maximum_ring < parent->minimum_ring) {
+        return ATARIX_POLICY_STATUS_DELEGATION_DENIED;
+    }
+
+    if (child->maximum_ring > parent->maximum_ring) {
+        return ATARIX_POLICY_STATUS_DELEGATION_DENIED;
+    }
+
+    return ATARIX_POLICY_STATUS_OK;
 }
 
 atarix_policy_status_t atarix_policy_evaluate(
