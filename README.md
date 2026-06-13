@@ -129,6 +129,245 @@ Current Rev A baseline selections:
 
 See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 
+## ATARIX Public Headers
+
+The public C interface is currently organized under:
+
+```text
+include/atarix/
+```
+
+Current public headers:
+
+```text
+include/atarix/discovery.h
+include/atarix/operations.h
+include/atarix/rings.h
+include/atarix/capability.h
+include/atarix/capability_engine.h
+include/atarix/capability_policy.h
+```
+
+### Discovery Subsystem
+
+```text
+include/atarix/discovery.h
+```
+
+Defines the ATARIX discovery wire format, discovery magic/version constants, discovery record alignment, discovery handles, discovery record types, and discovery flags.
+
+Discovery Sprint 1 established parsing, validation, iteration, duplicate-handle rejection, END-record validation, invalid-length rejection, unknown-record handling, and CRC coverage.
+
+### Operation Registry
+
+```text
+include/atarix/operations.h
+```
+
+Defines canonical operation identifiers used by discovery records, capability records, policy evaluation, diagnostics, CPU health operations, trace operations, and experimental operation ranges.
+
+Examples:
+
+```text
+READ
+WRITE
+CONTROL
+RESET
+BOOT
+RECOVER
+DELEGATE
+REVOKE
+```
+
+### Ring Architecture
+
+```text
+include/atarix/rings.h
+```
+
+Defines ATARIX privilege rings and wire-format mappings.
+
+Supported rings:
+
+```text
+Supervisor (-2)
+Fabric     (-1)
+Kernel      (0)
+Driver      (1)
+Service     (2)
+Application (3)
+```
+
+### Capability Record Format
+
+```text
+include/atarix/capability.h
+```
+
+Defines Capability Record v1, capability flags, trust levels, and helper predicates for destructive operations and Supervisor approval requirements.
+
+Capability Record v1 is currently fixed at:
+
+```text
+56 bytes
+```
+
+Capability flags include:
+
+```text
+READ_ALLOWED
+WRITE_ALLOWED
+CONTROL_ALLOWED
+DELEGATION_ALLOWED
+REVOCATION_SUPPORTED
+TIME_LIMITED
+DEVELOPMENT_ONLY
+RECOVERY_ONLY
+DESTRUCTIVE_OPERATION
+REQUIRES_SUPERVISOR_APPROVAL
+```
+
+### Capability Engine
+
+```text
+include/atarix/capability_engine.h
+```
+
+Defines the earlier capability-evaluation interface for matching capability records against a target handle, operation identifier, requester ring, trust level, and request flags.
+
+This interface remains part of the public header inventory and may be reconciled with `capability_policy.h` in a later sprint.
+
+### Capability Policy
+
+```text
+include/atarix/capability_policy.h
+```
+
+Defines the Capability Sprint 1 policy interface.
+
+The policy API supports:
+
+```text
+Capability record validation
+Operation allow/deny checks
+Delegation validation
+Policy request evaluation
+Policy result reporting
+Revocation request flags
+Expiration enforcement
+```
+
+Capability Sprint 1 verified the following security invariants:
+
+```text
+Validation
+Ownership
+Ring boundaries
+Delegation
+Revocation
+Expiration
+Deny-by-default behavior
+```
+
+## Security Model
+
+ATARIX uses a capability-based security architecture.
+
+Access decisions are determined by:
+
+```text
+Identity
+    -> Trust
+    -> Revocation
+    -> Expiration
+    -> Ring
+    -> Ownership
+    -> Capability
+    -> Resource
+    -> Operation
+    -> ALLOW / DENY
+```
+
+A request must satisfy all applicable constraints before authorization is granted.
+
+Core security rules:
+
+```text
+Supervisor is the root of trust.
+Fabric is the enforcement authority.
+Capabilities are principal-bound.
+Capabilities are non-transferable.
+Delegation may only reduce authority.
+Revocation is authoritative.
+Expiration is enforced.
+Default decision is DENY.
+```
+
+## Current Test Coverage
+
+Current CI baseline:
+
+```text
+TOTAL: 14
+PASS:  14
+FAIL:  0
+ERROR: 0
+```
+
+Test inventory:
+
+```text
+Discovery tests:   9
+Capability tests:  5
+Total tests:      14
+```
+
+Discovery tests:
+
+```text
+discovery/test_discovery_header
+discovery/test_discovery_crc
+discovery/test_discovery_records
+discovery/test_discovery_iteration
+discovery/test_discovery_parser_minimal
+discovery/test_duplicate_handle
+discovery/test_missing_end
+discovery/test_invalid_length
+discovery/test_unknown_record
+```
+
+Capability tests:
+
+```text
+capability/test_capability_validation
+capability/test_capability_ownership
+capability/test_capability_ring_boundary
+capability/test_capability_delegation
+capability/test_capability_revocation
+```
+
+## Recent Additions: Capability Sprint 1
+
+Capability Sprint 1 added or hardened:
+
+```text
+capability_policy.h
+capability_policy.c
+Capability validation API
+Ownership enforcement
+Ring boundary enforcement
+Delegation validation
+Revocation handling
+Expiration handling
+Capability policy tests
+```
+
+Capability Sprint 1 review:
+
+```text
+docs/reviews/capability-sprint-1-review.md
+```
+
 ## Documentation Index
 
 ### System Overview
@@ -141,6 +380,7 @@ See [Rev A Hardware Baseline](docs/rev-a-hardware-baseline.md).
 - [Development Philosophy](docs/development-philosophy.md)
 - [Architecture Decision Records](docs/adr/README.md)
 - [GitHub Project Organization](docs/github-project-organization-v1.md)
+- [Capability Sprint 1 Review](docs/reviews/capability-sprint-1-review.md)
 
 ### Hardware Architecture
 
@@ -197,6 +437,8 @@ ATARIX draws inspiration from:
 
 ## Status
 
-Architectural design and early hardware-definition phase.
+Discovery Sprint 1 and Capability Sprint 1 are complete.
 
-The project is transitioning toward Fabric Northbridge definition, service architecture refinement, memory-card architecture, and schematic-capture planning.
+The current CI baseline is 14/14 tests passing.
+
+The project is ready to proceed toward Directory Sprint 1, public API reconciliation, and first cross-subsystem integration work.
