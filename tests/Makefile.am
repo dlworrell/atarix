@@ -9,7 +9,8 @@ TESTS = \
     discovery/test_invalid_length \
     discovery/test_unknown_record \
     capability/test_capability_validation \
-    capability/test_capability_ownership
+    capability/test_capability_ownership \
+    capability/test_capability_ring_boundary
 
 check_PROGRAMS = $(TESTS)
 
@@ -28,3 +29,4 @@ discovery_test_unknown_record_SOURCES = discovery/test_unknown_record.c
 
 capability_test_capability_validation_SOURCES = capability/test_capability_validation.c
 capability_test_capability_ownership_SOURCES = capability/test_capability_ownership.c
+capability_test_capability_ring_boundary_SOURCES = capability/test_capability_ring_boundary.c
