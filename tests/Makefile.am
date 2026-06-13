@@ -11,7 +11,8 @@ TESTS = \
     capability/test_capability_validation \
     capability/test_capability_ownership \
     capability/test_capability_ring_boundary \
-    capability/test_capability_delegation
+    capability/test_capability_delegation \
+    capability/test_capability_revocation
 
 check_PROGRAMS = $(TESTS)
 
@@ -32,3 +33,4 @@ capability_test_capability_validation_SOURCES = capability/test_capability_valid
 capability_test_capability_ownership_SOURCES = capability/test_capability_ownership.c
 capability_test_capability_ring_boundary_SOURCES = capability/test_capability_ring_boundary.c
 capability_test_capability_delegation_SOURCES = capability/test_capability_delegation.c
+capability_test_capability_revocation_SOURCES = capability/test_capability_revocation.c
