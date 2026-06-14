@@ -3,17 +3,11 @@
 
 #include <stdint.h>
 
+#include "atarix/rings.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef enum atarix_ring {
-    ATARIX_RING_SUPERVISOR = 0,
-    ATARIX_RING_FABRIC = 1,
-    ATARIX_RING_DEVICE = 2,
-    ATARIX_RING_APPLICATION = 3,
-    ATARIX_RING_QUARANTINE = 4
-} atarix_ring_t;
 
 typedef enum atarix_ring_operation {
     ATARIX_RING_OPERATION_OBSERVE = 0,
