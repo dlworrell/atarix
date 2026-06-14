@@ -13,6 +13,9 @@ TESTS = \
     capability/test_capability_ring_boundary \
     capability/test_capability_delegation \
     capability/test_capability_revocation \
+    capability/test_capability_respects_ring_boundary \
+    capability/test_delegation_cannot_cross_ring_boundary \
+    capability/test_revoked_capability_still_denied_after_ring_check \
     mailbox/test_mailbox_crc \
     mailbox/test_mailbox_sequence \
     mailbox/test_mailbox_validation \
@@ -54,6 +57,9 @@ capability_test_capability_ownership_SOURCES = capability/test_capability_owners
 capability_test_capability_ring_boundary_SOURCES = capability/test_capability_ring_boundary.c
 capability_test_capability_delegation_SOURCES = capability/test_capability_delegation.c
 capability_test_capability_revocation_SOURCES = capability/test_capability_revocation.c
+capability_test_capability_respects_ring_boundary_SOURCES = capability/test_capability_respects_ring_boundary.c
+capability_test_delegation_cannot_cross_ring_boundary_SOURCES = capability/test_delegation_cannot_cross_ring_boundary.c
+capability_test_revoked_capability_still_denied_after_ring_check_SOURCES = capability/test_revoked_capability_still_denied_after_ring_check.c
 
 mailbox_test_mailbox_crc_SOURCES = mailbox/test_mailbox_crc.c
 mailbox_test_mailbox_sequence_SOURCES = mailbox/test_mailbox_sequence.c
