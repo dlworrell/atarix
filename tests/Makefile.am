@@ -22,7 +22,8 @@ TESTS = \
     mailbox/test_mailbox_max_payload \
     sim/test_sim_node \
     sim/test_sim_ping_pong \
-    sim/test_sim_version_query
+    sim/test_sim_version_query \
+    sim/test_sim_reject_invalid
 
 check_PROGRAMS = $(TESTS)
 
@@ -56,3 +57,4 @@ mailbox_test_mailbox_max_payload_SOURCES = mailbox/test_mailbox_max_payload.c
 sim_test_sim_node_SOURCES = sim/test_sim_node.c
 sim_test_sim_ping_pong_SOURCES = sim/test_sim_ping_pong.c
 sim_test_sim_version_query_SOURCES = sim/test_sim_version_query.c
+sim_test_sim_reject_invalid_SOURCES = sim/test_sim_reject_invalid.c
