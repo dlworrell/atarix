@@ -1,8 +1,125 @@
 # ATARIX
 
-ATARIX is a modular experimental workstation architecture built around W65C816 CPU cards, a Fabric Northbridge implemented in an ECP5 FPGA, a supervisor management plane, capability-mediated resource access, and a Sun/NuBus/UPA-inspired modular backplane.
+ATARIX is a modular experimental workstation architecture built around CPU-card abstraction, a Fabric Northbridge implemented in an ECP5 FPGA, a supervisor management plane, capability-mediated resource access, explicit security doctrine, and a Sun/NuBus/UPA-inspired modular backplane.
 
 The project is intended to support operating-system research, FPGA-based system architecture, secure device mediation, hardware bring-up, heterogeneous compute experiments, and retro-modern workstation design.
+
+## Architecture Doctrine
+
+ATARIX follows a trust-nothing architecture.
+
+Core doctrine:
+
+```text
+Authority is explicit.
+Trust is explicit.
+Ownership is explicit.
+Persistence is explicit.
+Cleanup is explicit.
+System objects are not exempt.
+Identity is not authority.
+Connectivity is not trust.
+Compromise is expected.
+Containment is mandatory.
+```
+
+The project treats architecture as the product and code as an implementation of that architecture.
+
+All future subsystems are reviewed against the security doctrine and architecture review process documented under:
+
+```text
+docs/doctrine/ARC-SEC.md
+docs/doctrine/ARC-REVIEW.md
+docs/reviews/architecture-review-template.md
+```
+
+## Security Objectives
+
+ATARIX is designed to reduce the impact of common exploit classes by separating code execution from authority.
+
+Primary objectives:
+
+- Prevent ambient authority.
+- Prevent privilege escalation by identity alone.
+- Prevent authority forgery.
+- Prevent capability bypass.
+- Prevent object spoofing.
+- Prevent lateral movement and pivoting.
+- Contain compromised components.
+- Minimize attack surface.
+- Fail closed by default.
+- Support revocation.
+- Support lifecycle cleanup.
+- Support forensic auditing.
+
+A successful exploit against one component should not automatically become control over the system.
+
+## Core Architectural Principles
+
+1. Everything visible to the system is an object.
+2. Names are bindings, not identities.
+3. Identity is opaque, immutable, globally unique within the fabric, and never reused.
+4. Authority is explicit, scoped, auditable, revocable, and bounded.
+5. No ambient authority.
+6. Connectivity does not imply trust.
+7. Code execution does not imply authority.
+8. Compromise must be containable.
+9. Objects are named, not exposed as raw numeric implementation details.
+10. System components are not exempt from policy.
+11. Cleanup and revocation are architectural requirements.
+12. CPU-card details must not leak into public architecture.
+13. Fabric topology must not leak into authority.
+14. Human-readable security state is a security feature.
+15. Architecture review precedes implementation.
+
+## Object and Namespace Model
+
+ATARIX separates identity, name, authority, location, and implementation.
+
+Conceptually:
+
+```text
+human-readable name
+    -> namespace binding
+    -> opaque object identity
+    -> object
+    -> ring check
+    -> capability check
+    -> operation
+```
+
+Examples of architectural names:
+
+```text
+fabric.cpu.slot0
+fabric.memory.ddr0
+fabric.storage.boot
+fabric.network.eth0
+fabric.service.audit
+system.directory
+system.object-manager
+```
+
+Numeric handles, table slots, mailbox numbers, memory addresses, and CPU-local pointers are implementation details. They are not public architectural identifiers.
+
+## Lifecycle and Cleanup
+
+Every object and resource must have:
+
+- Owner
+- Scope
+- Lifetime
+- Cleanup authority
+- Persistence policy
+- Audit visibility
+
+No object is immortal by default.
+
+No object may become orphaned silently.
+
+Temporary resources should use leases by default.
+
+Persistence must be requested and justified.
 
 ## Fabric Northbridge Architecture
 
@@ -23,7 +140,7 @@ Responsibilities include:
 Conceptually:
 
 ```text
-W65C816 CPU Card
+CPU Card
         ↕
 Fabric Northbridge (ECP5)
         ↕
@@ -45,8 +162,8 @@ ATARIX is not a raw W65C816 bus stretched across a backplane.
 The current design direction is:
 
 ```text
-W65C816 CPU Card
-    -> Local SRAM and ROM
+CPU Card
+    -> CPU-local SRAM and ROM
     -> Fabric Northbridge Interface
     -> DIN41612-style modular backplane
     -> ECP5 Fabric Northbridge
@@ -55,6 +172,8 @@ W65C816 CPU Card
 ```
 
 The supervisor management plane is separate from the main control/data/event fabric and remains responsible for reset, recovery, RTC, watchdogs, health monitoring, and fault logging.
+
+Supervisor authority is explicit. Supervisor components are not exempt from ownership, lifecycle, audit, cleanup, scope, or persistence rules.
 
 ## Memory Architecture
 
@@ -109,8 +228,8 @@ L0  CPU Registers
 L1  CPU Cache
 L2  CPU Cache
 L3  CPU Cache
-L4  16 MiB CPU-local SRAM
-L5  Fabric Memory Services (ECC DDR5)
+L4  CPU-local SRAM
+L5  Fabric Memory Services
 L6  Persistent Storage Services
 ```
 
@@ -137,18 +256,22 @@ The public C interface is currently organized under:
 include/atarix/
 ```
 
-Current public headers:
+Current public headers should be treated as implementation-facing interfaces and reconciled with the architecture specifications as the numbered ATX-SPEC documents mature.
+
+Known public header areas include:
 
 ```text
-include/atarix/discovery.h
-include/atarix/operations.h
-include/atarix/rings.h
-include/atarix/capability.h
-include/atarix/capability_engine.h
-include/atarix/capability_policy.h
+Discovery
+Operations
+Rings
+Capability records
+Capability policy
+Mailbox transport
+Simulation support
+Fabric support
 ```
 
-### Discovery Subsystem
+## Discovery Subsystem
 
 ```text
 include/atarix/discovery.h
@@ -158,7 +281,7 @@ Defines the ATARIX discovery wire format, discovery magic/version constants, dis
 
 Discovery Sprint 1 established parsing, validation, iteration, duplicate-handle rejection, END-record validation, invalid-length rejection, unknown-record handling, and CRC coverage.
 
-### Operation Registry
+## Operation Registry
 
 ```text
 include/atarix/operations.h
@@ -179,7 +302,7 @@ DELEGATE
 REVOKE
 ```
 
-### Ring Architecture
+## Ring Architecture
 
 ```text
 include/atarix/rings.h
@@ -187,120 +310,82 @@ include/atarix/rings.h
 
 Defines ATARIX privilege rings and wire-format mappings.
 
-Supported rings:
+Rings provide coarse-grained security boundaries.
+
+Capabilities provide fine-grained authority within those boundaries.
+
+Cross-ring authority must be explicit and mediated.
+
+## Capability Model
+
+Capabilities represent explicit authority.
+
+A capability should be:
+
+- Scoped
+- Revocable
+- Auditable
+- Bound to intended authority
+- Constrained by ring policy
+
+Possessing an object name or identity does not imply possession of a capability.
+
+Capability behavior is being promoted into:
 
 ```text
-Supervisor (-2)
-Fabric     (-1)
-Kernel      (0)
-Driver      (1)
-Service     (2)
-Application (3)
+docs/architecture/ATX-SPEC-003-Capability-Model.md
 ```
 
-### Capability Record Format
+## Mailbox Model
+
+Mailboxes are the architectural transport for inter-object communication.
+
+Mailbox transport does not itself grant authority.
+
+Messages must still be validated against ring policy, object state, and capabilities.
+
+Mailbox behavior is being promoted into:
 
 ```text
-include/atarix/capability.h
-```
-
-Defines Capability Record v1, capability flags, trust levels, and helper predicates for destructive operations and Supervisor approval requirements.
-
-Capability Record v1 is currently fixed at:
-
-```text
-56 bytes
-```
-
-Capability flags include:
-
-```text
-READ_ALLOWED
-WRITE_ALLOWED
-CONTROL_ALLOWED
-DELEGATION_ALLOWED
-REVOCATION_SUPPORTED
-TIME_LIMITED
-DEVELOPMENT_ONLY
-RECOVERY_ONLY
-DESTRUCTIVE_OPERATION
-REQUIRES_SUPERVISOR_APPROVAL
-```
-
-### Capability Engine
-
-```text
-include/atarix/capability_engine.h
-```
-
-Defines the earlier capability-evaluation interface for matching capability records against a target handle, operation identifier, requester ring, trust level, and request flags.
-
-This interface remains part of the public header inventory and may be reconciled with `capability_policy.h` in a later sprint.
-
-### Capability Policy
-
-```text
-include/atarix/capability_policy.h
-```
-
-Defines the Capability Sprint 1 policy interface.
-
-The policy API supports:
-
-```text
-Capability record validation
-Operation allow/deny checks
-Delegation validation
-Policy request evaluation
-Policy result reporting
-Revocation request flags
-Expiration enforcement
-```
-
-Capability Sprint 1 verified the following security invariants:
-
-```text
-Validation
-Ownership
-Ring boundaries
-Delegation
-Revocation
-Expiration
-Deny-by-default behavior
+docs/architecture/ATX-SPEC-005-Mailbox-Model.md
 ```
 
 ## Security Model
 
-ATARIX uses a capability-based security architecture.
+ATARIX uses explicit authority and deny-by-default security.
 
-Access decisions are determined by:
+Access decisions are constrained by:
 
 ```text
-Identity
-    -> Trust
-    -> Revocation
-    -> Expiration
-    -> Ring
+Object identity
+    -> Ring policy
     -> Ownership
     -> Capability
-    -> Resource
+    -> Revocation
+    -> Expiration
+    -> Object lifecycle
+    -> Resource policy
     -> Operation
     -> ALLOW / DENY
 ```
 
-A request must satisfy all applicable constraints before authorization is granted.
-
 Core security rules:
 
 ```text
-Supervisor is the root of trust.
-Fabric is the enforcement authority.
-Capabilities are principal-bound.
-Capabilities are non-transferable.
-Delegation may only reduce authority.
-Revocation is authoritative.
-Expiration is enforced.
-Default decision is DENY.
+Authority must never be inferred from execution.
+Connectivity does not imply trust.
+Compromise is expected and must be containable.
+No ambient authority.
+Identity theft is not authority theft.
+Secure by default.
+Fail closed.
+System objects are not exempt.
+```
+
+The controlling draft is:
+
+```text
+docs/architecture/ATX-SPEC-001-Security-Model.md
 ```
 
 ## Current Test Coverage
@@ -308,9 +393,12 @@ Default decision is DENY.
 Current CI baseline:
 
 ```text
-TOTAL: 14
-PASS:  14
+TOTAL: 40
+PASS:  40
+SKIP:  0
+XFAIL: 0
 FAIL:  0
+XPASS: 0
 ERROR: 0
 ```
 
@@ -318,55 +406,48 @@ Test inventory:
 
 ```text
 Discovery tests:   9
-Capability tests:  5
-Total tests:      14
+Capability tests:  8
+Mailbox tests:    10
+Simulation tests:  8
+Ring tests:        5
+Total tests:      40
 ```
 
-Discovery tests:
+Test coverage currently includes:
 
-```text
-discovery/test_discovery_header
-discovery/test_discovery_crc
-discovery/test_discovery_records
-discovery/test_discovery_iteration
-discovery/test_discovery_parser_minimal
-discovery/test_duplicate_handle
-discovery/test_missing_end
-discovery/test_invalid_length
-discovery/test_unknown_record
-```
+- Discovery parsing and validation
+- Capability validation, ownership, ring boundaries, delegation, and revocation
+- Capability/ring interaction regression tests
+- Mailbox CRC, sequencing, validation, duplicate, out-of-order, unknown-type, payload, and ring restrictions
+- Simulation node, ping-pong, version, invalid-message, and fabric tests
+- Ring self-access, upward denial, downward allowance, quarantine denial, and supervisor override tests
 
-Capability tests:
+## Architecture Specifications
 
-```text
-capability/test_capability_validation
-capability/test_capability_ownership
-capability/test_capability_ring_boundary
-capability/test_capability_delegation
-capability/test_capability_revocation
-```
+Numbered architecture specifications:
 
-## Recent Additions: Capability Sprint 1
+- [ATX-SPEC-001 Security Model](docs/architecture/ATX-SPEC-001-Security-Model.md)
+- [ATX-SPEC-002 Authority Model](docs/architecture/ATX-SPEC-002-Authority-Model.md)
+- [ATX-SPEC-003 Capability Model](docs/architecture/ATX-SPEC-003-Capability-Model.md)
+- [ATX-SPEC-004 Lifecycle Model](docs/architecture/ATX-SPEC-004-Lifecycle-Model.md)
+- [ATX-SPEC-005 Mailbox Model](docs/architecture/ATX-SPEC-005-Mailbox-Model.md)
+- [ATX-SPEC-006 Object Model](docs/architecture/ATX-SPEC-006-Object-Model.md)
+- [ATX-SPEC-007 Namespace Model](docs/architecture/ATX-SPEC-007-Namespace-Model.md)
 
-Capability Sprint 1 added or hardened:
+Architecture foundation drafts:
 
-```text
-capability_policy.h
-capability_policy.c
-Capability validation API
-Ownership enforcement
-Ring boundary enforcement
-Delegation validation
-Revocation handling
-Expiration handling
-Capability policy tests
-```
+- [Architectural Pillars](docs/architecture/pillars.md)
+- [Design Principles](docs/architecture/design-principles.md)
+- [Object Model](docs/architecture/object-model.md)
+- [Namespace Model](docs/architecture/namespace-model.md)
+- [Directory Service Architecture](docs/architecture/directory-service.md)
+- [Architecture Review Checklist](docs/architecture/architecture-review-checklist.md)
 
-Capability Sprint 1 review:
+Doctrine and review process:
 
-```text
-docs/reviews/capability-sprint-1-review.md
-```
+- [Security Doctrine](docs/doctrine/ARC-SEC.md)
+- [Architecture Review Doctrine](docs/doctrine/ARC-REVIEW.md)
+- [Architecture Review Template](docs/reviews/architecture-review-template.md)
 
 ## Documentation Index
 
@@ -396,17 +477,35 @@ docs/reviews/capability-sprint-1-review.md
 
 Repository governance and workflow are documented in [GitHub Project Organization v1](docs/github-project-organization-v1.md).
 
-Key workflow:
+Current architecture workflow:
 
 ```text
 Discussion
-    -> ADR
+    -> Doctrine / Specification
+    -> Architecture Review
     -> Issue
     -> Implementation
     -> Test
     -> CI Green
-    -> Close Issue
+    -> Merge
 ```
+
+Before implementation, new work should answer:
+
+```text
+Does this create authority?
+Does this transfer authority?
+Does this persist authority?
+Does this expose authority?
+Does this create new attack surface?
+Does this create objects?
+Does this create garbage?
+Does this survive reboot?
+Does this survive uninstall?
+Does this comply with ARC-SEC?
+```
+
+If the answer is unclear, update the specification before writing code.
 
 ## Architectural Influences
 
@@ -419,26 +518,37 @@ ATARIX draws inspiration from:
 - Open Firmware device-tree concepts
 - PCI capability discovery concepts
 - Vega816 CPU shim, buffering, DMA, and vector-pull-rewrite concepts
-- Modern capability-based security and service-processor recovery models
+- Capability-based security systems
+- OpenBSD-style distrust of unsafe assumptions
+- Service-processor recovery models
 - Lattice ECP5 / ULX3S FPGA development
-
-## Core Principles
-
-1. Keep the W65C816 local bus local to the CPU card.
-2. Treat the Fabric Northbridge as the architectural center of the system.
-3. CPU width is not system width.
-4. Service-oriented communication over raw shared buses.
-5. Self-describing hardware and discovery.
-6. DMA-first transport.
-7. Capability-mediated resource access.
-8. Extensive observability and diagnostics.
-9. Support heterogeneous future processor cards.
-10. Separate management, discovery, and transport planes.
 
 ## Status
 
-Discovery Sprint 1 and Capability Sprint 1 are complete.
+Completed:
 
-The current CI baseline is 14/14 tests passing.
+- Discovery Sprint 1
+- Capability Sprint 1
+- Ring security model implementation tests
+- Mailbox security regression tests
+- Simulation fabric tests
+- Security doctrine foundation
+- Architecture review process foundation
+- ATX-SPEC-001 through ATX-SPEC-007 draft structure
 
-The project is ready to proceed toward Directory Sprint 1, public API reconciliation, and first cross-subsystem integration work.
+Current phase:
+
+```text
+Architecture Phase 2: Core System Semantics
+```
+
+Upcoming architecture work:
+
+- ATX-SPEC-008 Directory Service Model
+- ATX-SPEC-009 Resource Model
+- ATX-SPEC-010 Audit Model
+- ATX-SPEC-011 Error Model
+- ATX-SPEC-012 Versioning Model
+- ATX-SPEC-013 Policy Model
+
+The current CI baseline is 40/40 tests passing.
