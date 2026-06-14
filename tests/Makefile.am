@@ -12,12 +12,15 @@ TESTS = \
     capability/test_capability_ownership \
     capability/test_capability_ring_boundary \
     capability/test_capability_delegation \
-    capability/test_capability_revocation
+    capability/test_capability_revocation \
+    mailbox/test_mailbox_crc \
+    mailbox/test_mailbox_sequence \
+    mailbox/test_mailbox_validation
 
 check_PROGRAMS = $(TESTS)
 
 LDADD = ../src/libatarix.a
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox
 
 discovery_test_discovery_header_SOURCES = discovery/test_discovery_header.c
 discovery_test_discovery_crc_SOURCES = discovery/test_discovery_crc.c
@@ -34,3 +37,7 @@ capability_test_capability_ownership_SOURCES = capability/test_capability_owners
 capability_test_capability_ring_boundary_SOURCES = capability/test_capability_ring_boundary.c
 capability_test_capability_delegation_SOURCES = capability/test_capability_delegation.c
 capability_test_capability_revocation_SOURCES = capability/test_capability_revocation.c
+
+mailbox_test_mailbox_crc_SOURCES = mailbox/test_mailbox_crc.c
+mailbox_test_mailbox_sequence_SOURCES = mailbox/test_mailbox_sequence.c
+mailbox_test_mailbox_validation_SOURCES = mailbox/test_mailbox_validation.c
