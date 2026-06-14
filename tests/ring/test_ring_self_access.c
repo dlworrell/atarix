@@ -12,10 +12,10 @@ int main(void) {
         failures++;
     }
 
-    if (atarix_ring_can_access(ATARIX_RING_DEVICE,
-                               ATARIX_RING_DEVICE,
+    if (atarix_ring_can_access(ATARIX_RING_DRIVER,
+                               ATARIX_RING_DRIVER,
                                ATARIX_RING_OPERATION_OBSERVE) != ATARIX_RING_STATUS_ALLOW) {
-        printf("device self observe denied\n");
+        printf("driver self observe denied\n");
         failures++;
     }
 
