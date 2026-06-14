@@ -20,9 +20,9 @@ int main(void) {
     }
 
     if (atarix_ring_can_access(ATARIX_RING_APPLICATION,
-                               ATARIX_RING_DEVICE,
+                               ATARIX_RING_DRIVER,
                                ATARIX_RING_OPERATION_QUARANTINE) != ATARIX_RING_STATUS_DENY) {
-        printf("application restrict device should be denied\n");
+        printf("application restrict driver should be denied\n");
         failures++;
     }
 
