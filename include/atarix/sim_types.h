@@ -1,0 +1,30 @@
+#ifndef ATARIX_SIM_TYPES_H
+#define ATARIX_SIM_TYPES_H
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define ATARIX_SIM_NODE_SUPERVISOR      0x0000u
+#define ATARIX_SIM_NODE_FABRIC_BASE     0x0001u
+#define ATARIX_SIM_NODE_FABRIC_MAX      0x00FFu
+#define ATARIX_SIM_NODE_CPU_BASE        0x0100u
+#define ATARIX_SIM_NODE_CPU_MAX         0x01FFu
+#define ATARIX_SIM_NODE_STORAGE_BASE    0x0200u
+#define ATARIX_SIM_NODE_STORAGE_MAX     0x02FFu
+#define ATARIX_SIM_NODE_DISPLAY_BASE    0x0300u
+#define ATARIX_SIM_NODE_DISPLAY_MAX     0x03FFu
+#define ATARIX_SIM_NODE_NETWORK_BASE    0x0400u
+#define ATARIX_SIM_NODE_NETWORK_MAX     0x04FFu
+#define ATARIX_SIM_NODE_PERIPHERAL_BASE 0x0500u
+#define ATARIX_SIM_NODE_PERIPHERAL_MAX  0x05FFu
+#define ATARIX_SIM_NODE_TEST_BASE       0xFF00u
+#define ATARIX_SIM_NODE_TEST_MAX        0xFFFFu
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ATARIX_SIM_TYPES_H */
