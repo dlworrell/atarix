@@ -80,6 +80,18 @@ The simulator is a reference implementation, not a shortcut or mock that bypasse
 
 Simulator security rules, capability checks, mailbox validation, and service boundaries must match the future hardware model.
 
+### 13. Ring Security Is Mandatory
+
+ATARIX uses ring-based security boundaries.
+
+Higher-trust rings may supervise, delegate, constrain, or revoke authority from lower-trust rings.
+
+Lower-trust rings may not directly command, inspect, mutate, bypass, or impersonate higher-trust rings.
+
+Ring boundaries are enforced by Supervisor policy, capability checks, mailbox validation, service dispatch, and fabric routing rules.
+
+Capabilities grant authority only within the maximum authority permitted by the requester's ring and the target's ring policy.
+
 ## Required Access Path
 
 The permitted protected-access path is:
@@ -88,6 +100,7 @@ The permitted protected-access path is:
 Application
     -> Service
     -> Capability Policy
+    -> Ring Policy
     -> Resource
     -> Implementation
 ```
@@ -99,6 +112,37 @@ Application
     -> Address
     -> Hardware
 ```
+
+## Security Decision Chain
+
+Protected operations must satisfy the full security chain:
+
+```text
+Deny by default
+    -> Ring boundary check
+    -> Capability validation
+    -> Revocation check
+    -> Mailbox validation
+    -> Service policy
+    -> Resource policy
+    -> Authorized operation
+```
+
+Failure at any step denies the operation.
+
+## Suggested Ring Model
+
+The initial ATARIX ring model is:
+
+```text
+Ring 0: Supervisor / Root Authority
+Ring 1: Fabric Management / Trusted System Services
+Ring 2: Device Services / Card Firmware
+Ring 3: Applications / User Workloads
+Ring 4: Untrusted or Quarantined Nodes
+```
+
+The exact ring count and names may evolve by ADR, but the existence of ring boundaries is mandatory.
 
 ## Review Rule
 
