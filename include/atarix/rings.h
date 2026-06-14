@@ -13,7 +13,8 @@ typedef enum atarix_ring {
     ATARIX_RING_KERNEL = 0,
     ATARIX_RING_DRIVER = 1,
     ATARIX_RING_SERVICE = 2,
-    ATARIX_RING_APPLICATION = 3
+    ATARIX_RING_APPLICATION = 3,
+    ATARIX_RING_QUARANTINE = 4
 } atarix_ring_t;
 
 typedef enum atarix_ring_wire {
@@ -22,7 +23,8 @@ typedef enum atarix_ring_wire {
     ATARIX_RING_WIRE_KERNEL = 0x0000u,
     ATARIX_RING_WIRE_DRIVER = 0x0001u,
     ATARIX_RING_WIRE_SERVICE = 0x0002u,
-    ATARIX_RING_WIRE_APPLICATION = 0x0003u
+    ATARIX_RING_WIRE_APPLICATION = 0x0003u,
+    ATARIX_RING_WIRE_QUARANTINE = 0x0004u
 } atarix_ring_wire_t;
 
 static inline uint16_t atarix_ring_to_wire(atarix_ring_t ring) {
@@ -39,6 +41,8 @@ static inline uint16_t atarix_ring_to_wire(atarix_ring_t ring) {
         return ATARIX_RING_WIRE_SERVICE;
     case ATARIX_RING_APPLICATION:
         return ATARIX_RING_WIRE_APPLICATION;
+    case ATARIX_RING_QUARANTINE:
+        return ATARIX_RING_WIRE_QUARANTINE;
     default:
         return ATARIX_RING_WIRE_APPLICATION;
     }
