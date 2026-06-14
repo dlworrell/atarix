@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "atarix/ring.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,7 +23,8 @@ typedef enum atarix_mailbox_status {
     ATARIX_MAILBOX_STATUS_SEQUENCE_ERROR = 5,
     ATARIX_MAILBOX_STATUS_DUPLICATE = 6,
     ATARIX_MAILBOX_STATUS_OUT_OF_ORDER = 7,
-    ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE = 8
+    ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE = 8,
+    ATARIX_MAILBOX_STATUS_RING_DENIED = 9
 } atarix_mailbox_status_t;
 
 typedef enum atarix_mailbox_message_type {
@@ -77,6 +80,11 @@ atarix_mailbox_status_t atarix_mailbox_validate_header(
 atarix_mailbox_status_t atarix_mailbox_sequence_accept(
     atarix_mailbox_sequence_window_t *window,
     uint32_t sequence);
+
+atarix_mailbox_status_t atarix_mailbox_ring_authorize(
+    atarix_ring_t source_ring,
+    atarix_ring_t target_ring,
+    uint16_t message_type);
 
 int atarix_mailbox_message_type_known(uint16_t type);
 
