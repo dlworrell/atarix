@@ -9,6 +9,7 @@ libatarix_a_SOURCES = \
     capability/capability_policy.c \
     mailbox/mailbox.c \
     sim/sim_node.c \
-    sim/sim_mailbox.c
+    sim/sim_mailbox.c \
+    sim/sim_fabric.c
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
