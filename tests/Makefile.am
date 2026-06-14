@@ -27,12 +27,17 @@ TESTS = \
     sim/test_sim_fabric_attach \
     sim/test_sim_fabric_duplicate \
     sim/test_sim_fabric_capacity \
-    sim/test_sim_fabric_lookup_missing
+    sim/test_sim_fabric_lookup_missing \
+    ring/test_ring_self_access \
+    ring/test_ring_upward_denied \
+    ring/test_ring_downward_allowed \
+    ring/test_ring_quarantine_denied \
+    ring/test_ring_supervisor_override
 
 check_PROGRAMS = $(TESTS)
 
 LDADD = ../src/libatarix.a
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox -I$(top_srcdir)/tests/sim
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox -I$(top_srcdir)/tests/sim -I$(top_srcdir)/tests/ring
 
 discovery_test_discovery_header_SOURCES = discovery/test_discovery_header.c
 discovery_test_discovery_crc_SOURCES = discovery/test_discovery_crc.c
@@ -66,3 +71,9 @@ sim_test_sim_fabric_attach_SOURCES = sim/test_sim_fabric_attach.c
 sim_test_sim_fabric_duplicate_SOURCES = sim/test_sim_fabric_duplicate.c
 sim_test_sim_fabric_capacity_SOURCES = sim/test_sim_fabric_capacity.c
 sim_test_sim_fabric_lookup_missing_SOURCES = sim/test_sim_fabric_lookup_missing.c
+
+ring_test_ring_self_access_SOURCES = ring/test_ring_self_access.c
+ring_test_ring_upward_denied_SOURCES = ring/test_ring_upward_denied.c
+ring_test_ring_downward_allowed_SOURCES = ring/test_ring_downward_allowed.c
+ring_test_ring_quarantine_denied_SOURCES = ring/test_ring_quarantine_denied.c
+ring_test_ring_supervisor_override_SOURCES = ring/test_ring_supervisor_override.c
