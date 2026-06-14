@@ -15,7 +15,11 @@ TESTS = \
     capability/test_capability_revocation \
     mailbox/test_mailbox_crc \
     mailbox/test_mailbox_sequence \
-    mailbox/test_mailbox_validation
+    mailbox/test_mailbox_validation \
+    mailbox/test_mailbox_duplicate \
+    mailbox/test_mailbox_out_of_order \
+    mailbox/test_mailbox_unknown_type \
+    mailbox/test_mailbox_max_payload
 
 check_PROGRAMS = $(TESTS)
 
@@ -41,3 +45,7 @@ capability_test_capability_revocation_SOURCES = capability/test_capability_revoc
 mailbox_test_mailbox_crc_SOURCES = mailbox/test_mailbox_crc.c
 mailbox_test_mailbox_sequence_SOURCES = mailbox/test_mailbox_sequence.c
 mailbox_test_mailbox_validation_SOURCES = mailbox/test_mailbox_validation.c
+mailbox_test_mailbox_duplicate_SOURCES = mailbox/test_mailbox_duplicate.c
+mailbox_test_mailbox_out_of_order_SOURCES = mailbox/test_mailbox_out_of_order.c
+mailbox_test_mailbox_unknown_type_SOURCES = mailbox/test_mailbox_unknown_type.c
+mailbox_test_mailbox_max_payload_SOURCES = mailbox/test_mailbox_max_payload.c
