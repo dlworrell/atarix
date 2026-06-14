@@ -6,6 +6,7 @@ libatarix_a_SOURCES = \
     discovery/discovery_validate.c \
     discovery/discovery_parser.c \
     capability/capability_evaluator.c \
-    capability/capability_policy.c
+    capability/capability_policy.c \
+    mailbox/mailbox.c
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
