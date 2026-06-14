@@ -23,6 +23,9 @@ TESTS = \
     mailbox/test_mailbox_out_of_order \
     mailbox/test_mailbox_unknown_type \
     mailbox/test_mailbox_max_payload \
+    mailbox/test_mailbox_ring_restricted \
+    mailbox/test_mailbox_supervisor_endpoint_denied \
+    mailbox/test_mailbox_quarantine_isolation \
     sim/test_sim_node \
     sim/test_sim_ping_pong \
     sim/test_sim_version_query \
@@ -68,6 +71,9 @@ mailbox_test_mailbox_duplicate_SOURCES = mailbox/test_mailbox_duplicate.c
 mailbox_test_mailbox_out_of_order_SOURCES = mailbox/test_mailbox_out_of_order.c
 mailbox_test_mailbox_unknown_type_SOURCES = mailbox/test_mailbox_unknown_type.c
 mailbox_test_mailbox_max_payload_SOURCES = mailbox/test_mailbox_max_payload.c
+mailbox_test_mailbox_ring_restricted_SOURCES = mailbox/test_mailbox_ring_restricted.c
+mailbox_test_mailbox_supervisor_endpoint_denied_SOURCES = mailbox/test_mailbox_supervisor_endpoint_denied.c
+mailbox_test_mailbox_quarantine_isolation_SOURCES = mailbox/test_mailbox_quarantine_isolation.c
 
 sim_test_sim_node_SOURCES = sim/test_sim_node.c
 sim_test_sim_ping_pong_SOURCES = sim/test_sim_ping_pong.c
