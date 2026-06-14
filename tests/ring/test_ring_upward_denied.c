@@ -12,10 +12,10 @@ int main(void) {
         failures++;
     }
 
-    if (atarix_ring_can_access(ATARIX_RING_DEVICE,
+    if (atarix_ring_can_access(ATARIX_RING_DRIVER,
                                ATARIX_RING_FABRIC,
                                ATARIX_RING_OPERATION_REQUEST) != ATARIX_RING_STATUS_DENY) {
-        printf("device to fabric should be denied\n");
+        printf("driver to fabric should be denied\n");
         failures++;
     }
 
