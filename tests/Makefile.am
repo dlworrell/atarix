@@ -19,12 +19,13 @@ TESTS = \
     mailbox/test_mailbox_duplicate \
     mailbox/test_mailbox_out_of_order \
     mailbox/test_mailbox_unknown_type \
-    mailbox/test_mailbox_max_payload
+    mailbox/test_mailbox_max_payload \
+    sim/test_sim_node
 
 check_PROGRAMS = $(TESTS)
 
 LDADD = ../src/libatarix.a
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox -I$(top_srcdir)/tests/sim
 
 discovery_test_discovery_header_SOURCES = discovery/test_discovery_header.c
 discovery_test_discovery_crc_SOURCES = discovery/test_discovery_crc.c
@@ -49,3 +50,5 @@ mailbox_test_mailbox_duplicate_SOURCES = mailbox/test_mailbox_duplicate.c
 mailbox_test_mailbox_out_of_order_SOURCES = mailbox/test_mailbox_out_of_order.c
 mailbox_test_mailbox_unknown_type_SOURCES = mailbox/test_mailbox_unknown_type.c
 mailbox_test_mailbox_max_payload_SOURCES = mailbox/test_mailbox_max_payload.c
+
+sim_test_sim_node_SOURCES = sim/test_sim_node.c
