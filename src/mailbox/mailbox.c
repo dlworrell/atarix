@@ -136,3 +136,23 @@ atarix_mailbox_status_t atarix_mailbox_sequence_accept(
     window->last_sequence = sequence;
     return ATARIX_MAILBOX_STATUS_OK;
 }
+
+atarix_mailbox_status_t atarix_mailbox_ring_authorize(
+    atarix_ring_t source_ring,
+    atarix_ring_t target_ring,
+    uint16_t message_type) {
+    atarix_ring_status_t ring_status;
+
+    if (!atarix_mailbox_message_type_known(message_type)) {
+        return ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE;
+    }
+
+    ring_status = atarix_ring_can_access(source_ring,
+                                         target_ring,
+                                         ATARIX_RING_OPERATION_REQUEST);
+    if (ring_status != ATARIX_RING_STATUS_ALLOW) {
+        return ATARIX_MAILBOX_STATUS_RING_DENIED;
+    }
+
+    return ATARIX_MAILBOX_STATUS_OK;
+}
