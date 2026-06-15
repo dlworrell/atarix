@@ -651,22 +651,167 @@ Compatibility error mapping should be table-driven and versioned.
 
 Unknown native errors must not be silently converted to success.
 
-## Recovery Requirements
+## Recovery And Reconciliation
 
-Recovery must reconcile compatibility state with native Atarix state.
+Compatibility recovery must reconcile POSIX-facing state against native Atarix state before normal execution resumes.
 
-Examples:
+Core rule:
 
 ```text
-Descriptor table vs native capabilities
-Path bindings vs directory state
-Process table vs object lifecycle
-Socket state vs network service state
-Storage view vs storage objects
-Audit continuity
+Compatibility recovery restores execution.
+Compatibility recovery does not restore authority.
 ```
 
-If reconciliation fails, the compatibility environment remains degraded or quarantined.
+Recovery trusts native Atarix state, not reconstructed compatibility metadata.
+
+Compatibility metadata may be used as evidence during recovery, but it must not grant or restore authority by itself.
+
+## Recovery Phases
+
+Suggested compatibility recovery phases:
+
+```text
+DETECT
+FREEZE
+INSPECT
+RECONCILE
+RESTORE
+VERIFY
+RESUME
+```
+
+A compatibility environment may not resume normal execution until required reconciliation succeeds or policy explicitly allows degraded operation.
+
+## Descriptor Reconciliation
+
+Descriptor reconciliation validates each compatibility descriptor against native backing state.
+
+For each descriptor, recovery should verify:
+
+```text
+Descriptor record exists
+Descriptor generation matches expected state
+Backing capability exists
+Backing capability is valid
+Backing object or service exists
+Backing object lifecycle permits use
+Open mode remains policy-valid
+Audit state is preserved where required
+```
+
+If reconciliation fails, the descriptor must become invalid, restricted, or quarantined.
+
+Recovery must not silently recreate descriptor authority.
+
+## Path Reconciliation
+
+Path reconciliation validates compatibility namespace state against the native namespace, directory, and object model.
+
+For each path binding, recovery should verify:
+
+```text
+Compatibility path record exists
+Namespace view is still valid
+Directory binding exists
+Target object identity matches expected generation where required
+Policy permits continued visibility
+Target lifecycle permits use
+```
+
+If the path cannot be resolved safely, the path becomes unresolved or restricted.
+
+Path recovery must not grant access.
+
+## Process Reconciliation
+
+Process reconciliation validates compatibility process state against native object lifecycle state.
+
+For each process, recovery should verify:
+
+```text
+Compatibility process record exists
+Native object identity exists
+Native lifecycle state permits continuation
+Descriptor table has reconciled
+Namespace view has reconciled
+Resource allocation is valid
+Policy permits resumed execution
+Audit context is continuous or explicitly degraded
+```
+
+A process must not resume merely because a compatibility process identifier exists.
+
+## Network Reconciliation
+
+Network endpoint reconciliation validates compatibility network descriptors against the Network Service.
+
+Recovery should verify:
+
+```text
+Network descriptor exists
+Endpoint capability remains valid
+Network service identity is available
+Connection or endpoint lifecycle is known
+Resource accounting is valid
+Policy permits continued use
+```
+
+Broken or ambiguous network endpoints should fail cleanly and require reconnect or explicit recovery policy.
+
+## Audit Continuity
+
+Compatibility recovery must verify audit continuity where required.
+
+Recovery should check:
+
+```text
+Last known audit event
+Expected next event relationship
+Environment audit identity
+Process audit identity
+Recovery event record
+Integrity status where applicable
+```
+
+If audit continuity cannot be established, policy decides whether the environment becomes degraded, quarantined, or stopped.
+
+Audit uncertainty must be explicit.
+
+## Quarantine Rules
+
+A compatibility environment should enter quarantine when recovery discovers:
+
+```text
+Authority mismatch
+Descriptor mismatch
+Object identity mismatch
+Namespace corruption
+Audit discontinuity
+Unknown recovery state
+Unsupported compatibility version
+Untrusted service binding
+```
+
+Quarantine blocks normal execution.
+
+Policy may allow limited inspection, export, or repair operations.
+
+Quarantine must not become a path to broader authority.
+
+## Recovery Outcomes
+
+Compatibility recovery may produce:
+
+```text
+RECOVERED
+RECOVERED_DEGRADED
+QUARANTINED
+FAILED
+MANUAL_REVIEW_REQUIRED
+UNKNOWN
+```
+
+Unknown recovery outcome must fail closed for authority-bearing operations.
 
 ## Initial POSIX Sprint Scope
 
@@ -698,6 +843,7 @@ Basic tests
 - Define FOSS application porting guide.
 - Define compatibility IPC mappings against ATX-SPEC-005.
 - Define shared memory mapping against ATX-SPEC-021.
+- Define compatibility recovery test cases against ATX-SPEC-018.
 
 ## Summary
 
@@ -712,5 +858,6 @@ POSIX is a compatibility personality.
 Path lookup is not access.
 Descriptors are compatibility handles.
 Native IPC is mailbox-based.
+Compatibility recovery restores execution, not authority.
 POSIX compatibility must not weaken native Atarix security semantics.
 ```
