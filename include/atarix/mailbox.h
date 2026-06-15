@@ -14,6 +14,11 @@ extern "C" {
 #define ATARIX_MAILBOX_HEADER_SIZE_V1 16u
 #define ATARIX_MAILBOX_MAX_PAYLOAD_V1 4096u
 
+/*
+ * Status values are part of the mailbox ABI.
+ * Keep numeric values stable once used by software, firmware, or fabric logic.
+ * CRC is an integrity check only; it is not authority or authentication.
+ */
 typedef enum atarix_mailbox_status {
     ATARIX_MAILBOX_STATUS_OK = 0,
     ATARIX_MAILBOX_STATUS_NULL = 1,
@@ -24,7 +29,12 @@ typedef enum atarix_mailbox_status {
     ATARIX_MAILBOX_STATUS_DUPLICATE = 6,
     ATARIX_MAILBOX_STATUS_OUT_OF_ORDER = 7,
     ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE = 8,
-    ATARIX_MAILBOX_STATUS_RING_DENIED = 9
+    ATARIX_MAILBOX_STATUS_RING_DENIED = 9,
+    ATARIX_MAILBOX_STATUS_POLICY_DENIED = 10,
+    ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED = 11,
+    ATARIX_MAILBOX_STATUS_QUARANTINED = 12,
+    ATARIX_MAILBOX_STATUS_BUSY = 13,
+    ATARIX_MAILBOX_STATUS_TIMEOUT = 14
 } atarix_mailbox_status_t;
 
 typedef enum atarix_mailbox_message_type {
@@ -40,7 +50,13 @@ typedef enum atarix_mailbox_message_type {
     ATARIX_MAILBOX_MESSAGE_RESET_REQUEST = 0x0009,
     ATARIX_MAILBOX_MESSAGE_FAULT_REPORT = 0x000A,
     ATARIX_MAILBOX_MESSAGE_DISCOVERY_RECORD_PUSH = 0x000B,
-    ATARIX_MAILBOX_MESSAGE_CAPABILITY_EVALUATE = 0x000C
+    ATARIX_MAILBOX_MESSAGE_CAPABILITY_EVALUATE = 0x000C,
+
+    /* ATX-SPEC-020 lookup acceleration service messages. */
+    ATARIX_MAILBOX_MESSAGE_INDEX_QUERY = 0x0020,
+    ATARIX_MAILBOX_MESSAGE_INDEX_MUTATE = 0x0021,
+    ATARIX_MAILBOX_MESSAGE_INDEX_RECOVER = 0x0022,
+    ATARIX_MAILBOX_MESSAGE_INDEX_STATUS = 0x0023
 } atarix_mailbox_message_type_t;
 
 #pragma pack(push, 1)
