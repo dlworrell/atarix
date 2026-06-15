@@ -294,6 +294,121 @@ A descriptor inherited by a new compatibility execution object must carry only t
 
 If backing authority is revoked, stale descriptors must become unusable or enter an explicit error state.
 
+## Processes
+
+A POSIX process is a compatibility execution object.
+
+It has both a POSIX-facing identity and a native Atarix object identity.
+
+A process record should include:
+
+```text
+Compatibility process identifier
+Native object identity
+Parent relationship where applicable
+Compatibility environment identity
+Identity labels
+Capability set
+Descriptor table reference
+Namespace view
+Resource allocation
+Lifecycle state
+Audit context
+Recovery state
+```
+
+A process identifier is not authority.
+
+Process existence does not imply a right to observe, interrupt, inspect, debug, or control the process.
+
+Those operations remain native authority-bearing operations mediated by capability and policy.
+
+## Threads
+
+POSIX threads are compatibility execution contexts within a process object.
+
+A thread record should include:
+
+```text
+Compatibility thread identifier
+Native execution context identity
+Owning process identity
+Resource accounting reference
+Scheduling policy reference
+Lifecycle state
+Audit context where required
+```
+
+Thread identity is not authority.
+
+Thread creation, termination, suspension, and scheduling changes are resource- and policy-controlled operations.
+
+## Process Creation
+
+Traditional POSIX process creation must be represented carefully in a capability system.
+
+Atarix may support multiple implementation strategies:
+
+```text
+Full compatibility clone
+Copy-on-write compatibility clone
+Restricted clone
+Spawn-based emulation
+Denied operation
+```
+
+The selected strategy must be declared by the POSIX compatibility profile.
+
+Process creation must not silently duplicate authority beyond policy.
+
+Inherited descriptors, namespace views, identity labels, resource limits, and capabilities must be explicitly copied, filtered, or denied according to policy.
+
+## Program Loading And Replacement
+
+Program loading maps a compatibility executable request to native Atarix object, storage, loader, and execution services.
+
+Program replacement changes the executable image of an existing compatibility process.
+
+Program loading or replacement must validate:
+
+```text
+Executable object identity
+Executable version or format
+Loader or interpreter identity
+Execute authority
+Policy approval
+Descriptor inheritance policy
+Environment metadata policy
+Resource limits
+Audit requirements
+```
+
+Program replacement must not preserve authority that policy requires to be dropped.
+
+If loading cannot be verified, the operation must fail explicitly or enter a compatibility error state.
+
+## Process Lifecycle
+
+Suggested process lifecycle states:
+
+```text
+CREATED
+LOADING
+ACTIVE
+WAITING
+SUSPENDED
+EXITING
+TERMINATED
+DEGRADED
+QUARANTINED
+FAILED
+UNKNOWN
+```
+
+Compatibility lifecycle state must reconcile with the native object lifecycle state.
+
+Unknown lifecycle state must be explicit.
+
 ## Mapping Rules
 
 The following rules apply:
