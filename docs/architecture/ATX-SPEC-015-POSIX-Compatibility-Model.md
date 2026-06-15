@@ -85,6 +85,8 @@ Lifecycle states
 Recovery state
 ```
 
+The compatibility model should preserve useful Unix application behavior without importing Unix assumptions as native Atarix security semantics.
+
 ## Compatibility Environment
 
 A POSIX compatibility environment is an object or service-owned environment.
@@ -110,6 +112,48 @@ Capability set
 Audit policy
 Recovery policy
 ```
+
+The compatibility environment is the container for the POSIX projection.
+
+It is not a privileged native execution mode.
+
+It may be created, started, suspended, degraded, recovered, quarantined, or destroyed according to ordinary Atarix lifecycle and policy rules.
+
+## Compatibility Boundary
+
+The compatibility boundary is the point where POSIX-facing assumptions are translated into Atarix-native operations.
+
+Across this boundary:
+
+```text
+POSIX names become namespace lookups.
+POSIX descriptors become compatibility handles backed by capabilities.
+POSIX process identifiers become compatibility labels for execution objects.
+POSIX permission metadata becomes policy input.
+POSIX streams become service or mailbox-backed objects.
+POSIX sockets become network service endpoints.
+```
+
+The translation must be explicit.
+
+The compatibility layer must not allow an application to obtain native authority merely because a POSIX interface normally implies it on another system.
+
+## Native Model Remains Authoritative
+
+Atarix-native state is authoritative when POSIX state and native state disagree.
+
+Examples:
+
+```text
+If a descriptor table says a descriptor exists but the backing capability is revoked, the descriptor is unusable.
+If a path exists but policy denies access, the operation is denied.
+If a compatibility process exists but its native object is quarantined, the process cannot continue normal execution.
+If a compatibility namespace view is stale, native directory state governs reconciliation.
+```
+
+Compatibility metadata may help explain intent.
+
+It does not override native authority, policy, audit, lifecycle, or recovery state.
 
 ## Mapping Rules
 
