@@ -4,6 +4,10 @@
 
 Complete
 
+## Tracking Issue
+
+- Issue #16: Architecture Review 003: ATX-SPEC-015 POSIX Compatibility Reconciliation
+
 ## Scope
 
 This review reconciles ATX-SPEC-015 POSIX Compatibility Model against:
