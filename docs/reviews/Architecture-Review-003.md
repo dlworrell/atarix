@@ -36,6 +36,12 @@ Architecture Review 003 identified five clarification-level findings:
 
 All five findings were incorporated into ATX-SPEC-015.
 
+Resolved by ATX-SPEC-015 cleanup commit:
+
+```text
+5f75de430f6b48082ae0e7305eb693c20502c5d3
+```
+
 ## Final Status
 
 ```text
