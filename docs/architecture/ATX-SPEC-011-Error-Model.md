@@ -2,13 +2,13 @@
 
 ## Status
 
-Draft v0.1
+Draft v0.2, reconciled after Architecture Review 001
 
 ## Purpose
 
 This document defines the Atarix Error Model.
 
-The Error Model provides a consistent architectural framework for handling failures, uncertainty, degradation, recovery, quarantine, reconciliation, and fault reporting throughout the system.
+The Error Model provides a consistent architectural framework for handling failures, uncertainty, degradation, recovery, quarantine, reconciliation, and fault reporting.
 
 Errors are architectural events.
 
@@ -17,32 +17,6 @@ Errors are not merely return codes.
 Failures are expected.
 
 Unknown state is a first-class condition.
-
-## Design Philosophy
-
-Atarix assumes:
-
-- Hardware fails.
-- Software contains defects.
-- Resources are exhausted.
-- Networks partition.
-- Storage becomes inconsistent.
-- Audit systems degrade.
-- Compromise may occur.
-- Recovery is required.
-
-The Error Model exists to answer:
-
-```text
-What failed?
-How certain are we?
-What is the blast radius?
-Can operation continue?
-Can the state be trusted?
-Must the resource be quarantined?
-Can recovery occur automatically?
-Must authority be revoked?
-```
 
 ## Core Principles
 
@@ -61,102 +35,30 @@ Must authority be revoked?
 13. Supervisor failures are auditable.
 14. Bootstrap failures are auditable.
 15. Observation is not control.
+16. Compatibility failures must not weaken native semantics.
 
 ## Error Categories
 
-### Validation Errors
+Conceptual categories include:
 
 ```text
-Malformed record
-Invalid capability
-Invalid path
-Version mismatch
-Schema violation
+Validation errors
+Authority errors
+Resource errors
+Lifecycle errors
+Directory errors
+Communication errors
+Storage errors
+Audit errors
+Supervisor errors
+Bootstrap errors
+Compatibility errors
+Version errors
+Policy errors
+Recovery errors
 ```
 
-### Authority Errors
-
-```text
-Access denied
-Capability missing
-Capability expired
-Delegation denied
-Ring violation
-Policy violation
-```
-
-### Resource Errors
-
-```text
-Out of memory
-Quota exceeded
-Mailbox exhausted
-Storage exhausted
-DMA unavailable
-Allocation denied
-```
-
-### Lifecycle Errors
-
-```text
-Object destroyed
-Object expired
-Lease expired
-Cleanup failure
-Invalid state transition
-```
-
-### Directory Errors
-
-```text
-Name not found
-Binding stale
-Alias loop
-Redirect denied
-Namespace unavailable
-```
-
-### Communication Errors
-
-```text
-Mailbox timeout
-Transport failure
-Message corruption
-Node unavailable
-Partition detected
-```
-
-### Storage Errors
-
-```text
-Read failure
-Write failure
-Checksum mismatch
-Journal replay required
-Pool unavailable
-```
-
-### Audit Errors
-
-```text
-Audit storage unavailable
-Audit buffer exhausted
-Audit import failure
-Audit integrity failure
-```
-
-### Supervisor Errors
-
-```text
-Watchdog event
-Firmware validation failure
-Recovery entry
-Power fault
-RTC fault
-Supervisor unavailable
-```
-
-## Error Severity
+## Severity
 
 Suggested severity levels:
 
@@ -176,7 +78,7 @@ Severity helps determine response and audit handling.
 
 ## Unknown State
 
-Unknown state is a distinct architectural condition.
+Unknown state is distinct from failure and success.
 
 Examples:
 
@@ -186,34 +88,34 @@ Node restarted unexpectedly
 Resource ownership uncertain
 Audit continuity uncertain
 Directory reconciliation incomplete
+Capability state uncertain
+Version compatibility unknown
+Policy unavailable
 ```
 
 Unknown state must not be silently treated as valid.
 
-Unknown state may require:
-
-```text
-Quarantine
-Restricted operation
-Manual review
-Recovery workflow
-```
+Unknown state may require quarantine, restricted operation, manual review, recovery workflow, or denial.
 
 ## Quarantine
 
-Quarantine isolates potentially unsafe state.
+Quarantine isolates potentially unsafe state while preserving evidence.
 
-Examples:
+Quarantine may apply to:
 
 ```text
-Unverified storage
-Unreconciled resource
-Compromised service
-Unknown capability state
-Corrupted audit stream
+Objects
+Resources
+Directory bindings
+Capabilities
+Mailbox endpoints
+Services
+Persistent storage
+Audit streams
+Compatibility environments
 ```
 
-Quarantine preserves evidence while preventing unsafe operation.
+Quarantine must be auditable.
 
 ## Fail-Closed Rules
 
@@ -225,6 +127,9 @@ Capability cannot be validated
 Policy cannot be evaluated
 Directory target cannot be verified
 Resource ownership is uncertain
+Lifecycle state is unknown
+Version semantics are unknown
+Audit-critical provenance is invalid
 ```
 
 Convenience must not override security.
@@ -240,16 +145,11 @@ Read-only storage
 Reduced networking
 Limited directory service
 Reduced audit retention
+Recovery-only mode
+Compatibility fallback mode
 ```
 
-Degraded operation must be:
-
-```text
-Explicit
-Auditable
-Observable
-Policy controlled
-```
+Degraded operation must be explicit, auditable, observable, and policy controlled.
 
 ## Recovery States
 
@@ -259,18 +159,20 @@ Suggested recovery states:
 NORMAL
 DEGRADED
 RECOVERING
+RECONCILING
 QUARANTINED
 EMERGENCY
 FAILED
+UNKNOWN
 ```
 
 State transitions must be auditable.
 
 ## Reconciliation
 
-After crashes or partitions, the system may require reconciliation.
+After crash, partition, storage rollback, audit discontinuity, or version mismatch, Atarix may require reconciliation.
 
-Examples:
+Reconciliation may apply to:
 
 ```text
 Resource ownership
@@ -278,6 +180,9 @@ Directory bindings
 Audit continuity
 Lease state
 Mailbox state
+Capability state
+Persistent storage state
+Service provider state
 ```
 
 Reconciliation must not assume correctness.
@@ -290,16 +195,18 @@ Every error should include:
 Error category
 Error code
 Subsystem
-Object identity (if applicable)
+Object identity if applicable
 Authority context
 Timestamp
 Severity
 Recovery recommendation
+Version or schema identifier
+Audit correlation ID
 ```
 
 ## Audit Integration
 
-All significant errors must generate audit events.
+Significant errors must generate audit events.
 
 Particularly:
 
@@ -310,6 +217,11 @@ Quarantine actions
 Resource exhaustion
 Supervisor failures
 Audit failures
+Bootstrap failures
+Version failures
+Policy failures
+Compatibility failures
+Cleanup failures
 ```
 
 ## Supervisor Integration
@@ -324,14 +236,9 @@ Observation is not control.
 
 Resource exhaustion is expected.
 
-The system should:
+The system should preserve recovery paths, supervisor functions, and audit visibility where practical.
 
-```text
-Preserve recovery paths
-Preserve supervisor functions
-Preserve audit visibility where possible
-Avoid authority bypasses
-```
+Resource exhaustion must not bypass authority checks.
 
 ## Bootstrap Errors
 
@@ -344,7 +251,33 @@ Firmware validation failure
 Boot image failure
 Netboot failure
 Time source unavailable
+Supervisor startup failure
 ```
+
+Bootstrap error handling must not grant runtime authority.
+
+## Storage And Persistence Errors
+
+Storage uncertainty must be explicit.
+
+Examples:
+
+```text
+Checksum mismatch
+Journal replay required
+Snapshot rollback
+Partial write
+Pool unavailable
+Unknown dataset generation
+```
+
+Unknown persistent state should be quarantined or mounted read-only until reconciled.
+
+## Compatibility Errors
+
+Compatibility layers must fail explicitly when legacy assumptions conflict with native Atarix security semantics.
+
+Compatibility failure must not weaken authority, lifecycle, resource, audit, or cleanup rules.
 
 ## Crash Recovery
 
@@ -358,9 +291,11 @@ Reconcile state
 Restore services
 ```
 
-Unknown state must remain visible until resolved.
+Unknown state remains visible until resolved.
 
 ## Initial Error Sprint Scope
+
+Error Sprint 1 should define:
 
 ```text
 Error categories
@@ -371,31 +306,23 @@ Quarantine support
 Basic tests
 ```
 
-## Required Tests
+## Required Future Work
 
-```text
-Validation error
-Authority error
-Resource exhaustion
-Directory failure
-Quarantine transition
-Recovery transition
-Unknown state handling
-Audit generation for errors
-```
+- Define concrete error code namespace.
+- Define structured error object format.
+- Define quarantine transition table.
+- Define recovery workflow in ATX-SPEC-018.
+- Define version error handling in ATX-SPEC-012.
+- Define policy error handling in ATX-SPEC-013.
+- Define storage error handling in ATX-SPEC-017.
 
 ## Summary
 
-The Error Model treats failure, uncertainty, recovery, and quarantine as first-class architectural concepts.
+The Error Model treats failure, uncertainty, recovery, and quarantine as first-class architecture.
 
-Its central rule is:
+The central rules are:
 
 ```text
 Unknown state must be explicit.
-```
-
-Its companion rule is:
-
-```text
 When authority cannot be verified, fail closed.
 ```
