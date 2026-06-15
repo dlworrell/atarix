@@ -424,6 +424,8 @@ Compatibility IPC is a projection.
 
 This keeps compatibility communication aligned with one native authority, audit, lifecycle, recovery, and resource-accounting model.
 
+All compatibility IPC objects shall conform to mailbox lifecycle rules defined by ATX-SPEC-005.
+
 ## Compatibility Events
 
 POSIX-facing event delivery should map to mailbox-delivered events associated with a compatibility process, process group, or environment.
@@ -531,6 +533,8 @@ Network-like endpoint -> Network Service
 
 These bindings must be service-mediated, capability-controlled, policy-controlled, auditable where required, and recoverable.
 
+Compatibility endpoint names are service discovery artifacts. They are not service authority.
+
 Observation is not control.
 
 ## Shared Memory Projection
@@ -584,6 +588,8 @@ Audit should record both:
 Compatibility view
 Native Atarix authority decision
 ```
+
+Compatibility audit records shall participate in the native audit chain.
 
 The audit record should preserve native decision context even when the compatibility layer returns a simplified result to the application.
 
@@ -651,6 +657,8 @@ Compatibility error mapping should be table-driven and versioned.
 
 Unknown native errors must not be silently converted to success.
 
+Compatibility layers shall preserve native degraded-state semantics. A degraded native state must remain visible through compatibility error context rather than being flattened into an ordinary generic failure.
+
 ## Recovery And Reconciliation
 
 Compatibility recovery must reconcile POSIX-facing state against native Atarix state before normal execution resumes.
@@ -661,6 +669,8 @@ Core rule:
 Compatibility recovery restores execution.
 Compatibility recovery does not restore authority.
 ```
+
+Compatibility recovery is a subordinate recovery domain of native Atarix recovery.
 
 Recovery trusts native Atarix state, not reconstructed compatibility metadata.
 
@@ -1057,6 +1067,7 @@ Compatibility error mapping preserves native error context
 Unknown native error never maps to success
 Policy denial is auditable
 Recovery actions are auditable
+Degraded native state remains visible through compatibility error context
 ```
 
 ## Required Recovery Tests
@@ -1065,6 +1076,7 @@ Tests should verify:
 
 ```text
 Recovery does not restore authority
+Compatibility recovery remains subordinate to native recovery
 Descriptor reconciliation fails closed
 Path reconciliation does not grant access
 Process reconciliation requires native lifecycle validity
