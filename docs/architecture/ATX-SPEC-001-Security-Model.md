@@ -2,64 +2,216 @@
 
 ## Status
 
-Draft v0.1
+Draft v0.2, reconciled after Architecture Review 001
 
 ## Purpose
 
-This document defines the mandatory security architecture of the Atarix operating system and distributed object fabric.
+This document defines the mandatory security architecture of Atarix.
 
-All subsystems, services, protocols, runtimes, applications, and future specifications shall comply with this specification.
+The Security Model exists to make compromise expensive, contained, observable, recoverable, and difficult to expand. It does not claim that exploitation can be made impossible.
 
-## Design Philosophy
+## Core Doctrine
 
-Atarix assumes that software defects exist, services may be compromised, remote code execution will occur, identities may be stolen, networks are hostile, internal nodes are not inherently trusted, and cleanup failures become security failures.
+Atarix assumes:
 
-Security is achieved through containment of authority rather than prevention of execution.
+- Software defects exist.
+- Remote code execution may occur.
+- Services may be compromised.
+- User identities may be stolen.
+- Internal nodes are not inherently trusted.
+- Connectivity is not trust.
+- Cleanup failures become security failures.
+- Unknown state is expected.
 
-## Core Principle
+Security is therefore centered on explicit authority, containment, lifecycle control, and auditability.
 
-Code execution does not imply authority.
+## Architectural Axioms
 
-A compromised process or object shall possess only the authority explicitly granted to it through capabilities, policy, ownership, and ring enforcement.
+The Security Model depends on these axioms:
 
-## Threat Model
+```text
+Name is not identity.
+Identity is not authority.
+Lookup is not access.
+Observation is not control.
+Execution is not authority.
+Ownership is not authority.
+Allocation is not ownership.
+Persistence is not ownership.
+Connectivity is not trust.
+Bootstrap authority is not runtime authority.
+Unknown state must be explicit.
+When authority cannot be verified, fail closed.
+```
 
-Atarix specifically aims to reduce the impact of buffer overflows, use-after-free defects, memory corruption, parser compromise, zero-click exploitation, privilege escalation, user identity theft, session theft, pivoting, stale authority, orphaned persistence, and hidden cleanup failures.
+## Authority Rule
 
-## Trust Model
+Code execution never creates authority.
 
-Trust is never inferred from network connectivity, physical locality, user identity, process identity, object name, namespace visibility, execution context, or system status.
+A process, object, service, driver, mailbox endpoint, CPU card, fabric node, or compatibility environment may only perform operations for which it has explicit authority.
 
-## Authority Model Overview
+Authority may be derived from:
 
-Authority may be granted through object ownership, capabilities, explicit delegation, system policy, and ring-mediated control paths.
+```text
+Ownership policy
+Capabilities
+Delegation
+Ring policy
+Supervisor-mediated recovery authority
+Bootstrap authority during boot only
+Administrative policy
+```
 
-Authority shall not be inferred from execution, identity, location, or connectivity.
+Authority may not be derived from:
 
-## Ring Architecture
+```text
+Identity alone
+User name alone
+Object name alone
+Directory lookup
+Physical location
+Network reachability
+Execution context
+System component status
+```
 
-Rings provide coarse-grained security boundaries.
+## Security Evaluation
 
-Capabilities provide fine-grained authority within those boundaries.
+A normal runtime access decision is constrained by:
 
-A capability shall not bypass ring restrictions unless explicitly permitted by the security model.
+```text
+Object identity
+  -> Ring policy
+  -> Ownership / authority policy
+  -> Capability validation
+  -> Revocation state
+  -> Expiration state
+  -> Lifecycle state
+  -> Resource policy
+  -> Operation
+  -> ALLOW / DENY
+```
 
-## Capability Enforcement
+If any required security state cannot be verified, the operation must fail closed.
 
-Capabilities represent explicit authority. A capability shall be scoped, revocable, auditable, bound to intended authority, and constrained by ring policy.
+## Ring And Capability Separation
 
-## Lifecycle Security
+Rings provide coarse-grained boundaries.
 
-Every object and resource shall have owner, scope, lifetime, cleanup authority, persistence policy, and audit visibility.
+Capabilities provide fine-grained authority.
 
-Temporary resources should be lease-based by default.
+A capability does not automatically bypass ring policy.
 
-## Failure Semantics
+A ring position does not automatically grant capability authority.
 
-Atarix shall fail closed.
+Cross-ring operations must be explicit, mediated, and auditable.
 
-If policy, authority, capability, identity, directory, namespace, lifecycle, or security state cannot be verified, the operation shall be denied.
+## Directory And Security
 
-## Security Doctrine Compliance
+The Directory Service provides discoverability, not authority.
 
-This specification incorporates `docs/doctrine/ARC-SEC.md`.
+The following are explicitly false:
+
+```text
+Knowing a name grants authority.
+Resolving a name grants authority.
+Enumerating a directory grants authority.
+Owning a name grants authority over the target object.
+```
+
+Directory state may influence policy decisions, but directory lookup itself is not access.
+
+## Resource Security
+
+Resource use is authority-bearing.
+
+Resource visibility does not grant control.
+
+Resource allocation must be explicit, owned, accounted, auditable, and reclaimable.
+
+Resource exhaustion must not produce broader authority as a fallback.
+
+Reserved recovery, supervisor, and audit resources must be protected from normal workload exhaustion.
+
+## Audit Security
+
+Audit is evidence.
+
+Audit authority and operational authority are separate.
+
+The ability to read audit data does not imply the ability to control the audited component.
+
+The ability to modify system state does not imply the ability to modify audit history.
+
+Audit suppression, loss, exhaustion, and degradation must be observable.
+
+## Error Security
+
+Unknown state must be explicit.
+
+Unknown state may require degraded operation, quarantine, recovery, or manual review.
+
+Unknown state must not be silently treated as valid.
+
+Authority-bearing operations must fail closed when security state is unknown.
+
+## Supervisor Security
+
+The Supervisor Management Fabric is control-isolated from the Operational Fabric.
+
+The Operational Fabric may observe supervisor state through authorized audit or observation bridges.
+
+The Operational Fabric may not directly control supervisor resources.
+
+Supervisor resources include reset, watchdog, RTC, power, recovery, secure boot state, firmware validation state, and fault logs.
+
+Observation is not control.
+
+## Bootstrap Security
+
+Bootstrap authority is not runtime authority.
+
+Before the runtime security model exists, only narrowly scoped bootstrap authority may exist.
+
+Bootstrap authority may validate firmware, initialize minimal hardware, fetch boot data, record boot audit, start supervisor services, or enter recovery mode.
+
+Bootstrap authority may not become normal runtime administrative authority.
+
+## Compatibility Security
+
+Compatibility environments, including future POSIX or virtual hardware personalities, are objects.
+
+They must have explicit capabilities, bounded resources, lifecycle policy, audit visibility, and cleanup.
+
+Compatibility must not weaken native Atarix security semantics.
+
+## Required Security Events
+
+The following must be auditable:
+
+```text
+Capability grant
+Capability revoke
+Delegation
+Authorization denial
+Policy override
+Ring violation
+Resource allocation
+Resource exhaustion
+Directory mutation
+Supervisor action
+Bootstrap security failure
+Recovery mode entry
+Quarantine transition
+Cleanup failure
+```
+
+## Failure Rule
+
+Atarix prefers denial, quarantine, and explicit degraded operation over assumed safety.
+
+The controlling rule is:
+
+```text
+When authority cannot be verified, fail closed.
+```
