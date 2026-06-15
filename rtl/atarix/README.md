@@ -5,7 +5,13 @@
 Files:
 
 ```text
+rtl/atarix/atx_northbridge_bus_shim.v
+rtl/atarix/atx_spec_020_system_wrapper.v
 rtl/atarix/atx_spec_020_accelerator.v
+rtl/atarix/atx_simd_probe_core.v
+rtl/atarix/atx_krapivin_stepper.v
+rtl/atarix/atx_elias_fano_decoder.v
+rtl/atarix/atx_audit_log_window.v
 rtl/atarix/atx_spec_020_accelerator_tb.v
 ```
 
@@ -27,6 +33,31 @@ Mailbox request
 
 The simulation is intentionally verbose. It prints one log line per start, audit, response, and test result.
 
+## Module Roles
+
+```text
+atx_northbridge_bus_shim.v
+    Physical W65C816-style bus sampling scaffold.
+
+atx_spec_020_system_wrapper.v
+    Structural integration point for accelerator + audit window.
+
+atx_spec_020_accelerator.v
+    Mailbox-authorized FSM controller and lookup scaffold.
+
+atx_simd_probe_core.v
+    Stateless 16-lane control-byte comparator.
+
+atx_krapivin_stepper.v
+    Bounded non-linear open-addressing stepper scaffold.
+
+atx_elias_fano_decoder.v
+    Bounded Elias-Fano select/decode scaffold.
+
+atx_audit_log_window.v
+    Circular audit projection byte window.
+```
+
 ## Run With Icarus Verilog
 
 From repository root:
@@ -47,6 +78,20 @@ atx_spec_020_accelerator_tb.vcd
 ```
 
 which can be opened in GTKWave.
+
+## Optional Structural Compile Check
+
+```sh
+iverilog -g2012 \
+  -o /tmp/atx_spec_020_structural_check \
+  rtl/atarix/atx_audit_log_window.v \
+  rtl/atarix/atx_simd_probe_core.v \
+  rtl/atarix/atx_krapivin_stepper.v \
+  rtl/atarix/atx_elias_fano_decoder.v \
+  rtl/atarix/atx_northbridge_bus_shim.v \
+  rtl/atarix/atx_spec_020_accelerator.v \
+  rtl/atarix/atx_spec_020_system_wrapper.v
+```
 
 ## Expected Test Coverage
 
