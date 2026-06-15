@@ -585,6 +585,72 @@ Compatibility view
 Native Atarix authority decision
 ```
 
+The audit record should preserve native decision context even when the compatibility layer returns a simplified result to the application.
+
+Recommended audit fields include:
+
+```text
+Compatibility environment identity
+Compatibility process identity
+Native object identity
+Native service identity where applicable
+Descriptor identity where applicable
+Operation name
+Requested compatibility mode
+Native authority result
+Policy result
+Lifecycle state
+Recovery state where relevant
+Error mapping result where relevant
+```
+
+Compatibility audit should be especially careful around:
+
+```text
+Program loading
+Descriptor inheritance
+Path resolution
+Network endpoint creation
+Service-bound endpoint access
+Policy denial
+Recovery reconciliation
+```
+
+## Error Mapping
+
+Compatibility errors are projections of native Atarix errors.
+
+The native error remains the authoritative error.
+
+A compatibility error mapping should preserve:
+
+```text
+Native error code
+Compatibility error code
+Object or service identity
+Operation
+Policy result if applicable
+Lifecycle state if applicable
+Audit event identity where applicable
+```
+
+Lossy error conversion must not erase native error context.
+
+Examples:
+
+```text
+Policy denied -> compatibility access denial
+Object not found -> compatibility not-found result
+Resource exhausted -> compatibility resource failure
+Unsupported version -> compatibility unsupported operation
+Quarantined object -> compatibility unavailable or restricted result
+Unknown state -> compatibility explicit failure
+```
+
+Compatibility error mapping should be table-driven and versioned.
+
+Unknown native errors must not be silently converted to success.
+
 ## Recovery Requirements
 
 Recovery must reconcile compatibility state with native Atarix state.
