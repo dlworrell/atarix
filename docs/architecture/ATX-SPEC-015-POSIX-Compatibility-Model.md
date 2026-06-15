@@ -409,6 +409,140 @@ Compatibility lifecycle state must reconcile with the native object lifecycle st
 
 Unknown lifecycle state must be explicit.
 
+## Mailbox-Based IPC Mapping
+
+Atarix uses mailboxes as the native IPC abstraction.
+
+Compatibility communication mechanisms are projections over mailboxes, services, objects, or future memory and data movement facilities.
+
+Core rule:
+
+```text
+Native IPC is mailbox-based.
+Compatibility IPC is a projection.
+```
+
+This keeps compatibility communication aligned with one native authority, audit, lifecycle, recovery, and resource-accounting model.
+
+## Compatibility Events
+
+POSIX-facing event delivery should map to mailbox-delivered events associated with a compatibility process, process group, or environment.
+
+An event delivery record should include:
+
+```text
+Event identity
+Sending compatibility identity
+Target compatibility identity
+Native actor identity
+Target native object identity
+Delivery policy result
+Lifecycle state
+Audit policy
+```
+
+Event delivery is not native control authority.
+
+Event delivery requires native authority and policy approval where it affects another object.
+
+## Compatibility Streams
+
+POSIX-facing streams should map to mailbox-backed stream objects.
+
+A stream endpoint should include:
+
+```text
+Read endpoint descriptor
+Write endpoint descriptor
+Backing mailbox identity
+Buffer ownership policy
+Flow-control policy
+Resource accounting
+Lifecycle state
+Audit policy where required
+```
+
+Stream endpoints require capabilities.
+
+Closing one endpoint must update lifecycle state and notify affected consumers according to mailbox semantics.
+
+## Compatibility Queues
+
+POSIX-style queues and notifications should map to mailbox queues or mailbox-delivered event objects.
+
+Compatibility queues must preserve native rules for:
+
+```text
+Capability validation
+Policy checks
+Resource accounting
+Backpressure
+Audit
+Recovery
+```
+
+A compatibility queue is not a separate native IPC subsystem unless later architecture explicitly creates one.
+
+## Network Endpoint Projection
+
+POSIX-facing network descriptors are compatibility network endpoints.
+
+They map to Atarix Network Service bindings and mailbox-backed descriptors.
+
+A network descriptor should include:
+
+```text
+Network family projection
+Network type projection
+Protocol projection
+Network service identity
+Endpoint capability
+Mailbox or buffer identity
+Resource accounting
+Lifecycle state
+Audit policy
+```
+
+A network descriptor is not direct network authority.
+
+Network operations require service authority, endpoint capability, policy approval, and resource availability.
+
+## Local Endpoint Projection
+
+POSIX local communication endpoints should map to mailbox-backed local service endpoints.
+
+Path-like local endpoint names are compatibility namespace entries.
+
+Path lookup remains not access.
+
+## Service-Bound Compatibility Endpoints
+
+Compatibility endpoint names that look like device entries are bindings to native services.
+
+Examples:
+
+```text
+Null-like endpoint -> Null Service
+Entropy-like endpoint -> Entropy Service
+Terminal-like endpoint -> Terminal Service
+Storage-like endpoint -> Storage Service
+Network-like endpoint -> Network Service
+```
+
+These bindings must be service-mediated, capability-controlled, policy-controlled, auditable where required, and recoverable.
+
+Observation is not control.
+
+## Shared Memory Projection
+
+POSIX shared memory and memory mapping require special handling.
+
+The native memory and data movement rules belong in ATX-SPEC-021.
+
+This specification treats shared memory as a compatibility projection that must later map to Atarix memory ownership, lifecycle, audit, recovery, and data movement rules.
+
+Shared memory must not become a way to bypass capability checks, policy checks, or audit boundaries.
+
 ## Mapping Rules
 
 The following rules apply:
@@ -421,6 +555,7 @@ Compatibility roles are not native omnipotence.
 Signals are compatibility events, not native control.
 Device-like endpoints must be service-mediated.
 Recovery does not restore compatibility authority without reconciliation.
+Native IPC is mailbox-based.
 ```
 
 ## Profiles
@@ -495,6 +630,8 @@ Basic tests
 - Define socket compatibility strategy.
 - Define minimal libc target.
 - Define FOSS application porting guide.
+- Define compatibility IPC mappings against ATX-SPEC-005.
+- Define shared memory mapping against ATX-SPEC-021.
 
 ## Summary
 
@@ -508,5 +645,6 @@ Its central rules are:
 POSIX is a compatibility personality.
 Path lookup is not access.
 Descriptors are compatibility handles.
+Native IPC is mailbox-based.
 POSIX compatibility must not weaken native Atarix security semantics.
 ```
