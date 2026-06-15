@@ -12,30 +12,84 @@ A resource is anything finite that an object may consume, reserve, control, expo
 
 Resource use is authority-bearing and must be explicit.
 
-Resource visibility is not control.
+Resource visibility is not authority.
+
+Resource allocation is not ownership.
 
 Resource cleanup is a security requirement.
+
+## Design Philosophy
+
+Atarix treats resources as first-class architectural entities rather than incidental implementation details.
+
+A resource must be:
+
+- Named or discoverable where appropriate.
+- Owned or attributable.
+- Accounted.
+- Constrained.
+- Auditable.
+- Revocable where possible.
+- Reclaimed or quarantined when no longer valid.
+
+The Resource Model answers:
+
+```text
+Who owns this resource?
+Who may allocate it?
+Who is consuming it?
+How long may it live?
+What authority keeps it alive?
+What happens when it is revoked?
+What happens when the owner disappears?
+```
 
 ## Core Invariants
 
 1. Every resource has an owner or allocator authority.
-2. Every resource has lifecycle state.
+2. Every resource has a lifecycle state.
 3. Every resource has accounting metadata.
 4. Every resource has a cleanup path.
 5. Temporary resources use leases by default.
-6. Persistent reservations require policy.
-7. Visibility does not imply control.
-8. Allocation does not bypass ring policy.
-9. Ownership does not grant all operations.
-10. Exhaustion must fail safely.
-11. Cleanup must be auditable.
-12. Leaks are architectural defects.
-13. Resource identities must not expose private handles.
-14. System resources are not exempt.
+6. Persistent resource reservations require explicit policy.
+7. Resource visibility does not imply control.
+8. Resource allocation does not bypass ring policy.
+9. Resource ownership does not automatically grant all operations on the resource.
+10. Resource exhaustion must fail safely.
+11. Resource cleanup must be auditable.
+12. Resource leaks are architectural defects.
+13. Resource identities must not expose implementation-private handles as public contracts.
+14. Resource state must be inspectable by authorized observers.
+15. System resources are not exempt from lifecycle, audit, or cleanup rules.
+
+## Relationship To Other Specifications
+
+This specification depends on:
+
+- ATX-SPEC-001 Security Model
+- ATX-SPEC-002 Authority Model
+- ATX-SPEC-003 Capability Model
+- ATX-SPEC-004 Lifecycle Model
+- ATX-SPEC-006 Object Model
+- ATX-SPEC-007 Namespace Model
+- ATX-SPEC-008 Directory Service Model
+- ATX-SPEC-010 Audit Model
+- ATX-SPEC-011 Error Model
+
+This specification informs:
+
+- ATX-SPEC-012 Versioning Model
+- ATX-SPEC-013 Policy Model
+- ATX-SPEC-014 Bootstrap Security Model
+- ATX-SPEC-016 Supervisor Management Fabric
+- ATX-SPEC-017 Storage and Persistence Model
+- ATX-SPEC-018 Recovery and Reconciliation Model
+- ATX-SPEC-019 Service Model
+- Future scheduler, network, filesystem, process, and POSIX compatibility specifications
 
 ## Resource Classes
 
-Conceptual resource classes include:
+Atarix recognizes these conceptual resource classes:
 
 ```text
 Compute resources
@@ -46,16 +100,100 @@ Device resources
 Fabric resources
 Supervisor resources
 Environmental resources
-Auxiliary compute resources
+Audit resources
+Recovery resources
 ```
 
-Auxiliary compute resources include service-provider cards such as Raspberry Pi-class compute/buffer cards, RISC-V service cards, GPU service cards, or storage processor cards.
+## Compute Resources
 
-They provide services and resource pools, not automatic native CPU authority.
+Examples:
+
+```text
+CPU core
+CPU time slice
+scheduler queue slot
+accelerator context
+GPU compute queue
+FPGA region
+auxiliary compute card service
+```
+
+A compute resource may be provided by a CPU card, auxiliary compute card, GPU card, FPGA region, Raspberry Pi-class service card, RISC-V service card, storage processor, or future provider.
+
+CPU capability is not system capability.
+
+A weak primary CPU may still access strong system services through explicit resource and service interfaces.
+
+## Memory Resources
+
+Examples:
+
+```text
+CPU-local SRAM
+FPGA-local buffers
+fabric memory
+RAM-card memory
+DMA buffer
+shared memory region
+page frame
+kernel heap allocation
+audit buffer pool
+```
+
+Memory location is not memory authority.
+
+CPU-local SRAM, fabric RAM, RAM-card memory, and supervisor RAM have different authority and failure semantics.
+
+Resources are not pooled merely because they exist.
+
+Resources are pooled only when ownership, authority, failure domains, and recovery semantics are compatible.
+
+## Supervisor Resources
+
+Supervisor resources belong to the Supervisor Management Fabric, not the Operational Fabric.
+
+Examples:
+
+```text
+reset line
+watchdog
+RTC
+power rail control
+firmware update slot
+recovery mode control
+health sensor
+fault log
+supervisor RAM
+```
+
+Operational objects may observe supervisor resource state through authorized observation or audit paths, but they must not directly control supervisor resources.
+
+Observation is not control.
+
+Supervisor memory is not operational scratch space.
+
+## Audit Resources
+
+Audit resources include:
+
+```text
+Audit ingress queues
+High-speed audit buffers
+RAM-backed audit journals
+Audit persistence queues
+Persistent audit storage
+Supervisor audit buffers
+```
+
+Audit resources should be reserved so normal workload exhaustion does not silently disable audit.
+
+Audit generation should not require synchronous physical storage writes.
+
+RAM-backed audit buffering is a target architecture once fabric RAM cards or compatible memory services are available.
 
 ## Resource Identity And Naming
 
-Resources may be published through the Directory Service.
+Resources may be named through the Directory Service.
 
 Examples:
 
@@ -63,26 +201,34 @@ Examples:
 /device/network/eth0
 /fabric/node/0/cpu/0
 /fabric/node/0/memory/local
-/service/hash
-/service/compression
+/fabric/node/0/memory/card0
 /system/resource-manager
+/system/power/budget
 ```
 
 Resource names are not resource identities.
 
 Resource identities are not authority.
 
-Resource lookup does not grant allocation authority.
+Resource directory lookup does not grant resource access.
 
 ## Resource Ownership
 
-Ownership answers who is responsible for a resource.
+Ownership answers:
 
-Ownership does not automatically answer what operations are allowed.
+```text
+Who is responsible for this resource?
+```
 
-Allocation, observation, accounting, revocation, and control are separate authorities.
+Ownership does not automatically answer:
 
-## Allocation Records
+```text
+What operations are allowed on this resource?
+```
+
+Authority is still capability and policy mediated.
+
+## Resource Allocation
 
 A resource allocation must include:
 
@@ -99,37 +245,36 @@ Lease or persistence policy
 Quota impact
 Cleanup policy
 Audit policy
-Version or schema identifier
+Version or schema information
 ```
+
+Allocation may be exclusive, shared, read-only, write-capable, control-capable, time-sliced, quota-limited, best-effort, reserved, or borrowed.
 
 ## Leases And Quotas
 
-Temporary allocations use leases by default.
-
-Lease expiration must trigger reclamation, revocation, or quarantine.
+Temporary resource allocations use leases by default.
 
 Quota enforcement must fail safely.
 
 If quota state cannot be verified, new authority-bearing allocations should be denied.
 
+Lease expiration must trigger reclamation, revocation, or quarantine.
+
 ## Revocation And Reclamation
 
-Revocation may be immediate, deferred, graceful, forced, quarantined, unsupported, or policy-denied.
-
-Resources must be reclaimed when:
+Resource revocation may be:
 
 ```text
-Owner exits
-Owner is destroyed
-Lease expires
-Capability is revoked
-Object is uninstalled
-Session ends
-Node crashes
-Fabric partitions
-Policy changes
-Quota enforcement requires it
+Immediate
+Deferred
+Graceful
+Forced
+Quarantined
+Policy-denied
+Unsupported
 ```
+
+Resources must be reclaimed when the owner exits, owner is destroyed, lease expires, capability is revoked, session ends, node crashes, fabric partitions, policy changes, or quota enforcement requires it.
 
 Reclamation may destroy, return, quarantine, scrub, or transfer the resource by explicit policy.
 
@@ -137,21 +282,29 @@ Reclamation may destroy, return, quarantine, scrub, or transfer the resource by 
 
 Resource exhaustion is expected and must be safe.
 
-Atarix must not grant broader authority as a fallback for exhaustion.
+When resources are exhausted, Atarix must:
 
-Audit, supervisor, and recovery resources should be protected from normal workload exhaustion.
+- Fail closed for authority-bearing operations.
+- Preserve system-critical recovery paths where possible.
+- Preserve supervisor functions where possible.
+- Preserve audit visibility where possible.
+- Avoid granting broader authority as a fallback.
+- Audit denied or degraded allocations.
+- Prefer controlled degradation over undefined behavior.
 
 ## Resource Visibility
 
 Authorized observers may inspect resource state.
 
-Observation may include identity, type, owner, allocation state, quota use, lease expiration, lifecycle state, audit state, and health state.
+Observation may include resource identity, type, owner, allocation state, quota use, lease expiration, lifecycle state, audit state, and health state.
 
 Observation does not imply control.
 
 ## Resource And Capability Interaction
 
-Capabilities may authorize operations such as:
+Capabilities grant explicit authority over resources.
+
+A resource capability may authorize operations such as:
 
 ```text
 READ
@@ -165,80 +318,158 @@ OBSERVE
 ACCOUNT
 ```
 
-Capabilities remain constrained by ring policy, lifecycle state, expiration, revocation, and policy.
+## Auxiliary Compute And Buffer Cards
 
-## Supervisor Resources
-
-Supervisor resources belong to the Supervisor Management Fabric, not the Operational Fabric.
-
-Operational objects may observe supervisor state through authorized audit or observation bridges, but may not directly control supervisor resources.
+Auxiliary compute cards are resource providers, not primary CPU cards.
 
 Examples:
 
 ```text
-Reset lines
-Power rails
-Watchdog timers
-RTC state
-Firmware validation state
-Recovery mode state
-Fault logs
+Raspberry Pi 5-class compute/buffer card
+ARM SBC card
+RISC-V service card
+GPU service card
+AI accelerator card
+Storage processor card
 ```
 
-## Memory Pooling Rule
+These cards may provide services such as hashing, compression, encryption, audit staging, network offload, netboot caching, storage staging, or ZFS-style scrub assistance.
 
-Resources are not pooled merely because they exist.
+Their RAM is exposed as explicit fabric resources, not as transparent CPU-local RAM.
 
-Resources are pooled only when ownership, authority, failure domain, and recovery semantics are compatible.
+## Crash And Recovery
 
-CPU-local SRAM, fabric RAM, auxiliary compute RAM, RAM cards, and supervisor RAM are distinct resource domains.
-
-Supervisor memory is not operational scratch space.
-
-Auxiliary compute RAM may be exposed as a capability-mediated fabric resource pool, not transparent CPU-local RAM.
-
-## Audit Buffering Target
-
-Long-term audit architecture may use staged buffers:
+After crash or reboot, the Resource Model must reconcile:
 
 ```text
-Supervisor audit buffer
-Operational RAM audit buffer
-Fabric RAM audit journal
-Persistent checksummed storage
-Archive or replication target
+Persistent allocations
+Leased allocations
+Expired leases
+Outstanding reservations
+Shared memory state
+DMA state
+Mailbox state
+Directory bindings
+Audit state
+Owner state
 ```
 
-This is a target architecture and not a Rev A bootstrap dependency.
+Unknown resource state must be quarantined or denied until reconciled.
 
-## Bootstrap Resources
+Recovery must not silently regrant authority.
+
+## Bootstrap Resource Considerations
+
+Some resources exist before the full runtime Resource Manager exists.
+
+Examples:
+
+```text
+Boot ROM storage
+Supervisor firmware image
+Fabric bitstream image
+Boot network endpoint
+NTP bootstrap time source
+Recovery image slot
+```
 
 Bootstrap resources belong to the Bootstrap Security Model.
 
 Bootstrap resource authority is not runtime resource authority.
 
+## POSIX Compatibility Considerations
+
+Future POSIX compatibility will map POSIX resources onto Atarix resources.
+
+Examples:
+
+```text
+File descriptor -> capability-wrapped resource reference
+Process -> application/session object
+Socket -> network endpoint resource
+Pipe -> mailbox or stream resource
+Signal -> lifecycle/control event
+```
+
+POSIX resource assumptions must not import ambient authority into Atarix.
+
 ## Initial Resource Sprint Scope
 
-Resource Sprint 1 should implement:
+Resource Sprint 1 should implement only:
 
 ```text
 Resource type identifiers
 Resource object metadata
-Ownership metadata
-Allocation records
-Release records
-Lease expiration semantics
-Accounting counters
+Resource ownership metadata
+Basic allocation records
+Basic release records
+Basic lease expiration semantics
+Basic accounting counters
 Basic tests
 ```
 
+Resource Sprint 1 should not implement distributed resource management, complex quotas, persistent reservations, cross-fabric federation, POSIX emulation, scheduler integration, storage allocation, or network bandwidth management.
+
+## Required Tests
+
+Initial tests should verify:
+
+```text
+Create resource record
+Allocate available resource
+Deny allocation of unavailable resource
+Release resource
+Released resource returns to available state
+Allocation records owner
+Allocation records authority used
+Lease expiration reclaims resource
+Revoked capability prevents further allocation
+Resource lookup does not grant allocation authority
+Resource visibility does not grant control authority
+Quota denial fails closed
+Cleanup removes temporary allocation
+Destroyed owner triggers resource reclamation
+Malformed resource request is rejected
+```
+
+## Open Questions
+
+Q-001: What is the wire format for resource identity?
+
+Q-002: Are resource identities object identities, resource-local identities, or both?
+
+Q-003: What minimum resource metadata must be present in C structures?
+
+Q-004: What are the initial resource classes required for Rev A?
+
+Q-005: Does CPU-local SRAM appear as one resource pool or multiple regions?
+
+Q-006: How are DMA windows represented?
+
+Q-007: How should mailbox capacity be accounted?
+
+Q-008: What is the minimum quota model for early implementation?
+
+Q-009: How should unreclaimable resources be represented?
+
+Q-010: Which resources are reserved for supervisor recovery paths?
+
+Q-011: How does audit survive resource exhaustion?
+
+Q-012: Which resource operations require explicit capability bits?
+
 ## Summary
 
-Atarix resources are architectural entities subject to authority, lifecycle, audit, cleanup, and policy.
+The Resource Model makes resource use explicit, owned, auditable, bounded, and recoverable.
 
-The central rules are:
+Its central rule is:
 
 ```text
 Resource use is authority-bearing and must be explicit.
+```
+
+Its companion rule is:
+
+```text
 Observation is not control.
 ```
