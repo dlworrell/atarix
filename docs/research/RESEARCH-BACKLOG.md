@@ -59,6 +59,29 @@ Focus:
 - Content-addressed transfer
 - Fabric transport optimization
 
+### ATX-RESEARCH-006 Prime Lookup and Sieve Acceleration
+
+Focus:
+- Existing OSE.c segmented 6-wheel CPU sieve from dlworrell/code-noodling
+- Existing OSE_CUDA.cc multi-GPU segmented odd-only CUDA sieve from dlworrell/code-noodling
+- JSON prime table export
+- Cache-aware segmented sieves
+- Bit-packed sieve representations
+- Wheel factorization
+- Incremental sieves
+- Prime-counting algorithms
+- Distributed sieve partitioning
+- FPGA sieve acceleration
+- Persistent prime databases
+- Prime lookup services
+
+Target Subsystems:
+- Hash and lookup acceleration
+- Memory locality research
+- Data movement research
+- Service-oriented computational fabrics
+- Future math service experiments
+
 ## Guiding Principle
 
 Research informs architecture.
