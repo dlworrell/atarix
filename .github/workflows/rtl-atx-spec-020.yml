@@ -1,0 +1,42 @@
+name: ATX-SPEC-020 RTL Simulation
+
+on:
+  push:
+    paths:
+      - rtl/atarix/**
+      - scripts/rtl/**
+      - .github/workflows/rtl-atx-spec-020.yml
+  pull_request:
+    paths:
+      - rtl/atarix/**
+      - scripts/rtl/**
+      - .github/workflows/rtl-atx-spec-020.yml
+  workflow_dispatch:
+
+jobs:
+  rtl-sim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: Show tool versions
+        run: |
+          iverilog -V | head -n 20
+          vvp -V | head -n 20
+
+      - name: Run ATX-SPEC-020 simulations
+        run: bash scripts/rtl/run_atx_spec_020_sims.sh
+
+      - name: Upload simulation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atx-spec-020-rtl-sim-artifacts
+          path: build/rtl/atx_spec_020/artifacts/**
+          if-no-files-found: warn
