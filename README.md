@@ -435,6 +435,10 @@ Numbered architecture specifications:
 - [ATX-SPEC-005 Mailbox Model](docs/architecture/ATX-SPEC-005-Mailbox-Model.md)
 - [ATX-SPEC-006 Object Model](docs/architecture/ATX-SPEC-006-Object-Model.md)
 - [ATX-SPEC-007 Namespace Model](docs/architecture/ATX-SPEC-007-Namespace-Model.md)
+- [ATX-SPEC-008 Directory Service Model](docs/architecture/ATX-SPEC-008-Directory-Service-Model.md)
+- [ATX-SPEC-009 Resource Model](docs/architecture/ATX-SPEC-009-Resource-Model.md)
+- [ATX-SPEC-010 Audit Model](docs/architecture/ATX-SPEC-010-Audit-Model.md)
+- [ATX-SPEC-011 Error Model](docs/architecture/ATX-SPEC-011-Error-Model.md)
 
 Architecture foundation drafts:
 
@@ -444,12 +448,14 @@ Architecture foundation drafts:
 - [Namespace Model](docs/architecture/namespace-model.md)
 - [Directory Service Architecture](docs/architecture/directory-service.md)
 - [Architecture Review Checklist](docs/architecture/architecture-review-checklist.md)
+- [Architecture Backlog](docs/architecture/architecture-backlog.md)
 
 Doctrine and review process:
 
 - [Security Doctrine](docs/doctrine/ARC-SEC.md)
 - [Architecture Review Doctrine](docs/doctrine/ARC-REVIEW.md)
 - [Architecture Review Template](docs/reviews/architecture-review-template.md)
+- [Architecture Review 001](docs/reviews/architecture-review-001.md)
 
 ## Documentation Index
 
@@ -464,6 +470,7 @@ Doctrine and review process:
 - [Architecture Decision Records](docs/adr/README.md)
 - [GitHub Project Organization](docs/github-project-organization-v1.md)
 - [Capability Sprint 1 Review](docs/reviews/capability-sprint-1-review.md)
+- [Architecture Review 001](docs/reviews/architecture-review-001.md)
 
 ### Hardware Architecture
 
@@ -536,7 +543,8 @@ Completed:
 - Simulation fabric tests
 - Security doctrine foundation
 - Architecture review process foundation
-- ATX-SPEC-001 through ATX-SPEC-007 draft structure
+- ATX-SPEC-001 through ATX-SPEC-011 draft structure
+- Architecture Review 001
 
 Current phase:
 
@@ -546,11 +554,15 @@ Architecture Phase 2: Core System Semantics
 
 Upcoming architecture work:
 
-- ATX-SPEC-008 Directory Service Model
-- ATX-SPEC-009 Resource Model
-- ATX-SPEC-010 Audit Model
-- ATX-SPEC-011 Error Model
 - ATX-SPEC-012 Versioning Model
 - ATX-SPEC-013 Policy Model
+- ATX-SPEC-014 Bootstrap Security Model
+- ATX-SPEC-016 Supervisor Management Fabric
+- ATX-SPEC-017 Storage and Persistence Model
+- ATX-SPEC-018 Recovery and Reconciliation Model
+- ATX-SPEC-019 Service Model
+- ATX-SPEC-015 POSIX Compatibility Model
+
+See [Architecture Backlog](docs/architecture/architecture-backlog.md) for planned specifications and cross-cutting follow-up work.
 
 The current CI baseline is 40/40 tests passing.
