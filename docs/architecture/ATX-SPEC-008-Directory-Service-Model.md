@@ -8,7 +8,7 @@ Draft v0.2, reconciled after Architecture Review 001
 
 This document defines the Atarix Directory Service Model.
 
-The Directory Service maps human-readable names to object identities. It provides discovery, binding, aliasing, enumeration, and lookup semantics for Atarix objects.
+The Directory Service maps human-readable names to object identities. It provides discovery, binding, aliasing, enumeration, lookup, and stale-binding handling for Atarix objects.
 
 The Directory Service does not grant authority.
 
@@ -17,6 +17,8 @@ Lookup is not access.
 Knowing a name is not authority.
 
 Resolving an object identity is not authority.
+
+All operations on resolved objects remain subject to ring policy, ownership rules, capability validation, lifecycle state, resource policy, and system policy.
 
 ## Design Philosophy
 
@@ -31,7 +33,6 @@ Authority
 Capability
 Lifecycle state
 Resource state
-Version state
 ```
 
 The Directory Service answers:
@@ -46,7 +47,7 @@ It does not answer:
 May this caller use the object?
 ```
 
-That question belongs to the Security, Authority, Capability, Policy, Resource, and Lifecycle models.
+That question belongs to the Security, Authority, Capability, Policy, Lifecycle, and Resource models.
 
 ## Core Invariants
 
@@ -59,18 +60,37 @@ That question belongs to the Security, Authority, Capability, Policy, Resource, 
 7. Directory visibility does not imply control.
 8. Bindings have owners.
 9. Bindings have lifecycle state.
-10. Bindings have generation state.
+10. Bindings have generation metadata.
 11. Bindings can become stale.
 12. Stale bindings must be observable.
-13. Destroyed object identities must never be reused to satisfy stale bindings.
-14. Directory operations must be auditable.
-15. Directory failure must fail closed for authority-bearing operations.
+13. Stale bindings must be removable or tombstoned.
+14. Destroyed object identities must never be reused to satisfy stale bindings.
+15. Directory operations must be auditable.
+16. Directory failure must fail closed for authority-bearing operations.
 
 ## Relationship To Other Specifications
 
-This specification depends on the Security, Authority, Lifecycle, Object, Namespace, Resource, Audit, and Error models.
+This specification depends on:
 
-This specification informs future Versioning, Policy, Bootstrap Security, Storage, Recovery, and Service specifications.
+- ATX-SPEC-001 Security Model
+- ATX-SPEC-002 Authority Model
+- ATX-SPEC-004 Lifecycle Model
+- ATX-SPEC-006 Object Model
+- ATX-SPEC-007 Namespace Model
+- ATX-SPEC-009 Resource Model
+- ATX-SPEC-010 Audit Model
+- ATX-SPEC-011 Error Model
+
+This specification informs:
+
+- ATX-SPEC-012 Versioning Model
+- ATX-SPEC-013 Policy Model
+- ATX-SPEC-014 Bootstrap Security Model
+- ATX-SPEC-015 POSIX Compatibility Model
+- ATX-SPEC-016 Supervisor Management Fabric
+- ATX-SPEC-017 Storage and Persistence Model
+- ATX-SPEC-018 Recovery and Reconciliation Model
+- ATX-SPEC-019 Service Model
 
 ## Terminology
 
@@ -78,9 +98,19 @@ This specification informs future Versioning, Policy, Bootstrap Security, Storag
 
 A human-readable identifier within a namespace.
 
+Example:
+
+```text
+/system/directory
+/service/audit
+/fabric/node/0
+/device/network/eth0
+/user/donovan/session/0
+```
+
 ### Binding
 
-A directory record mapping a name or path to an object identity.
+A directory record that maps a name or path to an object identity.
 
 ### Object Identity
 
@@ -88,33 +118,50 @@ An opaque immutable identity defined by the Object Model.
 
 ### Alias
 
-A binding that resolves to another binding or canonical path.
+A binding that resolves to another binding or canonical object path.
+
+### Directory Entry
+
+A record containing binding metadata.
+
+### Directory Object
+
+An object that stores and manages directory entries for a namespace subtree.
 
 ### Stale Binding
 
 A binding whose target object no longer exists, cannot be verified, has moved without update, or is otherwise invalid.
 
-### Generation
+### Canonical Path
 
-A binding evolution counter.
+The preferred human-readable path for an object.
 
-Generation is not schema version.
+An object may have multiple names, but at most one canonical path within a given namespace authority.
 
-Version describes compatibility. Generation describes instance history.
+## Operational Fabric Plane
+
+The Directory Service operates on the Operational Fabric discovery and service planes.
+
+It is not part of the bulk data plane.
+
+It is not supervisor control authority.
+
+The Operational Fabric may request information from directory services, but directory lookup remains separate from control authority and resource authority.
 
 ## Top-Level Namespace Layout
 
-Recommended top-level namespace layout:
+The recommended top-level namespace layout is:
 
 ```text
-/system
-/service
-/device
-/fabric
-/user
-/session
-/temporary
-/audit
+/
+  system/
+  service/
+  device/
+  fabric/
+  user/
+  session/
+  temporary/
+  audit/
 ```
 
 ## Binding Model
@@ -132,7 +179,7 @@ A binding must contain at least:
 
 ```text
 Binding ID
-Name or path component
+Name / path component
 Target object identity
 Binding type
 Owner
@@ -142,14 +189,14 @@ Generation
 Creation time
 Last update time
 Persistence policy
-Lease or expiration policy
+Lease / expiration policy
 Audit policy
-Version or schema identifier
+Version / schema information
 ```
 
 ## Binding Types
 
-Conceptual binding types:
+Atarix recognizes the following conceptual binding types:
 
 ```text
 DIRECT
@@ -160,13 +207,19 @@ TOMBSTONE
 STALE
 ```
 
-Aliases, mounts, and redirects must not create authority or bypass policy.
+Aliases, mounts, and redirects must not create authority or bypass capability checks.
 
 ## Lookup Semantics
 
-Lookup returns metadata, not authority.
+A lookup operation resolves a name into metadata.
 
-Conceptual result:
+Conceptually:
+
+```text
+lookup("/system/directory")
+```
+
+returns:
 
 ```text
 Object identity
@@ -184,6 +237,8 @@ Lookup does not return a capability.
 
 Lookup does not grant object access.
 
+Lookup does not imply that future lookup of the same name resolves to the same object unless a binding generation or object identity is pinned.
+
 ## Lookup Failure
 
 Lookup may fail because:
@@ -198,13 +253,26 @@ Binding expired
 Alias loop detected
 Redirect denied
 Target object destroyed
-Unsupported version
 Policy unavailable
+Unsupported version
+Unknown state
 ```
 
-Failure categories must map into the Error Model.
+Authority-bearing operations must fail closed when lookup state cannot be verified.
 
 ## Lookup And Authority
+
+The following are explicitly false:
+
+```text
+Knowing a path grants authority.
+Resolving a path grants authority.
+Enumerating a directory grants authority.
+Owning a name grants authority over the target object.
+Owning an object automatically grants authority over all names bound to it.
+```
+
+Authority must be checked separately.
 
 The access path is:
 
@@ -222,21 +290,41 @@ Lookup
 
 ## Directory Visibility
 
-Directory entries may be visible without granting object access.
+Atarix may allow directory entries to be visible without granting object access.
 
 Visibility itself may still be policy-controlled.
 
 Observation is not control.
 
-## Aliases And Rebinding
+## Generation And Version
 
-Aliases must detect loops, preserve auditability, preserve policy boundaries, and never create authority.
+Binding generation identifies binding evolution.
 
-Rebinding requires explicit authority, increments generation, and creates an audit event.
+Version identifies schema or protocol compatibility.
 
-Clients requiring stability must pin object identity or binding generation.
+These must not be conflated.
+
+Rebinding must increment generation metadata and create an audit event.
+
+Unsupported binding or reply versions must fail closed for authority-bearing operations unless explicit compatibility rules allow degraded interpretation.
 
 ## Lifecycle Integration
+
+Directory entries participate in the Lifecycle Model.
+
+Bindings may be:
+
+```text
+CREATED
+ACTIVE
+SUSPENDED
+STALE
+EXPIRED
+REMOVED
+TOMBSTONED
+QUARANTINED
+UNKNOWN
+```
 
 When an object is destroyed:
 
@@ -244,12 +332,63 @@ When an object is destroyed:
 Object destroyed
   -> capabilities revoked or invalidated
   -> mailboxes closed
-  -> resources reclaimed or quarantined
   -> directory bindings marked stale, removed, or tombstoned
+  -> resources reclaimed
   -> audit record generated
 ```
 
 No binding may silently resolve to a replacement object after target destruction.
+
+## Temporary And Persistent Bindings
+
+Temporary bindings are lease-oriented by default.
+
+Persistent bindings require explicit policy, recovery behavior, cleanup authority, version handling, and audit visibility.
+
+Persistence must not be accidental.
+
+## Distributed Directory Behavior
+
+The Directory Service must support future distributed operation.
+
+A lookup may eventually resolve to:
+
+```text
+Local object
+Object on another node in the same fabric
+Migrated object
+Replicated service
+Remote namespace authority
+Federated fabric gateway
+```
+
+Rev A requires only one operational fabric.
+
+Remote resolution does not imply remote access.
+
+## Service Location Independence
+
+Services are discovered by name, interface, version, and capability requirements, not by physical implementation.
+
+A service may be provided by a CPU card, auxiliary compute card, storage processor, network card, or future fabric node.
+
+Service location is not service identity.
+
+## Bootstrap Considerations
+
+Some early boot services may need name-like resolution before the full Directory Service exists.
+
+That behavior belongs to the Bootstrap Security Model.
+
+Bootstrap lookup must not be treated as normal runtime directory authority.
+
+Bootstrap authority is not runtime authority.
+
+## POSIX Compatibility Considerations
+
+Future POSIX compatibility will map POSIX paths onto Atarix namespace and directory operations.
+
+POSIX path lookup must not import POSIX ambient-authority assumptions into Atarix.
 
 ## Audit Requirements
 
@@ -270,27 +409,13 @@ Directory lookup redirected
 Directory cache invalidated
 Binding expired
 Binding tombstoned
+Binding quarantined
+Unsupported version rejected
 ```
-
-## Distributed And Service Considerations
-
-Rev A requires one operational fabric.
-
-Future directory behavior may support local objects, remote objects within the same fabric, federated fabric references, migrated services, and replicated services.
-
-Service location is not service identity.
-
-## Bootstrap Considerations
-
-Bootstrap lookup belongs to the Bootstrap Security Model.
-
-Bootstrap lookup is not runtime directory authority.
-
-Bootstrap authority is not runtime authority.
 
 ## Initial Directory Sprint Scope
 
-Directory Sprint 1 should implement:
+Directory Sprint 1 should implement only:
 
 ```text
 Direct bindings
@@ -304,7 +429,50 @@ Stale binding behavior
 Basic tests
 ```
 
-It should not implement distributed lookup, replication, caching, remote directory authorities, POSIX path emulation, complex mounts, or policy language.
+Directory Sprint 1 should not implement distributed lookup, replication, caching, POSIX path emulation, complex mounts, or policy language.
+
+## Required Tests
+
+Initial tests should verify:
+
+```text
+Create binding
+Lookup existing binding
+Lookup missing binding
+Remove binding
+Removed binding does not resolve
+Rebinding increments generation
+Alias loop rejected
+Lookup does not grant authority
+Stale binding rejected
+Destroyed object identity not reused
+Malformed path rejected
+Temporary binding expiration
+Directory mutation requires authority
+Unsupported version fails closed
+```
+
+## Open Questions
+
+Q-001: What exact path syntax is allowed?
+
+Q-002: What maximum path length should be supported?
+
+Q-003: What maximum component length should be supported?
+
+Q-004: Are paths case-sensitive?
+
+Q-005: Are Unicode names allowed in kernel-visible paths, or only higher-level display names?
+
+Q-006: How are binding IDs represented?
+
+Q-007: What minimum metadata must fit in a wire-format directory reply?
+
+Q-008: Which namespace roots are mandatory at boot?
+
+Q-009: How does the Directory Service recover persistent bindings after crash?
+
+Q-010: What exact audit event format is required?
 
 ## Summary
 
