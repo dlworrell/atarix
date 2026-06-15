@@ -23,6 +23,8 @@ module atx_audit_log_window #(
     output reg                    wrapped
 );
 
+    localparam [ADDR_WIDTH-1:0] LAST_ADDR = BUFFER_DEPTH - 1;
+
     reg [7:0] storage_matrix [0:BUFFER_DEPTH-1];
 
     always @(posedge clk or negedge rst_n) begin
@@ -31,9 +33,11 @@ module atx_audit_log_window #(
             wrapped <= 1'b0;
         end else if (write_en) begin
             storage_matrix[head_pointer] <= write_data;
-            head_pointer <= head_pointer + 1'b1;
-            if (head_pointer == BUFFER_DEPTH[ADDR_WIDTH-1:0] - 1'b1) begin
+            if (head_pointer == LAST_ADDR) begin
+                head_pointer <= {ADDR_WIDTH{1'b0}};
                 wrapped <= 1'b1;
+            end else begin
+                head_pointer <= head_pointer + 1'b1;
             end
         end
     end
