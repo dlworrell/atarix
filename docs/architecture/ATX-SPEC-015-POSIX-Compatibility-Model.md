@@ -813,6 +813,267 @@ UNKNOWN
 
 Unknown recovery outcome must fail closed for authority-bearing operations.
 
+## Compatibility Profile Registry
+
+Compatibility profiles define supported, restricted, emulated, and denied behavior for a POSIX environment.
+
+A profile should specify:
+
+```text
+Profile name
+Profile version
+Supported API families
+Descriptor behavior
+Process creation strategy
+Program loading strategy
+IPC mappings
+Network support
+Service-bound endpoint support
+Shared memory policy
+Audit policy
+Recovery policy
+Unsupported operations
+```
+
+Profiles are versioned architecture objects.
+
+Unknown profile versions must be explicit and must not silently fall back to broader compatibility.
+
+## POSIX_MINIMAL
+
+`POSIX_MINIMAL` is the smallest useful compatibility environment.
+
+Expected support:
+
+```text
+Basic path lookup
+Basic descriptors
+Basic file-like read/write/close
+Basic program loading
+Basic environment metadata
+Basic error projection
+Basic audit hooks
+```
+
+Expected restrictions:
+
+```text
+No full process cloning requirement
+No broad network requirement
+No broad device endpoint requirement
+No shared memory requirement
+No legacy privilege expansion
+```
+
+This profile is suitable for early runtime tests, simple utilities, and compatibility scaffolding.
+
+## POSIX_USERLAND
+
+`POSIX_USERLAND` targets ordinary command-line and userland-style software.
+
+Expected support:
+
+```text
+Directories
+Regular file views
+Descriptor inheritance policy
+Process creation strategy
+Program loading and replacement
+Mailbox-backed streams
+Compatibility events
+Environment variables
+Working directory state
+```
+
+Expected restrictions:
+
+```text
+Network optional
+Service-bound endpoints limited
+Shared memory profile-gated
+Compatibility administrative role limited by native policy
+```
+
+## POSIX_NETWORKED
+
+`POSIX_NETWORKED` extends userland compatibility with network endpoint projection.
+
+Expected support:
+
+```text
+Network descriptors
+Network service binding
+Local endpoint projection
+Mailbox-backed network buffers
+Network audit events
+Network recovery checks
+```
+
+Expected restrictions:
+
+```text
+No direct network authority from descriptor possession
+Endpoint capability required
+Policy required for bind/connect/listen-like operations
+Recovery may require reconnect
+```
+
+## POSIX_DEVELOPMENT
+
+`POSIX_DEVELOPMENT` supports build tools, compilers, linkers, shells, interpreters, package tools, and diagnostic utilities.
+
+Expected support:
+
+```text
+Large descriptor tables
+Process tree metadata
+Program loading diagnostics
+Filesystem-like workspace views
+Expanded audit diagnostics
+Development-oriented error detail
+```
+
+Expected restrictions:
+
+```text
+Debug-style observation requires explicit policy
+Build tool authority remains scoped
+Compatibility tooling cannot bypass native policy
+```
+
+## POSIX_LEGACY
+
+`POSIX_LEGACY` is for software that expects older or broader Unix behavior.
+
+This profile is higher risk and should be opt-in.
+
+Expected support may include broader compatibility emulation.
+
+Required controls:
+
+```text
+Explicit policy approval
+Stronger audit
+Tighter resource limits
+Clear unsupported-operation list
+Recovery quarantine preference
+No native authority expansion
+```
+
+Legacy compatibility must not become a reason to weaken native Atarix semantics.
+
+## Compatibility Test Matrix
+
+ATX-SPEC-015 requires tests that prove the compatibility projection does not weaken native authority.
+
+Initial test categories:
+
+```text
+Identity mapping
+Permission metadata
+Path lookup
+Descriptor handling
+Descriptor inheritance
+Program loading
+Process lifecycle
+Mailbox IPC mapping
+Network endpoint projection
+Service-bound endpoint projection
+Audit mapping
+Error mapping
+Recovery reconciliation
+Quarantine behavior
+Profile enforcement
+Unsupported operation handling
+```
+
+## Required Identity Tests
+
+Tests should verify:
+
+```text
+User label does not grant native authority
+Group label does not grant native authority
+Compatibility role does not bypass native policy
+Audit records include compatibility and native identities
+```
+
+## Required Path Tests
+
+Tests should verify:
+
+```text
+Path lookup identifies objects without granting access
+Stale path binding reconciles against native directory state
+Denied path access produces native policy result plus compatibility error
+Namespace view cannot escape profile policy
+```
+
+## Required Descriptor Tests
+
+Tests should verify:
+
+```text
+Descriptor maps to backing capability
+Descriptor cannot outlive revoked capability
+Descriptor duplication obeys policy
+Descriptor inheritance obeys policy
+Invalid descriptor produces explicit compatibility error
+```
+
+## Required Process And Program Tests
+
+Tests should verify:
+
+```text
+Process identifier is not authority
+Program loading requires execute authority
+Program replacement drops denied authority
+Process creation strategy matches profile
+Quarantined process cannot resume normal execution
+```
+
+## Required IPC And Network Tests
+
+Tests should verify:
+
+```text
+Compatibility events map to mailbox events
+Streams map to mailbox-backed endpoints
+Queues preserve mailbox resource limits
+Network descriptors require endpoint capability
+Local endpoint path lookup does not grant access
+Service-bound endpoints are service-mediated
+Shared memory remains governed by ATX-SPEC-021
+```
+
+## Required Audit And Error Tests
+
+Tests should verify:
+
+```text
+Audit records preserve native decision context
+Compatibility error mapping preserves native error context
+Unknown native error never maps to success
+Policy denial is auditable
+Recovery actions are auditable
+```
+
+## Required Recovery Tests
+
+Tests should verify:
+
+```text
+Recovery does not restore authority
+Descriptor reconciliation fails closed
+Path reconciliation does not grant access
+Process reconciliation requires native lifecycle validity
+Network reconciliation detects broken endpoints
+Audit discontinuity becomes explicit
+Quarantine blocks normal execution
+Unknown recovery outcome fails closed
+```
+
 ## Initial POSIX Sprint Scope
 
 POSIX Sprint 1 should define:
@@ -832,7 +1093,7 @@ Basic tests
 
 ## Required Future Work
 
-- Define POSIX profile registry.
+- Define POSIX profile registry object format.
 - Define descriptor record format.
 - Define compatibility error mapping table.
 - Define compatibility audit event additions.
@@ -844,6 +1105,7 @@ Basic tests
 - Define compatibility IPC mappings against ATX-SPEC-005.
 - Define shared memory mapping against ATX-SPEC-021.
 - Define compatibility recovery test cases against ATX-SPEC-018.
+- Define profile conformance test suite.
 
 ## Summary
 
@@ -859,5 +1121,6 @@ Path lookup is not access.
 Descriptors are compatibility handles.
 Native IPC is mailbox-based.
 Compatibility recovery restores execution, not authority.
+Compatibility profiles are explicit and versioned.
 POSIX compatibility must not weaken native Atarix security semantics.
 ```
