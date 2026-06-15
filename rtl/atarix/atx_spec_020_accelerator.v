@@ -1,18 +1,20 @@
 `timescale 1ns / 1ps
 /*
- * ATX-SPEC-020 lookup accelerator scaffold.
+ * ATX-SPEC-020 lookup accelerator.
  *
- * This module is intentionally conservative:
+ * Simulation-complete RTL scaffold:
  *   - mailbox-style request inputs
  *   - CRC/status gate before execution
  *   - ring/policy/capability gates before probing
  *   - registry_id, not raw table_base
- *   - bounded probe_limit
- *   - audit commit before ready
+ *   - atx_simd_probe_core for 16-lane control-byte matching
+ *   - atx_krapivin_stepper for bounded next-probe address generation
+ *   - audit commit before response
  *   - verbose simulation trace output
  *
- * This is a scaffold for simulation and architectural validation, not a final
- * ECP5-optimized netlist.
+ * This is still not final timing-closed ECP5 silicon. It is intended to be a
+ * clean RTL base for simulation, synthesis experiments, and future memory
+ * fabric integration.
  */
 
 module atx_spec_020_accelerator (
@@ -42,6 +44,10 @@ module atx_spec_020_accelerator (
     input  wire [31:0]  table_generation,
     input  wire [31:0]  table_base_resolved_id,
     input  wire         table_lookup_valid,
+
+    output reg          probe_valid,
+    output reg  [31:0]  probe_addr,
+    output wire [31:0]  probe_next_addr,
 
     output reg         resp_valid,
     input  wire        resp_ready,
@@ -77,57 +83,48 @@ module atx_spec_020_accelerator (
     localparam STATE_AUTH        = 4'd2;
     localparam STATE_FETCH       = 4'd3;
     localparam STATE_PROBE       = 4'd4;
-    localparam STATE_AUDIT       = 4'd5;
-    localparam STATE_RESPOND     = 4'd6;
+    localparam STATE_STEP        = 4'd5;
+    localparam STATE_AUDIT       = 4'd6;
+    localparam STATE_RESPOND     = 4'd7;
 
     reg [3:0] state;
     reg [31:0] cycle_counter;
     reg [7:0] probe_count;
     reg [6:0] h2_fingerprint;
-    reg [15:0] lane_matches;
-    reg simd_hit;
-    integer lane_index;
+    reg [31:0] table_mask;
 
-    always @(*) begin
-        lane_matches = 16'h0000;
-        for (lane_index = 0; lane_index < 16; lane_index = lane_index + 1) begin
-            lane_matches[lane_index] =
-                (table_control_bytes[(lane_index * 8) + 7] == 1'b1) &&
-                (table_control_bytes[(lane_index * 8) +: 7] == h2_fingerprint);
-        end
-    end
+    wire simd_hit;
+    wire [3:0] simd_match_offset;
+    wire [15:0] simd_lane_matches;
+    wire [31:0] krapivin_offset;
 
-    always @(*) begin
-        simd_hit = |lane_matches;
-        casex (lane_matches)
-            16'bxxxx_xxxx_xxxx_xxx1: resp_match_offset = 4'd0;
-            16'bxxxx_xxxx_xxxx_xx10: resp_match_offset = 4'd1;
-            16'bxxxx_xxxx_xxxx_x100: resp_match_offset = 4'd2;
-            16'bxxxx_xxxx_xxxx_1000: resp_match_offset = 4'd3;
-            16'bxxxx_xxxx_xxx1_0000: resp_match_offset = 4'd4;
-            16'bxxxx_xxxx_xx10_0000: resp_match_offset = 4'd5;
-            16'bxxxx_xxxx_x100_0000: resp_match_offset = 4'd6;
-            16'bxxxx_xxxx_1000_0000: resp_match_offset = 4'd7;
-            16'bxxxx_xxx1_0000_0000: resp_match_offset = 4'd8;
-            16'bxxxx_xx10_0000_0000: resp_match_offset = 4'd9;
-            16'bxxxx_x100_0000_0000: resp_match_offset = 4'd10;
-            16'bxxxx_1000_0000_0000: resp_match_offset = 4'd11;
-            16'bxxx1_0000_0000_0000: resp_match_offset = 4'd12;
-            16'bxx10_0000_0000_0000: resp_match_offset = 4'd13;
-            16'bx100_0000_0000_0000: resp_match_offset = 4'd14;
-            16'b1000_0000_0000_0000: resp_match_offset = 4'd15;
-            default:                 resp_match_offset = 4'd0;
-        endcase
-    end
+    atx_simd_probe_core simd_probe_core (
+        .control_bytes(table_control_bytes),
+        .target_h2(h2_fingerprint),
+        .match_found(simd_hit),
+        .match_offset(simd_match_offset),
+        .lane_matches(simd_lane_matches)
+    );
+
+    atx_krapivin_stepper krapivin_stepper (
+        .current_base(probe_addr),
+        .current_attempt(probe_count),
+        .table_mask(table_mask),
+        .next_base(probe_next_addr),
+        .non_linear_offset(krapivin_offset)
+    );
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= STATE_IDLE;
             req_ready <= 1'b1;
+            probe_valid <= 1'b0;
+            probe_addr <= 32'h00000000;
             resp_valid <= 1'b0;
             resp_status <= STATUS_OK;
             resp_resolved_id <= 32'h00000000;
             resp_resolved_generation <= 32'h00000000;
+            resp_match_offset <= 4'h0;
             resp_cycles <= 32'h00000000;
             audit_valid <= 1'b0;
             audit_sequence <= 32'h00000000;
@@ -139,20 +136,25 @@ module atx_spec_020_accelerator (
             cycle_counter <= 32'h00000000;
             probe_count <= 8'h00;
             h2_fingerprint <= 7'h00;
+            table_mask <= 32'hFFFFFFFF;
         end else begin
             cycle_counter <= cycle_counter + 1'b1;
 
             case (state)
                 STATE_IDLE: begin
                     req_ready <= 1'b1;
+                    probe_valid <= 1'b0;
                     resp_valid <= 1'b0;
                     audit_valid <= 1'b0;
                     probe_count <= 8'h00;
                     if (req_valid) begin
                         req_ready <= 1'b0;
                         h2_fingerprint <= req_key_hash[6:0];
+                        probe_addr <= table_base_resolved_id;
+                        table_mask <= 32'hFFFFFFFF;
                         resp_resolved_id <= 32'hFFFFFFFF;
                         resp_resolved_generation <= 32'h00000000;
+                        resp_match_offset <= 4'h0;
                         resp_status <= STATUS_OK;
                         state <= STATE_VALIDATE;
 `ifndef SYNTHESIS
@@ -186,11 +188,13 @@ module atx_spec_020_accelerator (
                         resp_status <= STATUS_POLICY_DENIED;
                         state <= STATE_AUDIT;
                     end else begin
+                        probe_valid <= 1'b1;
                         state <= STATE_FETCH;
                     end
                 end
 
                 STATE_FETCH: begin
+                    probe_valid <= 1'b0;
                     if (table_lookup_valid) begin
                         state <= STATE_PROBE;
                     end else begin
@@ -203,20 +207,30 @@ module atx_spec_020_accelerator (
                     probe_count <= probe_count + 1'b1;
                     if (simd_hit) begin
                         resp_status <= STATUS_OK;
-                        resp_resolved_id <= table_base_resolved_id + {28'h0, resp_match_offset};
+                        resp_match_offset <= simd_match_offset;
+                        resp_resolved_id <= probe_addr + {28'h0, simd_match_offset};
                         resp_resolved_generation <= table_generation;
                         state <= STATE_AUDIT;
                     end else if (probe_count >= req_probe_limit) begin
                         resp_status <= STATUS_SEQUENCE_ERROR;
                         state <= STATE_AUDIT;
                     end else begin
-                        /* Scaffold: one control line only. Future implementation steps probe sequence. */
-                        resp_status <= STATUS_SEQUENCE_ERROR;
-                        state <= STATE_AUDIT;
+                        state <= STATE_STEP;
                     end
                 end
 
+                STATE_STEP: begin
+                    probe_addr <= probe_next_addr;
+                    probe_valid <= 1'b1;
+`ifndef SYNTHESIS
+                    $display("ATX020 STEP seq=%0d attempt=%0d next_addr=0x%08x offset=%0d",
+                             req_sequence, probe_count, probe_next_addr, krapivin_offset);
+`endif
+                    state <= STATE_FETCH;
+                end
+
                 STATE_AUDIT: begin
+                    probe_valid <= 1'b0;
                     audit_valid <= 1'b1;
                     audit_sequence <= req_sequence;
                     audit_status <= resp_status;
