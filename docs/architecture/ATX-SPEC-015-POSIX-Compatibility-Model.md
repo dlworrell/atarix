@@ -155,6 +155,145 @@ Compatibility metadata may help explain intent.
 
 It does not override native authority, policy, audit, lifecycle, or recovery state.
 
+## Identity Labels
+
+POSIX user and group concepts are compatibility identity labels.
+
+They are not native authority.
+
+A compatibility user or group label may map to:
+
+```text
+Atarix identity label
+Policy subject
+Compatibility account object
+Audit actor label
+Namespace view selector
+Resource accounting group
+```
+
+A label may help policy decide whether an action should be allowed.
+
+The label itself does not grant native authority.
+
+Native capability and policy checks remain required for authority-bearing operations.
+
+## Permission Metadata
+
+POSIX permission bits are compatibility metadata and policy inputs.
+
+They may describe intended access behavior inside the compatibility environment.
+
+They do not replace native Atarix capabilities or policy.
+
+Permission metadata may include:
+
+```text
+Read bit
+Write bit
+Execute bit
+Owner category
+Group category
+Other category
+Creation mask
+Special compatibility flags
+```
+
+The compatibility layer may use this metadata to decide how to present behavior to POSIX-facing software.
+
+The final native decision still depends on Atarix authority, policy, object state, lifecycle state, and recovery state.
+
+## Paths
+
+POSIX paths are compatibility namespace references.
+
+A path may be absolute, relative, symbolic, generated, mounted, or view-specific.
+
+Path resolution maps to Atarix namespace and directory operations.
+
+Core rule:
+
+```text
+Path lookup is not access.
+```
+
+A successful path lookup may identify an object.
+
+It does not grant permission to read, write, execute, enumerate, modify, delete, signal, mount, or control that object.
+
+A path lookup result should preserve:
+
+```text
+Resolved object identity
+Directory binding identity
+Generation
+Namespace view
+Lookup policy result
+Audit context where required
+```
+
+If namespace state and compatibility state disagree, native directory and object state govern reconciliation.
+
+## Descriptors
+
+A POSIX descriptor is a compatibility handle.
+
+Internally it maps to Atarix-native capabilities, service bindings, object references, and resource allocations.
+
+A descriptor may represent:
+
+```text
+Storage object access
+Directory enumeration state
+Stream endpoint
+Pipe endpoint
+Socket endpoint
+Event object
+Device-like service endpoint
+Compatibility runtime object
+```
+
+A descriptor record should include:
+
+```text
+Descriptor number
+Descriptor generation
+Backing object identity
+Backing service identity
+Capability reference
+Open mode
+Inheritance policy
+Lifecycle state
+Audit policy
+Resource accounting reference
+```
+
+Descriptor possession alone is not native authority.
+
+A descriptor is usable only while its backing native authority remains valid and policy permits the operation.
+
+## Descriptor Duplication And Inheritance
+
+Descriptor duplication, passing, and inheritance are authority-sensitive compatibility operations.
+
+They must be policy-controlled.
+
+The compatibility layer must distinguish:
+
+```text
+Duplicate within same environment
+Inherit into created execution object
+Pass through IPC-like mechanism
+Close or revoke descriptor
+Mark descriptor non-inheritable
+```
+
+A duplicated descriptor must not silently widen authority.
+
+A descriptor inherited by a new compatibility execution object must carry only the authority allowed by policy.
+
+If backing authority is revoked, stale descriptors must become unusable or enter an explicit error state.
+
 ## Mapping Rules
 
 The following rules apply:
