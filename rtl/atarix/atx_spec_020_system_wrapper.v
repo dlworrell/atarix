@@ -52,13 +52,26 @@ module atx_spec_020_system_wrapper (
     wire [7:0]  audit_probe_count;
     wire [3:0]  audit_match_offset;
 
+    wire        probe_valid;
+    wire [31:0] probe_addr;
+    wire [31:0] probe_next_addr;
+    wire [7:0]  audit_window_head;
+    wire        audit_window_wrapped;
+
     reg [7:0] audit_byte;
     reg       audit_byte_valid;
 
     always @(*) begin
         audit_byte_valid = audit_valid;
-        /* Compact binary audit byte for scaffold. Future revision emits records. */
-        audit_byte = audit_status;
+        audit_byte = audit_status ^
+                     audit_sequence[7:0] ^
+                     audit_registry_id[7:0] ^
+                     audit_generation[7:0] ^
+                     audit_probe_count ^
+                     {4'h0, audit_match_offset} ^
+                     probe_addr[7:0] ^
+                     probe_next_addr[7:0] ^
+                     {7'h0, probe_valid};
     end
 
     atx_spec_020_accelerator accelerator (
@@ -84,6 +97,9 @@ module atx_spec_020_system_wrapper (
         .table_generation(table_generation),
         .table_base_resolved_id(table_base_resolved_id),
         .table_lookup_valid(table_lookup_valid),
+        .probe_valid(probe_valid),
+        .probe_addr(probe_addr),
+        .probe_next_addr(probe_next_addr),
         .resp_valid(resp_valid),
         .resp_ready(resp_ready),
         .resp_status(resp_status),
@@ -108,8 +124,8 @@ module atx_spec_020_system_wrapper (
         .write_en(audit_byte_valid),
         .read_addr(audit_read_addr),
         .read_data(audit_read_data),
-        .head_pointer(),
-        .wrapped()
+        .head_pointer(audit_window_head),
+        .wrapped(audit_window_wrapped)
     );
 
 endmodule
