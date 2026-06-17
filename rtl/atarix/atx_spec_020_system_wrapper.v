@@ -58,21 +58,22 @@ module atx_spec_020_system_wrapper (
     wire [7:0]  audit_window_head;
     wire        audit_window_wrapped;
 
-    reg [7:0] audit_byte;
-    reg       audit_byte_valid;
+    wire [7:0] audit_projection_byte;
+    wire       audit_byte_valid;
 
-    always @(*) begin
-        audit_byte_valid = audit_valid;
-        audit_byte = audit_status ^
-                     audit_sequence[7:0] ^
-                     audit_registry_id[7:0] ^
-                     audit_generation[7:0] ^
-                     audit_probe_count ^
-                     {4'h0, audit_match_offset} ^
-                     probe_addr[7:0] ^
-                     probe_next_addr[7:0] ^
-                     {7'h0, probe_valid};
-    end
+    assign audit_byte_valid = audit_valid;
+    assign audit_projection_byte =
+        audit_status ^
+        {7'h0, ^audit_sequence} ^
+        {7'h0, ^audit_registry_id} ^
+        {7'h0, ^audit_generation} ^
+        audit_probe_count ^
+        {4'h0, audit_match_offset} ^
+        {7'h0, ^probe_addr} ^
+        {7'h0, ^probe_next_addr} ^
+        {7'h0, probe_valid} ^
+        audit_window_head ^
+        {7'h0, audit_window_wrapped};
 
     atx_spec_020_accelerator accelerator (
         .clk(clk),
@@ -120,7 +121,7 @@ module atx_spec_020_system_wrapper (
     atx_audit_log_window audit_window (
         .clk(clk),
         .rst_n(rst_n),
-        .write_data(audit_byte),
+        .write_data(audit_projection_byte),
         .write_en(audit_byte_valid),
         .read_addr(audit_read_addr),
         .read_data(audit_read_data),
