@@ -1,0 +1,14 @@
+{
+  "schema": "atarix.aems.spec_index.v1",
+  "project": "atarix",
+  "specs": [
+    {
+      "id": "ATX-SPEC-021",
+      "title": "Memory and Data Movement Model",
+      "status": "draft",
+      "path": "docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md",
+      "depends_on": ["ATX-SPEC-005", "ATX-SPEC-010", "ATX-SPEC-017", "ATX-SPEC-018", "ATX-SPEC-019", "ATX-SPEC-020"],
+      "issues": [10]
+    }
+  ]
+}
