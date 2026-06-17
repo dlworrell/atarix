@@ -9,6 +9,22 @@
       "path": "docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md",
       "depends_on": ["ATX-SPEC-005", "ATX-SPEC-010", "ATX-SPEC-017", "ATX-SPEC-018", "ATX-SPEC-019", "ATX-SPEC-020"],
       "issues": [10]
+    },
+    {
+      "id": "ATX-SPEC-090",
+      "title": "Atarix Engineering Management System",
+      "status": "draft",
+      "path": "docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md",
+      "depends_on": ["ATX-100", "ATX-SPEC-091"],
+      "issues": []
+    },
+    {
+      "id": "ATX-SPEC-091",
+      "title": "Requirements and Traceability Model",
+      "status": "draft",
+      "path": "docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md",
+      "depends_on": ["ATX-100", "ATX-SPEC-090"],
+      "issues": []
     }
   ]
 }
