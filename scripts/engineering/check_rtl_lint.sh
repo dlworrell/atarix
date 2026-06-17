@@ -12,6 +12,7 @@ if ! command -v verilator >/dev/null 2>&1; then
     exit 0
 fi
 
+set +e
 verilator --lint-only --Wall \
     rtl/atarix/atx_audit_log_window.v \
     rtl/atarix/atx_simd_probe_core.v \
@@ -22,5 +23,13 @@ verilator --lint-only --Wall \
     rtl/atarix/atx_spec_020_accelerator.v \
     rtl/atarix/atx_spec_020_system_wrapper.v \
     > "${LOG_FILE}" 2>&1
+status=$?
+set -e
+
+if [ "${status}" -ne 0 ]; then
+    echo "FAIL Verilator RTL lint. Diagnostics follow:"
+    cat "${LOG_FILE}"
+    exit "${status}"
+fi
 
 echo "PASS Verilator RTL lint" | tee -a "${LOG_FILE}"
