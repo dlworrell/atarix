@@ -60,6 +60,8 @@ require_file 'docs/architecture/ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.
 require_file 'docs/reviews/Architecture-Review-003.md'
 require_file 'include/atarix/mailbox.h'
 require_file 'include/atarix/index.h'
+require_file 'include/atarix/ring.h'
+require_file 'include/atarix/rings.h'
 require_file 'rtl/atarix/README.md'
 require_file 'rtl/atarix/ATX-SPEC-020-CI.md'
 require_file 'scripts/rtl/run_atx_spec_020_sims.sh'
@@ -99,8 +101,8 @@ phase 'Engineering Gate: C header syntax smoke test'
 if command -v gcc >/dev/null 2>&1; then
     C_SMOKE="${BUILD_DIR}/header_smoke.c"
     cat > "${C_SMOKE}" <<'CSMOKE'
-#include "include/atarix/mailbox.h"
-#include "include/atarix/index.h"
+#include "atarix/mailbox.h"
+#include "atarix/index.h"
 int main(void) {
     atarix_mailbox_header_v1_t header;
     atarix_payload_index_query_v1_t query;
@@ -111,7 +113,7 @@ int main(void) {
     return 0;
 }
 CSMOKE
-    if gcc -std=c11 -Wall -Wextra -I. -c "${C_SMOKE}" -o "${BUILD_DIR}/header_smoke.o"; then
+    if gcc -std=c11 -Wall -Wextra -Iinclude -c "${C_SMOKE}" -o "${BUILD_DIR}/header_smoke.o"; then
         pass 'C header smoke test compiled with gcc'
     else
         fail 'C header smoke test failed with gcc'
