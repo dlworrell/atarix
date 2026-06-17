@@ -65,6 +65,8 @@ require_file 'include/atarix/rings.h'
 require_file 'rtl/atarix/README.md'
 require_file 'rtl/atarix/ATX-SPEC-020-CI.md'
 require_file 'scripts/rtl/run_atx_spec_020_sims.sh'
+require_file 'scripts/engineering/check_headers.sh'
+require_file 'scripts/engineering/check_rtl_lint.sh'
 
 phase 'Engineering Gate: RTL file inventory'
 require_file 'rtl/atarix/atx_northbridge_bus_shim.v'
@@ -97,29 +99,18 @@ else
     fail 'ATX-SPEC-015 missing POSIX personality invariant'
 fi
 
-phase 'Engineering Gate: C header syntax smoke test'
-if command -v gcc >/dev/null 2>&1; then
-    C_SMOKE="${BUILD_DIR}/header_smoke.c"
-    cat > "${C_SMOKE}" <<'CSMOKE'
-#include "atarix/mailbox.h"
-#include "atarix/index.h"
-int main(void) {
-    atarix_mailbox_header_v1_t header;
-    atarix_payload_index_query_v1_t query;
-    atarix_payload_index_reply_v1_t reply;
-    (void)header;
-    (void)query;
-    (void)reply;
-    return 0;
-}
-CSMOKE
-    if gcc -std=c11 -Wall -Wextra -Iinclude -c "${C_SMOKE}" -o "${BUILD_DIR}/header_smoke.o"; then
-        pass 'C header smoke test compiled with gcc'
-    else
-        fail 'C header smoke test failed with gcc'
-    fi
+phase 'Engineering Gate: public header self-compile'
+if bash scripts/engineering/check_headers.sh; then
+    pass 'public headers self-compile in C and C++'
 else
-    warn 'gcc not found; skipping C header smoke test'
+    fail 'public header self-compile failed'
+fi
+
+phase 'Engineering Gate: RTL lint'
+if bash scripts/engineering/check_rtl_lint.sh; then
+    pass 'RTL lint completed'
+else
+    fail 'RTL lint failed'
 fi
 
 phase 'Engineering Gate: RTL simulation gate'
