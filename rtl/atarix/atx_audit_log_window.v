@@ -1,10 +1,4 @@
 `timescale 1ns / 1ps
-/*
- * Hardware audit log window.
- *
- * Provides a small circular byte buffer for human-readable or diagnostic audit
- * projection data. This is intentionally isolated from lookup data paths.
- */
 
 module atx_audit_log_window #(
     parameter BUFFER_DEPTH = 256,
@@ -12,18 +6,15 @@ module atx_audit_log_window #(
 )(
     input  wire                   clk,
     input  wire                   rst_n,
-
     input  wire [7:0]             write_data,
     input  wire                   write_en,
-
     input  wire [ADDR_WIDTH-1:0]  read_addr,
     output wire [7:0]             read_data,
-
     output reg  [ADDR_WIDTH-1:0]  head_pointer,
     output reg                    wrapped
 );
 
-    localparam [ADDR_WIDTH-1:0] LAST_ADDR = BUFFER_DEPTH - 1;
+    localparam integer LAST_ADDR_INT = BUFFER_DEPTH - 1;
 
     reg [7:0] storage_matrix [0:BUFFER_DEPTH-1];
 
@@ -33,7 +24,7 @@ module atx_audit_log_window #(
             wrapped <= 1'b0;
         end else if (write_en) begin
             storage_matrix[head_pointer] <= write_data;
-            if (head_pointer == LAST_ADDR) begin
+            if (head_pointer == LAST_ADDR_INT[ADDR_WIDTH-1:0]) begin
                 head_pointer <= {ADDR_WIDTH{1'b0}};
                 wrapped <= 1'b1;
             end else begin
