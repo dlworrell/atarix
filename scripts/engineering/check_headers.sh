@@ -10,7 +10,7 @@ cd "${ROOT_DIR}"
 : > "${LOG_FILE}"
 
 C_FLAGS="-std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wundef -Werror -Iinclude"
-CXX_FLAGS="-std=c++17 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wundef -Werror -Iinclude"
+CXX_FLAGS="-std=c++17 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wundef -Werror -D_Static_assert=static_assert -Iinclude"
 
 status=0
 
@@ -31,15 +31,19 @@ for header in "${HEADERS[@]}"; do
     c_obj="${BUILD_DIR}/${safe_name}.c.o"
     cpp_file="${BUILD_DIR}/${safe_name}.cpp"
     cpp_obj="${BUILD_DIR}/${safe_name}.cpp.o"
+    c_log="${BUILD_DIR}/${safe_name}.c.log"
+    cpp_log="${BUILD_DIR}/${safe_name}.cpp.log"
 
     printf '#include "%s"\nint main(void) { return 0; }\n' "${public_name}" > "${c_file}"
     printf '#include "%s"\nint main() { return 0; }\n' "${public_name}" > "${cpp_file}"
 
     echo "C header check: ${public_name}" | tee -a "${LOG_FILE}"
     if command -v gcc >/dev/null 2>&1; then
-        if gcc ${C_FLAGS} -c "${c_file}" -o "${c_obj}" >> "${LOG_FILE}" 2>&1; then
+        if gcc ${C_FLAGS} -c "${c_file}" -o "${c_obj}" > "${c_log}" 2>&1; then
+            cat "${c_log}" >> "${LOG_FILE}"
             echo "PASS C ${public_name}" | tee -a "${LOG_FILE}"
         else
+            cat "${c_log}" | tee -a "${LOG_FILE}"
             echo "FAIL C ${public_name}" | tee -a "${LOG_FILE}"
             status=1
         fi
@@ -49,9 +53,11 @@ for header in "${HEADERS[@]}"; do
 
     echo "C++ header check: ${public_name}" | tee -a "${LOG_FILE}"
     if command -v g++ >/dev/null 2>&1; then
-        if g++ ${CXX_FLAGS} -c "${cpp_file}" -o "${cpp_obj}" >> "${LOG_FILE}" 2>&1; then
+        if g++ ${CXX_FLAGS} -c "${cpp_file}" -o "${cpp_obj}" > "${cpp_log}" 2>&1; then
+            cat "${cpp_log}" >> "${LOG_FILE}"
             echo "PASS CXX ${public_name}" | tee -a "${LOG_FILE}"
         else
+            cat "${cpp_log}" | tee -a "${LOG_FILE}"
             echo "FAIL CXX ${public_name}" | tee -a "${LOG_FILE}"
             status=1
         fi
