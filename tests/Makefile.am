@@ -38,12 +38,13 @@ TESTS = \
     ring/test_ring_upward_denied \
     ring/test_ring_downward_allowed \
     ring/test_ring_quarantine_denied \
-    ring/test_ring_supervisor_override
+    ring/test_ring_supervisor_override \
+    memory/test_memory_descriptor
 
 check_PROGRAMS = $(TESTS)
 
 LDADD = ../src/libatarix.a
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox -I$(top_srcdir)/tests/sim -I$(top_srcdir)/tests/ring
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox -I$(top_srcdir)/tests/sim -I$(top_srcdir)/tests/ring -I$(top_srcdir)/tests/memory
 
 discovery_test_discovery_header_SOURCES = discovery/test_discovery_header.c
 discovery_test_discovery_crc_SOURCES = discovery/test_discovery_crc.c
@@ -89,3 +90,5 @@ ring_test_ring_upward_denied_SOURCES = ring/test_ring_upward_denied.c
 ring_test_ring_downward_allowed_SOURCES = ring/test_ring_downward_allowed.c
 ring_test_ring_quarantine_denied_SOURCES = ring/test_ring_quarantine_denied.c
 ring_test_ring_supervisor_override_SOURCES = ring/test_ring_supervisor_override.c
+
+memory_test_memory_descriptor_SOURCES = memory/test_memory_descriptor.c
