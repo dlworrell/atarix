@@ -1,0 +1,29 @@
+name: Engineering Gate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  engineering-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc iverilog
+
+      - name: Run engineering gate
+        run: bash scripts/engineering/run_gate.sh
+
+      - name: Upload engineering gate artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-gate-artifacts
+          path: build/engineering-gate/artifacts/**
+          if-no-files-found: warn
