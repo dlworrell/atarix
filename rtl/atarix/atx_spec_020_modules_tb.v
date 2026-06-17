@@ -38,6 +38,7 @@ module atx_spec_020_modules_tb;
     wire audit_wrapped;
 
     integer tests_failed;
+    integer timeout_count;
 
     atx_simd_probe_core simd (
         .control_bytes(control_bytes),
@@ -113,6 +114,7 @@ module atx_spec_020_modules_tb;
         clk = 1'b0;
         rst_n = 1'b0;
         tests_failed = 0;
+        timeout_count = 0;
         control_bytes = 128'h0;
         target_h2 = 7'h2A;
         scalar_start = 1'b0;
@@ -140,7 +142,14 @@ module atx_spec_020_modules_tb;
         scalar_start = 1'b1;
         @(posedge clk);
         scalar_start = 1'b0;
-        wait(scalar_done == 1'b1);
+        timeout_count = 0;
+        while (scalar_done != 1'b1 && timeout_count < 64) begin
+            @(posedge clk);
+            timeout_count = timeout_count + 1;
+        end
+        if (scalar_done != 1'b1) begin
+            fail("scalar timeout waiting for done");
+        end
         if (!scalar_match || scalar_offset != 4'd9) fail("scalar lane9 match");
         else $display("PASS scalar lane9 match offset=%0d cycles=%0d", scalar_offset, scalar_cycles);
 
