@@ -12,6 +12,10 @@ extern "C" {
 #define ATARIX_MEMORY_DESCRIPTOR_VERSION_V1 1u
 #define ATARIX_MEMORY_DESCRIPTOR_MAX_LENGTH_V1 0x00100000u
 
+/* Compatibility aliases for early ATX-SPEC-021 sketches. */
+#define ATARIX_MEMORY_DESCRIPTOR_MAGIC ATARIX_MEMORY_DESCRIPTOR_MAGIC_V1
+#define ATARIX_MEMORY_DESCRIPTOR_VER_1 ATARIX_MEMORY_DESCRIPTOR_VERSION_V1
+
 /*
  * ATX-SPEC-021: Data movement is not authority.
  * A valid descriptor describes a requested movement. It does not authorize it
@@ -68,6 +72,9 @@ _Static_assert(sizeof(atarix_memory_descriptor_v1_t) == 44u,
                "ATARIX Memory Descriptor v1 must be 44 bytes");
 
 atarix_memory_status_t atarix_memory_descriptor_validate(
+    const atarix_memory_descriptor_v1_t *descriptor);
+
+atarix_memory_status_t atarix_validate_descriptor(
     const atarix_memory_descriptor_v1_t *descriptor);
 
 #ifdef __cplusplus
