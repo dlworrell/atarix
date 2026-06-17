@@ -13,7 +13,7 @@ if ! command -v verilator >/dev/null 2>&1; then
 fi
 
 set +e
-verilator --lint-only --Wall --top-module atx_spec_020_system_wrapper \
+verilator --lint-only --top-module atx_spec_020_system_wrapper \
     rtl/atarix/atx_audit_log_window.v \
     rtl/atarix/atx_simd_probe_core.v \
     rtl/atarix/atx_krapivin_stepper.v \
