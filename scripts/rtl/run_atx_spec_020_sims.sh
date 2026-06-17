@@ -48,13 +48,13 @@ MODULE_LOG="${LOG_DIR}/atx_spec_020_modules_tb.log"
 printf '%s\n' '------------------------------------------------------------'
 printf '%s\n' 'Step 1: Compile accelerator simulation'
 printf '%s\n' 'Command:'
-printf '%s\n' "iverilog -g2012 -o ${ACCEL_BIN} rtl/atarix/atx_simd_probe_core.v rtl/atarix/atx_krapivin_stepper.v rtl/atarix/atx_spec_020_accelerator.v rtl/atarix/atx_spec_020_accelerator_tb.v"
+printf '%s\n' "iverilog -g2012 -o ${ACCEL_BIN} rtl/atarix/atx_simd_probe_core.v rtl/atarix/atx_krapivin_stepper.v rtl/atarix/atx_spec_020_accelerator.v rtl/atarix/atx_spec_020_accelerator_ci_tb.v"
 iverilog -g2012 \
     -o "${ACCEL_BIN}" \
     rtl/atarix/atx_simd_probe_core.v \
     rtl/atarix/atx_krapivin_stepper.v \
     rtl/atarix/atx_spec_020_accelerator.v \
-    rtl/atarix/atx_spec_020_accelerator_tb.v
+    rtl/atarix/atx_spec_020_accelerator_ci_tb.v
 
 printf '%s\n' '------------------------------------------------------------'
 printf '%s\n' 'Step 2: Run accelerator simulation'
