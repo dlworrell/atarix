@@ -20,6 +20,8 @@ module atx_elias_fano_decoder (
     integer count;
     reg [5:0] select_index;
     reg found;
+    reg [31:0] target_offset32;
+    reg [31:0] low_bit_shift;
     reg [31:0] low_mask;
     reg [31:0] low_value;
     reg [31:0] high_value;
@@ -28,6 +30,8 @@ module atx_elias_fano_decoder (
         select_index = 6'd0;
         count = 0;
         found = 1'b0;
+        target_offset32 = {28'h0, target_offset};
+        low_bit_shift = {28'h0, target_offset} * {27'h0, num_low_bits};
         decode_valid = 1'b0;
         decode_error = 1'b0;
         resolved_row_id = 32'h0;
@@ -37,7 +41,7 @@ module atx_elias_fano_decoder (
 
         for (idx = 0; idx < 32; idx = idx + 1) begin
             if (high_bits_word[idx] && !found) begin
-                if (count == target_offset) begin
+                if (count == target_offset32) begin
                     select_index = idx[5:0];
                     found = 1'b1;
                 end
@@ -51,8 +55,8 @@ module atx_elias_fano_decoder (
             decode_error = 1'b1;
         end else begin
             low_mask = (32'h1 << num_low_bits) - 32'h1;
-            low_value = (low_bits_word >> (target_offset * num_low_bits)) & low_mask;
-            high_value = select_index - target_offset;
+            low_value = (low_bits_word >> low_bit_shift) & low_mask;
+            high_value = {26'h0, select_index} - target_offset32;
             resolved_row_id = (high_value << num_low_bits) | low_value;
             decode_valid = 1'b1;
         end
