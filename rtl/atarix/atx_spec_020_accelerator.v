@@ -1,20 +1,6 @@
 `timescale 1ns / 1ps
 /*
  * ATX-SPEC-020 lookup accelerator.
- *
- * Simulation-complete RTL scaffold:
- *   - mailbox-style request inputs
- *   - CRC/status gate before execution
- *   - ring/policy/capability gates before probing
- *   - registry_id, not raw table_base
- *   - atx_simd_probe_core for 16-lane control-byte matching
- *   - atx_krapivin_stepper for bounded next-probe address generation
- *   - audit commit before response
- *   - verbose simulation trace output
- *
- * This is still not final timing-closed ECP5 silicon. It is intended to be a
- * clean RTL base for simulation, synthesis experiments, and future memory
- * fabric integration.
  */
 
 module atx_spec_020_accelerator (
@@ -98,6 +84,19 @@ module atx_spec_020_accelerator (
     wire [3:0] simd_match_offset;
     wire [15:0] simd_lane_matches;
     wire [31:0] krapivin_offset;
+
+    /* Reserved interface fields for future policy/audit expansion. */
+    /* verilator lint_off UNUSEDSIGNAL */
+    wire [47:0] reserved_request_fields;
+    wire [15:0] reserved_lane_observer;
+    assign reserved_request_fields = {
+        req_source_ring,
+        req_target_ring,
+        req_query_type,
+        req_projection_flags
+    };
+    assign reserved_lane_observer = simd_lane_matches;
+    /* verilator lint_on UNUSEDSIGNAL */
 
     atx_simd_probe_core simd_probe_core (
         .control_bytes(table_control_bytes),
