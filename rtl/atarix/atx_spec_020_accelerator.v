@@ -92,6 +92,7 @@ module atx_spec_020_accelerator (
     reg [7:0] probe_count;
     reg [6:0] h2_fingerprint;
     reg [31:0] table_mask;
+    reg response_seen;
 
     wire simd_hit;
     wire [3:0] simd_match_offset;
@@ -137,6 +138,7 @@ module atx_spec_020_accelerator (
             probe_count <= 8'h00;
             h2_fingerprint <= 7'h00;
             table_mask <= 32'hFFFFFFFF;
+            response_seen <= 1'b0;
         end else begin
             cycle_counter <= cycle_counter + 1'b1;
 
@@ -147,6 +149,7 @@ module atx_spec_020_accelerator (
                     resp_valid <= 1'b0;
                     audit_valid <= 1'b0;
                     probe_count <= 8'h00;
+                    response_seen <= 1'b0;
                     if (req_valid) begin
                         req_ready <= 1'b0;
                         h2_fingerprint <= req_key_hash[6:0];
@@ -252,13 +255,16 @@ module atx_spec_020_accelerator (
                 STATE_RESPOND: begin
                     resp_valid <= 1'b1;
                     resp_cycles <= cycle_counter;
-                    if (resp_ready) begin
+                    if (!response_seen) begin
+                        response_seen <= 1'b1;
 `ifndef SYNTHESIS
                         $display("ATX020 RESP seq=%0d status=0x%02x resolved=0x%08x gen=%0d cycles=%0d",
                                  req_sequence, resp_status, resp_resolved_id,
                                  resp_resolved_generation, cycle_counter);
 `endif
+                    end else if (resp_ready) begin
                         resp_valid <= 1'b0;
+                        response_seen <= 1'b0;
                         state <= STATE_IDLE;
                     end
                 end
