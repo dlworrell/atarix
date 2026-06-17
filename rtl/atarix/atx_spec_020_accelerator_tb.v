@@ -29,6 +29,10 @@ module atx_spec_020_accelerator_tb;
     reg [31:0] table_base_resolved_id;
     reg table_lookup_valid;
 
+    wire probe_valid;
+    wire [31:0] probe_addr;
+    wire [31:0] probe_next_addr;
+
     wire resp_valid;
     reg resp_ready;
     wire [7:0] resp_status;
@@ -51,6 +55,7 @@ module atx_spec_020_accelerator_tb;
     integer start_cycle;
     integer end_cycle;
     integer last_cycles;
+    integer timeout_count;
 
     localparam TYPE_INDEX_QUERY = 16'h0020;
     localparam STATUS_OK             = 8'h00;
@@ -85,6 +90,9 @@ module atx_spec_020_accelerator_tb;
         .table_generation(table_generation),
         .table_base_resolved_id(table_base_resolved_id),
         .table_lookup_valid(table_lookup_valid),
+        .probe_valid(probe_valid),
+        .probe_addr(probe_addr),
+        .probe_next_addr(probe_next_addr),
         .resp_valid(resp_valid),
         .resp_ready(resp_ready),
         .resp_status(resp_status),
@@ -147,10 +155,18 @@ module atx_spec_020_accelerator_tb;
         begin
             @(posedge clk);
             start_cycle = $time / 10;
+            timeout_count = 0;
             req_valid = 1'b1;
             @(posedge clk);
             req_valid = 1'b0;
-            wait(resp_valid == 1'b1);
+            while (resp_valid != 1'b1 && timeout_count < 200) begin
+                @(posedge clk);
+                timeout_count = timeout_count + 1;
+            end
+            if (resp_valid != 1'b1) begin
+                tests_failed = tests_failed + 1;
+                $display("FAIL request_timeout seq=%0d waited_cycles=%0d", req_sequence, timeout_count);
+            end
             end_cycle = $time / 10;
             last_cycles = end_cycle - start_cycle;
             @(posedge clk);
@@ -166,9 +182,9 @@ module atx_spec_020_accelerator_tb;
                 tests_failed = tests_failed + 1;
                 $display("FAIL %-32s expected status=0x%02x got=0x%02x", name, expected_status, resp_status);
             end else begin
-                $display("PASS %-32s status=0x%02x cycles=%0d audit_seq=%0d audit_status=0x%02x probes=%0d offset=%0d resolved=0x%08x",
+                $display("PASS %-32s status=0x%02x cycles=%0d audit_seq=%0d audit_status=0x%02x probes=%0d offset=%0d resolved=0x%08x probe_addr=0x%08x",
                          name, resp_status, last_cycles, audit_sequence, audit_status,
-                         audit_probe_count, audit_match_offset, resp_resolved_id);
+                         audit_probe_count, audit_match_offset, resp_resolved_id, probe_addr);
             end
         end
     endtask
