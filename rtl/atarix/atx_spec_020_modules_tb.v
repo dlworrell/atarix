@@ -139,9 +139,12 @@ module atx_spec_020_modules_tb;
         if (!simd_match || simd_offset != 4'd9) fail("simd lane9 match");
         else $display("PASS simd lane9 match offset=%0d lanes=0x%04x", simd_offset, simd_lanes);
 
+        @(negedge clk);
         scalar_start = 1'b1;
         @(posedge clk);
+        @(negedge clk);
         scalar_start = 1'b0;
+
         timeout_count = 0;
         while (scalar_done != 1'b1 && timeout_count < 64) begin
             @(posedge clk);
@@ -164,15 +167,16 @@ module atx_spec_020_modules_tb;
         if (!ef_valid || ef_error) fail("elias fano valid decode");
         else $display("PASS elias-fano row=%0d", ef_row);
 
+        @(negedge clk);
         audit_write_data = 8'h41;
         audit_write_en = 1'b1;
         @(posedge clk);
+        @(negedge clk);
         audit_write_en = 1'b0;
-        repeat (1) @(posedge clk);
         audit_read_addr = 8'h00;
         #1;
         if (audit_read_data != 8'h41) fail("audit readback");
-        else $display("PASS audit readback data=%c head=%0d", audit_read_data, audit_head);
+        else $display("PASS audit readback data=0x%02x char=%c head=%0d", audit_read_data, audit_read_data, audit_head);
 
         if (tests_failed == 0) $display("ATX020 MODULES RESULT PASS");
         else $display("ATX020 MODULES RESULT FAIL failures=%0d", tests_failed);
