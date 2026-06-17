@@ -57,9 +57,13 @@ phase 'Engineering Gate: repository structure'
 require_file 'docs/architecture/ATX-SPEC-015-POSIX-Compatibility-Model.md'
 require_file 'docs/architecture/ATX-SPEC-020-Hash-Table-and-Lookup-Acceleration-Model.md'
 require_file 'docs/architecture/ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.md'
+require_file 'docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md'
+require_file 'docs/architecture/ATX-100/index.md'
+require_file 'docs/engineering/Documentation-Taxonomy-and-Style-Guide.md'
 require_file 'docs/reviews/Architecture-Review-003.md'
 require_file 'include/atarix/mailbox.h'
 require_file 'include/atarix/index.h'
+require_file 'include/atarix/memory.h'
 require_file 'include/atarix/ring.h'
 require_file 'include/atarix/rings.h'
 require_file 'rtl/atarix/README.md'
@@ -67,6 +71,8 @@ require_file 'rtl/atarix/ATX-SPEC-020-CI.md'
 require_file 'scripts/rtl/run_atx_spec_020_sims.sh'
 require_file 'scripts/engineering/check_headers.sh'
 require_file 'scripts/engineering/check_rtl_lint.sh'
+require_file 'scripts/engineering/check_aems_docs.sh'
+require_file 'tools/aems/aems.py'
 
 phase 'Engineering Gate: RTL file inventory'
 require_file 'rtl/atarix/atx_northbridge_bus_shim.v'
@@ -97,6 +103,19 @@ if grep -q 'POSIX is a compatibility personality' docs/architecture/ATX-SPEC-015
     pass 'ATX-SPEC-015 preserves POSIX personality invariant'
 else
     fail 'ATX-SPEC-015 missing POSIX personality invariant'
+fi
+
+if grep -q 'Data movement is not authority' docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md; then
+    pass 'ATX-SPEC-021 preserves data movement authority invariant'
+else
+    fail 'ATX-SPEC-021 missing data movement authority invariant'
+fi
+
+phase 'Engineering Gate: AEMS documentation graph'
+if bash scripts/engineering/check_aems_docs.sh; then
+    pass 'AEMS documentation validation passed'
+else
+    fail 'AEMS documentation validation failed'
 fi
 
 phase 'Engineering Gate: public header self-compile'
