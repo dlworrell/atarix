@@ -6,6 +6,7 @@ BUILD_DIR="${ROOT_DIR}/build/rtl/atx_spec_020"
 LOG_DIR="${BUILD_DIR}/logs"
 ARTIFACT_DIR="${BUILD_DIR}/artifacts"
 SUMMARY_FILE="${ARTIFACT_DIR}/summary.txt"
+SIM_TIMEOUT_SECONDS="${SIM_TIMEOUT_SECONDS:-30}"
 
 mkdir -p "${BUILD_DIR}" "${LOG_DIR}" "${ARTIFACT_DIR}"
 cd "${ROOT_DIR}"
@@ -16,6 +17,7 @@ printf 'ROOT_DIR=%s\n' "${ROOT_DIR}"
 printf 'BUILD_DIR=%s\n' "${BUILD_DIR}"
 printf 'LOG_DIR=%s\n' "${LOG_DIR}"
 printf 'ARTIFACT_DIR=%s\n' "${ARTIFACT_DIR}"
+printf 'SIM_TIMEOUT_SECONDS=%s\n' "${SIM_TIMEOUT_SECONDS}"
 printf '%s\n' '============================================================'
 
 command -v iverilog >/dev/null 2>&1 || {
@@ -27,6 +29,13 @@ command -v vvp >/dev/null 2>&1 || {
     printf '%s\n' 'ERROR: vvp not found on PATH.' >&2
     exit 127
 }
+
+if command -v timeout >/dev/null 2>&1; then
+    TIMEOUT_CMD=(timeout "${SIM_TIMEOUT_SECONDS}")
+else
+    TIMEOUT_CMD=()
+    printf '%s\n' 'WARN: timeout command not found; simulations will rely on testbench timeouts only.'
+fi
 
 printf 'Icarus Verilog: %s\n' "$(iverilog -V | head -n 1 || true)"
 printf 'VVP: %s\n' "$(vvp -V | head -n 1 || true)"
@@ -50,8 +59,8 @@ iverilog -g2012 \
 printf '%s\n' '------------------------------------------------------------'
 printf '%s\n' 'Step 2: Run accelerator simulation'
 printf '%s\n' 'Command:'
-printf '%s\n' "vvp ${ACCEL_BIN}"
-vvp "${ACCEL_BIN}" | tee "${ACCEL_LOG}"
+printf '%s\n' "timeout ${SIM_TIMEOUT_SECONDS} vvp ${ACCEL_BIN}"
+"${TIMEOUT_CMD[@]}" vvp "${ACCEL_BIN}" | tee "${ACCEL_LOG}"
 
 if ! grep -q 'ATX020 RESULT PASS' "${ACCEL_LOG}"; then
     printf '%s\n' 'ERROR: accelerator simulation did not report ATX020 RESULT PASS.' >&2
@@ -78,8 +87,8 @@ iverilog -g2012 \
 printf '%s\n' '------------------------------------------------------------'
 printf '%s\n' 'Step 4: Run module validation simulation'
 printf '%s\n' 'Command:'
-printf '%s\n' "vvp ${MODULE_BIN}"
-vvp "${MODULE_BIN}" | tee "${MODULE_LOG}"
+printf '%s\n' "timeout ${SIM_TIMEOUT_SECONDS} vvp ${MODULE_BIN}"
+"${TIMEOUT_CMD[@]}" vvp "${MODULE_BIN}" | tee "${MODULE_LOG}"
 
 if ! grep -q 'ATX020 MODULES RESULT PASS' "${MODULE_LOG}"; then
     printf '%s\n' 'ERROR: module validation simulation did not report ATX020 MODULES RESULT PASS.' >&2
