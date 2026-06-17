@@ -13,10 +13,17 @@ C_FLAGS="-std=c11 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wundef -Werror
 CXX_FLAGS="-std=c++17 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -Wundef -Werror -Iinclude"
 
 status=0
-count=0
 
-find include/atarix -type f -name '*.h' | sort | while read -r header; do
-    count=$((count + 1))
+mapfile -t HEADERS < <(find include/atarix -type f -name '*.h' | sort)
+
+if [ "${#HEADERS[@]}" -eq 0 ]; then
+    echo "FAIL no public headers found under include/atarix" | tee -a "${LOG_FILE}"
+    exit 1
+fi
+
+echo "Header inventory: ${#HEADERS[@]} public headers" | tee -a "${LOG_FILE}"
+
+for header in "${HEADERS[@]}"; do
     public_name="${header#include/}"
     safe_name="$(printf '%s' "${public_name}" | tr '/.' '__')"
 
