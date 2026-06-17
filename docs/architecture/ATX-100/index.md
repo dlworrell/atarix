@@ -4,15 +4,21 @@ title: Atarix System Architecture
 type: Master Architecture Reference
 status: Draft
 lifecycle: Draft
-version: 0.1
+version: 0.2
 canonical: true
+related:
+  - ATX-DESIGN-001
+  - ATX-DESIGN-002
+  - ATX-SPEC-020
+  - ATX-SPEC-090
+  - ATX-SPEC-091
 ---
 
 # ATX-100: Atarix System Architecture
 
 ## Status
 
-Draft v0.1
+Draft v0.2
 
 ## Purpose
 
@@ -58,9 +64,11 @@ Part VII:  Future Directions
 Appendix:  Generated Reference Material
 ```
 
-## Initial Chapter Map
+## Chapter Sources
 
-- Chapter 1: Purpose and Scope
+Initial chapter source files:
+
+- [Chapter 1: Purpose and Scope](chapters/01-purpose-and-scope.md)
 - Chapter 2: Historical Context
 - Chapter 3: Documentation Taxonomy
 - Chapter 4: Architecture Before Implementation
@@ -68,20 +76,28 @@ Appendix:  Generated Reference Material
 - Chapter 6: Human Readability
 - Chapter 7: Fabric-Centric Computing
 - Chapter 8: Engineering as Architecture
-- Chapter 9: System Layers
+- [Chapter 9: System Layers](chapters/09-system-layers.md)
 - Chapter 10: Object Model
 - Chapter 11: Capability Model
 - Chapter 12: Mailbox Transport
 - Chapter 13: Directory and Discovery Services
 - Chapter 14: Memory and Data Movement
-- Chapter 15: Lookup Acceleration
+- [Chapter 15: Lookup Acceleration](chapters/15-lookup-acceleration.md)
 - Chapter 16: Processor Modules
 - Chapter 17: Fabric Northbridge
 - Chapter 18: Supervisor Controller
 - Chapter 19: Storage and Networking
-- Chapter 20: AEMS and Engineering Gates
+- [Chapter 20: AEMS and Engineering Gates](chapters/20-aems-and-engineering-gates.md)
 - Chapter 21: Requirements and Traceability
 - Chapter 22: Roadmap and Evolution
+
+## Migration Model
+
+Stable explanatory material should migrate into ATX-100 chapter sources.
+
+The originating specification remains responsible for normative detail, implementation detail, test vectors, RTL behavior, C interfaces, and release evidence.
+
+When a working document is superseded by ATX-100 material, the original document is reduced or archived rather than deleted.
 
 ## Relationship To Other Documents
 
