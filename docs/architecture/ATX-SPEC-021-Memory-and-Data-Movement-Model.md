@@ -1,8 +1,30 @@
+---
+document: ATX-SPEC-021
+title: Memory and Data Movement Model
+type: Specification
+status: Draft
+lifecycle: Draft
+version: 0.2
+canonical_owner: ATX-100
+canonical_section: Chapter 14
+related:
+  - ATX-SPEC-005
+  - ATX-SPEC-009
+  - ATX-SPEC-017
+  - ATX-SPEC-018
+  - ATX-SPEC-020
+  - ATX-SPEC-091
+implements:
+  - include/atarix/memory.h
+verified_by:
+  - memory/test_memory_descriptor
+---
+
 # ATX-SPEC-021 Memory and Data Movement Model
 
 ## Status
 
-Draft v0.1
+Draft v0.2
 
 ## Purpose
 
@@ -194,6 +216,72 @@ A descriptor may describe:
 
 A descriptor must be validated before execution.
 
+## Canonical Movement Descriptor v1
+
+The initial public descriptor is `atarix_memory_descriptor_v1_t`.
+
+It is intended to be small enough for mailbox-mediated setup and explicit enough for audit, validation, and future fabric execution.
+
+Required fields:
+
+```text
+magic              descriptor format marker
+version            descriptor version
+flags              movement form and validation flags
+source_object      source object, mailbox, buffer, or service identifier
+source_offset      source-local byte offset
+destination_object destination object, mailbox, buffer, or service identifier
+destination_offset destination-local byte offset
+length             requested byte length
+capability_id      explicit capability authorizing the movement
+generation         expected source or transfer generation
+audit_hint         human-readable projection selector
+```
+
+Descriptor validation MUST reject:
+
+- Null descriptors
+- Invalid magic
+- Unsupported version
+- Zero-length transfers
+- Missing capability identifiers
+- Missing source identifiers
+- Missing destination identifiers
+- Invalid or reserved movement forms
+- Lengths exceeding implementation limits
+
+## Initial Movement Flags
+
+Initial movement forms are encoded as flags:
+
+```text
+ATARIX_MEMORY_MOVE_COPY
+ATARIX_MEMORY_MOVE_MOVE
+ATARIX_MEMORY_MOVE_MAP
+ATARIX_MEMORY_MOVE_SHARE
+ATARIX_MEMORY_MOVE_FABRIC
+ATARIX_MEMORY_MOVE_ZERO_COPY
+```
+
+Exactly one movement form should be selected for the initial validation profile.
+
+## Initial Validation Statuses
+
+Initial validation statuses:
+
+```text
+ATARIX_MEMORY_STATUS_OK
+ATARIX_MEMORY_STATUS_NULL_DESCRIPTOR
+ATARIX_MEMORY_STATUS_BAD_MAGIC
+ATARIX_MEMORY_STATUS_BAD_VERSION
+ATARIX_MEMORY_STATUS_ZERO_LENGTH
+ATARIX_MEMORY_STATUS_MISSING_CAPABILITY
+ATARIX_MEMORY_STATUS_MISSING_SOURCE
+ATARIX_MEMORY_STATUS_MISSING_DESTINATION
+ATARIX_MEMORY_STATUS_BAD_FLAGS
+ATARIX_MEMORY_STATUS_LENGTH_EXCEEDED
+```
+
 ## Mailbox Interaction
 
 Mailbox messages may carry small payloads directly or may reference external buffers, descriptors, or data windows.
@@ -247,9 +335,34 @@ Valid outcomes include:
 
 Unrecoverable ambiguous movement is forbidden.
 
+## Initial Implementation Plan
+
+The initial implementation should add:
+
+- `include/atarix/memory.h`
+- `src/memory.c`
+- `tests/memory/test_memory_descriptor.c`
+- Automake integration for the memory descriptor test
+- AEMS traceability metadata
+- Engineering Gate coverage through `make check`
+
+## Initial Test Plan
+
+The initial unit test must validate:
+
+- A valid copy descriptor succeeds.
+- Null descriptor fails.
+- Bad magic fails.
+- Bad version fails.
+- Zero length fails.
+- Missing capability fails.
+- Missing source fails.
+- Missing destination fails.
+- Unknown flags fail.
+- Excessive length fails.
+
 ## Open Questions
 
-- What is the canonical descriptor binary layout?
 - Which transfers require pre-commit audit rather than post-commit audit?
 - How should zero-copy lifetimes be represented in the object model?
 - How should POSIX mmap semantics map onto native Atarix movement forms?
@@ -257,10 +370,7 @@ Unrecoverable ambiguous movement is forbidden.
 
 ## TODO
 
-- Define canonical movement descriptor layout.
-- Define mailbox external-buffer reference payloads.
-- Define fabric transfer validation sequence.
-- Define audit projection for each movement form.
-- Reconcile with ATX-SPEC-017 storage persistence.
-- Reconcile with ATX-SPEC-018 recovery domains.
-- Reconcile with ATX-SPEC-020 lookup accelerator memory fetches.
+- Implement canonical movement descriptor layout.
+- Add descriptor validation helper.
+- Add tests and wire them into `make check`.
+- Add ATX-100 Chapter 14 once this specification stabilizes.
