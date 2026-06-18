@@ -15,10 +15,21 @@ jobs:
       - name: Build ATX-100 master manual
         run: python3 tools/aems/build_atx100.py
 
+      - name: Build complete docs book
+        run: python3 tools/aems/build_docs_book.py
+
       - name: Upload ATX-100 master manual
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: atx100-master-manual
           path: build/ATX-100-MASTER.md
+          if-no-files-found: warn
+
+      - name: Upload complete docs book
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atarix-docs-book
+          path: build/ATARIX-DOCS-BOOK.md
           if-no-files-found: warn
