@@ -33,6 +33,10 @@ CHAPTERS=[
 (21,'Requirements and Traceability',['requirements','traceability','trace']),
 (22,'Roadmap and Evolution',['roadmap','evolution'])]
 
+SKIP_TOP={'archive'}
+SKIP_NAMES={'ATX-100-COMPILED.md','ATX-100-MASTER.md','ATARIX-DOCS-BOOK.md'}
+SKIP_PREFIXES={('architecture','ATX-100')}
+
 def strip_meta(s):
     if s.startswith('---\n'):
         i=s.find('\n---',4)
@@ -41,14 +45,17 @@ def strip_meta(s):
 
 def title(n,t): return f'Chapter {n}: {t}'
 def chfile(n,t): return CHDIR/(f'{n:02d}-'+t.lower().replace(' and ','-and-').replace(' ','-')+'.md')
+
+def migratable(p):
+    r=p.relative_to(DOCS).parts
+    if not r or r[0] in SKIP_TOP: return False
+    if p.name in SKIP_NAMES: return False
+    for prefix in SKIP_PREFIXES:
+        if r[:len(prefix)]==prefix: return False
+    return True
+
 def source_files():
-    skip={'archive','ATX-100'}
-    out=[]
-    for p in sorted(DOCS.rglob('*.md')):
-        r=p.relative_to(DOCS).parts
-        if not r or r[0] in skip: continue
-        out.append(p)
-    return out
+    return [p for p in sorted(DOCS.rglob('*.md')) if p.is_file() and migratable(p)]
 
 def score(p,body,keys):
     h=(p.as_posix()+'\n'+body[:6000]).lower()
@@ -61,9 +68,10 @@ def bucket(p,body):
         if v>best[0]: best=(v,(n,t))
     return best[1] or (22,'Roadmap and Evolution')
 
-def block(src,body):
+def block(src,body,dest=None):
     rel=src.relative_to(ROOT)
-    return '\n'.join(['','<!-- AEMS-MIGRATED-SOURCE: '+str(rel)+' -->','### Integrated source: `'+str(rel)+'`','',body,''])
+    archived=dest.relative_to(ROOT) if dest else ARCH/src.relative_to(DOCS)
+    return '\n'.join(['','<!-- AEMS-MIGRATED-SOURCE: '+str(rel)+' -->','<!-- AEMS-ARCHIVE-REF: '+str(archived)+' -->','### Integrated source: `'+str(rel)+'`','',body,''])
 
 def build(apply=False):
     files=source_files(); groups={}; plan=['# ATX-100 Migration Plan','']
@@ -85,8 +93,14 @@ def build(apply=False):
     for n,t,_ in CHAPTERS:
         path=chfile(n,t)
         existing=path.read_text(encoding='utf-8') if path.exists() else f'# {title(n,t)}\n'
-        additions=''.join(block(p,b) for p,b in groups.get((n,t),[]))
-        path.write_text(existing.rstrip()+'\n\n## AEMS Integrated Material\n'+additions,encoding='utf-8')
+        additions=[]
+        for p,b in groups.get((n,t),[]):
+            dest=ARCH/p.relative_to(DOCS)
+            additions.append(block(p,b,dest))
+        if additions:
+            path.write_text(existing.rstrip()+'\n\n## AEMS Integrated Material\n'+''.join(additions),encoding='utf-8')
+        elif not path.exists():
+            path.write_text(existing,encoding='utf-8')
         book.append(path.read_text(encoding='utf-8'))
         book.append('\n---\n')
         for p,_ in groups.get((n,t),[]):
