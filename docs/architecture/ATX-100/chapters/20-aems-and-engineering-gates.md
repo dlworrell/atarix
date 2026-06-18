@@ -67,3 +67,112 @@ A future Atarix release should include generated AEMS evidence:
 - architecture manual edition.
 - specification index.
 - release history.
+
+## AEMS Integrated Material
+
+<!-- AEMS-MIGRATED-SOURCE: docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md -->
+<!-- AEMS-ARCHIVE-REF: docs/archive/atx100-migrated/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md -->
+### Integrated source: `docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md`
+
+# ATX-SPEC-090: Atarix Engineering Management System
+
+## Purpose
+
+This specification defines AEMS, the Atarix Engineering Management System.
+
+AEMS manages repository-native engineering data, including specifications, design documents, architecture reviews, issues, implementation references, tests, engineering gates, releases, and generated documentation.
+
+## Initial Scope
+
+AEMS SHALL support:
+
+- Document discovery
+- Metadata parsing
+- Document lifecycle validation
+- Specification registry generation
+- Dependency graph validation
+- Traceability graph validation
+- Engineering Gate integration
+- Documentation book building
+
+## Non-Goals For v0.1
+
+AEMS v0.1 does not own GitHub Projects synchronization, release publication, or generated PDF production.
+
+## Relationship To ATX-100
+
+AEMS supports ATX-100 by generating document maps, dependency graphs, traceability matrices, and release evidence appendices.
+
+<!-- AEMS-MIGRATED-SOURCE: docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md -->
+<!-- AEMS-ARCHIVE-REF: docs/archive/atx100-migrated/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md -->
+### Integrated source: `docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md`
+
+# ATX-SPEC-091: Requirements and Traceability Model
+
+## Purpose
+
+This specification defines how Atarix records and validates traceability across architecture, implementation, verification, review, and release artifacts.
+
+## Traceability Chain
+
+Atarix traceability links:
+
+```text
+Requirement
+  -> Design Decision
+  -> Specification
+  -> Architecture Review
+  -> Issue
+  -> Commit
+  -> Implementation
+  -> Test or Simulation
+  -> Engineering Gate
+  -> Release
+```
+
+## Initial Rules
+
+- Every normative requirement should have a stable identifier.
+- Every implementation artifact should identify the requirement or specification it supports.
+- Every verified artifact should link to a test, simulation, or gate result.
+- Superseded documents must remain traceable through archive metadata.
+- AEMS should validate traceability graph consistency.
+
+## Relationship To ATX-100
+
+ATX-100 presents the stable architectural view. ATX-SPEC-091 defines the evidence chain that connects that view to implementation and release state.
+
+<!-- AEMS-MIGRATED-SOURCE: docs/design/ATX-DESIGN-003-Engineering-Principles.md -->
+<!-- AEMS-ARCHIVE-REF: docs/archive/atx100-migrated/design/ATX-DESIGN-003-Engineering-Principles.md -->
+### Integrated source: `docs/design/ATX-DESIGN-003-Engineering-Principles.md`
+
+# ATX-DESIGN-003: Engineering Principles
+
+## Purpose
+
+This document defines the engineering principles used to develop Atarix.
+
+## Principle
+
+Engineering is part of the architecture.
+
+Atarix links vision, design, specifications, reviews, issues, implementation, simulation, engineering gates, releases, and maintenance into a single traceable process.
+
+## Initial Process Model
+
+```text
+Vision
+  -> Design
+  -> Specification
+  -> Architecture Review
+  -> Issue Planning
+  -> Implementation
+  -> Simulation
+  -> Engineering Gate
+  -> Release
+  -> Maintenance
+```
+
+## Relationship To AEMS
+
+AEMS exists to automate and verify these engineering relationships.
