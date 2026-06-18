@@ -1,0 +1,24 @@
+name: ATX-100 Book Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  atx100-book:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build ATX-100 master manual
+        run: python3 tools/aems/build_atx100.py
+
+      - name: Upload ATX-100 master manual
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atx100-master-manual
+          path: build/ATX-100-MASTER.md
+          if-no-files-found: warn
