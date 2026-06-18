@@ -1,6 +1,9 @@
 name: Apply ATX-100 Migration
 
 on:
+  push:
+    branches:
+      - atx100-migration-supervised
   workflow_dispatch:
 
 permissions:
