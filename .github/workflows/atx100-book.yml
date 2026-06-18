@@ -18,6 +18,9 @@ jobs:
       - name: Build complete docs book
         run: python3 tools/aems/build_docs_book.py
 
+      - name: Build ATX-100 migration plan
+        run: python3 tools/aems/migrate_docs_to_atx100.py
+
       - name: Upload ATX-100 master manual
         if: always()
         uses: actions/upload-artifact@v4
@@ -32,4 +35,12 @@ jobs:
         with:
           name: atarix-docs-book
           path: build/ATARIX-DOCS-BOOK.md
+          if-no-files-found: warn
+
+      - name: Upload ATX-100 migration plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atx100-migration-plan
+          path: build/ATX-100-MIGRATION-PLAN.md
           if-no-files-found: warn
