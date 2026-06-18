@@ -12,14 +12,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build ATX-100 master manual
-        run: python3 tools/aems/build_atx100.py
-
-      - name: Build complete docs book
-        run: python3 tools/aems/build_docs_book.py
-
-      - name: Build ATX-100 migration plan
-        run: python3 tools/aems/migrate_docs_to_atx100.py
+      - name: Build standard docs outputs
+        run: make docs-book
 
       - name: Upload ATX-100 master manual
         if: always()
