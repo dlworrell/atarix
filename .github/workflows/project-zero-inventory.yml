@@ -3,9 +3,11 @@ name: Project Zero Inventory
 on:
   workflow_dispatch:
   push:
-    paths:
-      - "**"
-      - ".github/workflows/project-zero-inventory.yml"
+    paths-ignore:
+      - "project-zero/inventory/current/**"
+
+permissions:
+  contents: write
 
 jobs:
   inventory:
@@ -23,39 +25,58 @@ jobs:
         run: |
           set -euo pipefail
 
-          mkdir -p inventory
+          mkdir -p project-zero/inventory/current
 
-          git ls-files | sort > inventory/atarix-full-tree.txt
+          git ls-files | sort > project-zero/inventory/current/atarix-full-tree.txt
 
           git ls-files \
             | sort \
             | grep -Ei '(^|/)(README|LICENSE|CHANGELOG|CONTRIBUTING)(\.[A-Za-z0-9_-]+)?$|\.(md|mdown|markdown|txt|rst|adoc|org|pdf|json|yaml|yml)$' \
-            > inventory/atarix-doc-candidates.txt
+            > project-zero/inventory/current/atarix-doc-candidates.txt
 
-          git ls-files 'docs/**' | sort > inventory/atarix-docs-tree.txt
+          git ls-files 'docs/**' | sort > project-zero/inventory/current/atarix-docs-tree.txt
 
           {
             echo "# Atarix Project Zero Inventory Summary"
             echo
             echo "Generated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            echo "Commit: ${GITHUB_SHA}"
+            echo "Source commit: ${GITHUB_SHA}"
+            echo "Workflow: ${GITHUB_WORKFLOW}"
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
             echo "## Counts"
             echo
-            echo "- Full tracked file count: $(wc -l < inventory/atarix-full-tree.txt)"
-            echo "- Documentation candidate count: $(wc -l < inventory/atarix-doc-candidates.txt)"
-            echo "- docs/ tracked file count: $(wc -l < inventory/atarix-docs-tree.txt)"
+            echo "- Full tracked file count: $(wc -l < project-zero/inventory/current/atarix-full-tree.txt)"
+            echo "- Documentation candidate count: $(wc -l < project-zero/inventory/current/atarix-doc-candidates.txt)"
+            echo "- docs/ tracked file count: $(wc -l < project-zero/inventory/current/atarix-docs-tree.txt)"
             echo
             echo "## Outputs"
             echo
             echo "- atarix-full-tree.txt"
             echo "- atarix-doc-candidates.txt"
             echo "- atarix-docs-tree.txt"
-          } > inventory/README.md
+          } > project-zero/inventory/current/README.md
 
       - name: Upload inventory artifacts
         uses: actions/upload-artifact@v4
         with:
           name: atarix-project-zero-inventory
-          path: inventory/
+          path: project-zero/inventory/current/
           retention-days: 30
+
+      - name: Commit inventory outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- project-zero/inventory/current; then
+            echo "No inventory changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add project-zero/inventory/current
+          git commit -m "chore: update Project Zero inventory"
+          git push
