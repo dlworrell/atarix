@@ -1,0 +1,61 @@
+name: Project Zero Inventory
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "**"
+      - ".github/workflows/project-zero-inventory.yml"
+
+jobs:
+  inventory:
+    name: Generate repository inventory
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate full tree and documentation candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p inventory
+
+          git ls-files | sort > inventory/atarix-full-tree.txt
+
+          git ls-files \
+            | sort \
+            | grep -Ei '(^|/)(README|LICENSE|CHANGELOG|CONTRIBUTING)(\.[A-Za-z0-9_-]+)?$|\.(md|mdown|markdown|txt|rst|adoc|org|pdf|json|yaml|yml)$' \
+            > inventory/atarix-doc-candidates.txt
+
+          git ls-files 'docs/**' | sort > inventory/atarix-docs-tree.txt
+
+          {
+            echo "# Atarix Project Zero Inventory Summary"
+            echo
+            echo "Generated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            echo "Commit: ${GITHUB_SHA}"
+            echo
+            echo "## Counts"
+            echo
+            echo "- Full tracked file count: $(wc -l < inventory/atarix-full-tree.txt)"
+            echo "- Documentation candidate count: $(wc -l < inventory/atarix-doc-candidates.txt)"
+            echo "- docs/ tracked file count: $(wc -l < inventory/atarix-docs-tree.txt)"
+            echo
+            echo "## Outputs"
+            echo
+            echo "- atarix-full-tree.txt"
+            echo "- atarix-doc-candidates.txt"
+            echo "- atarix-docs-tree.txt"
+          } > inventory/README.md
+
+      - name: Upload inventory artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: atarix-project-zero-inventory
+          path: inventory/
+          retention-days: 30
