@@ -4,7 +4,9 @@
 This script validates local Markdown links in README.md and docs/**/*.md.
 It intentionally ignores external URLs, mailto links, bare anchors, and images.
 
-It reports file and line numbers so CI failures are immediately actionable.
+During ATX-100 documentation migration, source docs may move from docs/... to
+an archive path under docs/archive/atx100-migrated/.... Links to the original
+source location are accepted when the corresponding archived file exists.
 """
 
 from __future__ import annotations
@@ -19,7 +21,9 @@ from urllib.parse import unquote
 LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
 ROOT = Path(__file__).resolve().parents[1]
-CHECK_PATHS = [ROOT / "README.md", ROOT / "docs"]
+DOCS = ROOT / "docs"
+ARCHIVE = DOCS / "archive" / "atx100-migrated"
+CHECK_PATHS = [ROOT / "README.md", DOCS]
 
 
 @dataclass(frozen=True)
@@ -75,6 +79,16 @@ def line_number_for_offset(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
+def archive_fallback(target: Path) -> Path | None:
+    try:
+        rel = target.relative_to(DOCS)
+    except ValueError:
+        return None
+
+    fallback = ARCHIVE / rel
+    return fallback if fallback.exists() else None
+
+
 def check_file(md_file: Path) -> list[BrokenLink]:
     original_text = md_file.read_text(encoding="utf-8")
     text = strip_code_fences(original_text)
@@ -96,7 +110,7 @@ def check_file(md_file: Path) -> list[BrokenLink]:
             broken.append(BrokenLink(md_file, line_no, raw_link, "points outside repo"))
             continue
 
-        if not target.exists():
+        if not target.exists() and archive_fallback(target) is None:
             broken.append(BrokenLink(md_file, line_no, raw_link, "missing file"))
 
     return broken

@@ -1,0 +1,43 @@
+name: Apply ATX-100 Migration
+
+on:
+  push:
+    branches:
+      - atx100-migration-supervised
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: atx100-migration-supervised
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Apply ATX-100 document migration
+        run: make docs-migrate
+
+      - name: Show migration status
+        run: |
+          git status --short
+          git diff --stat
+
+      - name: Commit migrated documentation
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add docs
+            git commit -m "Apply guarded ATX-100 documentation migration"
+            git push origin HEAD:atx100-migration-supervised
+          else
+            echo "No migration changes to commit."
+          fi
