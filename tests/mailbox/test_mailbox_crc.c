@@ -26,7 +26,7 @@ int main(void) {
         failures++;
     }
 
-    memcpy(corrupt, payload, sizeof(payload));
+    memcpy(corrupt, payload, sizeof(payload)); /* aes-sec-001: allow test fixture copy between same-sized local arrays */
     corrupt[0] ^= 0x01;
     status = atarix_mailbox_validate_header(&header, corrupt, sizeof(corrupt));
     if (status != ATARIX_MAILBOX_STATUS_CRC_MISMATCH) {
