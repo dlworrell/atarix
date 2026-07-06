@@ -35,21 +35,25 @@ static void patch_crc32(uint8_t *image, size_t image_length) {
     header->image_crc32 = crc32_iso_hdlc(image, image_length);
 }
 
-static void append_bytes(uint8_t *image, size_t *offset, const void *src, size_t length) {
-    memcpy(image + *offset, src, length);
+static int append_bytes(uint8_t *image, size_t image_capacity, size_t *offset, const void *src, size_t length) {
+    if (length > image_capacity - *offset) {
+        return 1;
+    }
+    memcpy(image + *offset, src, length); /* aes-sec-001: allow bounded append after explicit remaining-capacity check */
     *offset += length;
+    return 0;
 }
 
-static void append_end(uint8_t *image, size_t *offset) {
+static int append_end(uint8_t *image, size_t image_capacity, size_t *offset) {
     atarix_discovery_record_header_v1_t end_record;
     memset(&end_record, 0, sizeof(end_record));
     end_record.type = ATARIX_DISCOVERY_RECORD_END;
     end_record.version = 1;
     end_record.length = sizeof(end_record);
-    append_bytes(image, offset, &end_record, sizeof(end_record));
+    return append_bytes(image, image_capacity, offset, &end_record, sizeof(end_record));
 }
 
-static void append_resource(uint8_t *image, size_t *offset, uint16_t type, uint32_t provider_id, uint32_t instance_id) {
+static int append_resource(uint8_t *image, size_t image_capacity, size_t *offset, uint16_t type, uint32_t provider_id, uint32_t instance_id) {
     atarix_discovery_resource_record_v1_t record;
     memset(&record, 0, sizeof(record));
     record.header.type = ATARIX_DISCOVERY_RECORD_RESOURCE;
@@ -60,10 +64,10 @@ static void append_resource(uint8_t *image, size_t *offset, uint16_t type, uint3
     record.resource_handle = atarix_discovery_make_handle((uint16_t)provider_id, type, instance_id);
     record.provider_id = provider_id;
     record.instance_id = instance_id;
-    append_bytes(image, offset, &record, sizeof(record));
+    return append_bytes(image, image_capacity, offset, &record, sizeof(record));
 }
 
-static void append_service(uint8_t *image, size_t *offset, uint16_t service_id, uint32_t provider_id, uint32_t instance_id) {
+static int append_service(uint8_t *image, size_t image_capacity, size_t *offset, uint16_t service_id, uint32_t provider_id, uint32_t instance_id) {
     atarix_discovery_service_record_v1_t record;
     memset(&record, 0, sizeof(record));
     record.header.type = ATARIX_DISCOVERY_RECORD_SERVICE;
@@ -74,16 +78,17 @@ static void append_service(uint8_t *image, size_t *offset, uint16_t service_id, 
     record.service_handle = atarix_discovery_make_handle((uint16_t)provider_id, service_id, instance_id);
     record.provider_id = provider_id;
     record.instance_id = instance_id;
-    append_bytes(image, offset, &record, sizeof(record));
+    return append_bytes(image, image_capacity, offset, &record, sizeof(record));
 }
 
-static int build_profile(const char *profile, uint8_t *image, size_t *image_length) {
+static int build_profile(const char *profile, uint8_t *image, size_t image_capacity, size_t *image_length) {
     atarix_discovery_header_v1_t *header = (atarix_discovery_header_v1_t *)image;
     size_t offset = ATARIX_DISCOVERY_HEADER_SIZE_V1;
     uint32_t provider_id = 3;
     uint32_t record_count = 0;
+    int append_status = 0;
 
-    memset(image, 0, MKDISCOVERY_MAX_IMAGE);
+    memset(image, 0, image_capacity);
     header->magic = ATARIX_DISCOVERY_MAGIC_ATDX;
     header->version_major = ATARIX_DISCOVERY_VERSION_MAJOR_V1;
     header->version_minor = ATARIX_DISCOVERY_VERSION_MINOR_V0;
@@ -92,26 +97,30 @@ static int build_profile(const char *profile, uint8_t *image, size_t *image_leng
     if (strcmp(profile, "minimal") == 0) {
         /* END only. */
     } else if (strcmp(profile, "cpu-card") == 0) {
-        append_resource(image, &offset, ATARIX_RESOURCE_CPU, provider_id, 1); record_count++;
-        append_resource(image, &offset, ATARIX_RESOURCE_CPU_HEALTH, provider_id, 1); record_count++;
-        append_service(image, &offset, ATARIX_SERVICE_CPU_DIAGNOSTICS, provider_id, 1); record_count++;
-        append_service(image, &offset, ATARIX_SERVICE_CPU_HEALTH, provider_id, 1); record_count++;
+        append_status |= append_resource(image, image_capacity, &offset, ATARIX_RESOURCE_CPU, provider_id, 1); record_count++;
+        append_status |= append_resource(image, image_capacity, &offset, ATARIX_RESOURCE_CPU_HEALTH, provider_id, 1); record_count++;
+        append_status |= append_service(image, image_capacity, &offset, ATARIX_SERVICE_CPU_DIAGNOSTICS, provider_id, 1); record_count++;
+        append_status |= append_service(image, image_capacity, &offset, ATARIX_SERVICE_CPU_HEALTH, provider_id, 1); record_count++;
     } else if (strcmp(profile, "supervisor") == 0) {
         provider_id = 1;
         header->provider_id = provider_id;
-        append_resource(image, &offset, ATARIX_RESOURCE_SUPERVISOR, provider_id, 1); record_count++;
-        append_service(image, &offset, ATARIX_SERVICE_HEALTH, provider_id, 1); record_count++;
+        append_status |= append_resource(image, image_capacity, &offset, ATARIX_RESOURCE_SUPERVISOR, provider_id, 1); record_count++;
+        append_status |= append_service(image, image_capacity, &offset, ATARIX_SERVICE_HEALTH, provider_id, 1); record_count++;
     } else if (strcmp(profile, "instrumentation") == 0) {
         provider_id = 5;
         header->provider_id = provider_id;
-        append_resource(image, &offset, ATARIX_RESOURCE_LOGIC_ANALYZER, provider_id, 1); record_count++;
-        append_service(image, &offset, ATARIX_SERVICE_INSTRUMENTATION, provider_id, 1); record_count++;
+        append_status |= append_resource(image, image_capacity, &offset, ATARIX_RESOURCE_LOGIC_ANALYZER, provider_id, 1); record_count++;
+        append_status |= append_service(image, image_capacity, &offset, ATARIX_SERVICE_INSTRUMENTATION, provider_id, 1); record_count++;
     } else {
         fprintf(stderr, "unknown profile: %s\n", profile);
         return 1;
     }
 
-    append_end(image, &offset); record_count++;
+    append_status |= append_end(image, image_capacity, &offset); record_count++;
+    if (append_status != 0) {
+        fprintf(stderr, "profile does not fit discovery image capacity\n");
+        return 1;
+    }
     header->total_length = (uint32_t)offset;
     header->record_count = record_count;
     patch_crc32(image, offset);
@@ -140,7 +149,7 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    if (build_profile(profile, image, &image_length) != 0) {
+    if (build_profile(profile, image, sizeof(image), &image_length) != 0) {
         return 1;
     }
 
