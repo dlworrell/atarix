@@ -37,7 +37,7 @@ static int atarix_discovery_crc_valid(const void *image, size_t image_size) {
     expected_header_crc = header->header_crc32;
     expected_image_crc = header->image_crc32;
 
-    memcpy(header_copy, image, ATARIX_DISCOVERY_HEADER_SIZE_V1);
+    memcpy(header_copy, image, ATARIX_DISCOVERY_HEADER_SIZE_V1); /* aes-sec-001: allow fixed-size header copy after caller verified minimum image size */
     mutable_header = (atarix_discovery_header_v1_t *)header_copy;
     mutable_header->header_crc32 = 0;
     mutable_header->image_crc32 = 0;
@@ -52,7 +52,7 @@ static int atarix_discovery_crc_valid(const void *image, size_t image_size) {
     }
 
     image_copy = image_copy_stack;
-    memcpy(image_copy, image, image_size);
+    memcpy(image_copy, image, image_size); /* aes-sec-001: allow bounded stack copy; image_size is checked against image_copy_stack above */
     mutable_header = (atarix_discovery_header_v1_t *)image_copy;
     mutable_header->image_crc32 = 0;
     actual_image_crc = atarix_crc32_iso_hdlc(image_copy, header->total_length);
