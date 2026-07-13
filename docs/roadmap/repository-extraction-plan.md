@@ -1,101 +1,107 @@
 # Repository Extraction Plan
 
-ATARIX, AEMS, JAG, and Just a Geek should be maintained as separate repositories with explicit dependency direction.
+Status: Superseded transitional plan
 
-## Target repositories
+## Canonical Authority
 
-```text
-.github.com/dlworrell/aems
-.github.com/dlworrell/atarix
-.github.com/dlworrell/jag
-.github.com/dlworrell/just-a-geek
-```
+Repository governance and authority boundaries are now defined by:
 
-## Ownership boundaries
+- `dlworrell/Catylist/docs/adr/ADR-003-authority-chain.md`
+- `dlworrell/Catylist/docs/architecture/governance-model.md`
+- `dlworrell/Catylist/docs/architecture/repository-taxonomy.md`
 
-### aems
+Engineering standards are owned by:
 
-AEMS is the engineering standard and reference tooling.
+- `dlworrell/AES`
+
+Project management, assessment, evidence packaging, and standards enforcement are owned by:
+
+- `dlworrell/AEMS`
+
+This file remains as a historical record of the earlier repository-splitting plan. It is not authoritative.
+
+## Corrected Authority Boundaries
+
+### Catylist
+
+Catylist owns:
+
+- Catalyst program governance;
+- repository relationships and taxonomy;
+- authority boundaries;
+- governance ADRs;
+- lifecycle and decision processes.
+
+### AES
+
+AES owns:
+
+- engineering principles and standards;
+- required engineering evidence;
+- standard templates and normative terminology;
+- secure coding and development requirements;
+- engineering-standard ADRs and revision history.
+
+### AEMS
 
 AEMS owns:
 
-- AEMS specifications and terminology
-- artifact model
-- engineering graph model
-- documentation governance
-- requirements and traceability model
-- validation and evidence model
-- reusable CLI/reference implementation
-- schemas and conformance tests
+- Catalyst project-management automation;
+- repository inventory and classification;
+- compliance scanners;
+- evidence packaging and reporting;
+- dashboards and enforcement mechanisms;
+- schemas used to express scanner and evidence output.
 
-AEMS must not depend on ATARIX.
+AEMS verifies AES. It does not define AES requirements.
 
-### atarix
+### Atarix
 
-ATARIX is the modular workstation architecture and implementation project.
+Atarix owns:
 
-ATARIX owns:
+- ATX architecture specifications;
+- hardware, FPGA, firmware, operating-system, and toolchain design;
+- ATX-100 canonical architecture material;
+- project-specific requirements, ADRs, tests, and verification evidence;
+- Atarix-specific extensions of AES requirements.
 
-- ATX architecture specifications
-- hardware, firmware, operating-system, and toolchain design
-- ATX-100 canonical architecture book
-- project-specific requirements and verification evidence
-- AEMS configuration for the ATARIX project
-
-ATARIX may depend on AEMS.
-
-### jag
-
-JAG is the future AI-assisted engineering assistant and tool layer.
+### JAG
 
 JAG owns:
 
-- AI engineering assistant experiments
-- knowledge graph query tools
-- architecture review assistants
-- repository-analysis tools
-- AEMS-aware workflow agents
+- application and assistant behavior;
+- repository-analysis and architecture-review tools specific to JAG;
+- AEMS-aware workflow integrations;
+- product-specific specifications and evidence.
 
-JAG may depend on AEMS.
+### Just-a-Geek-LLC
 
-### just-a-geek
+Just-a-Geek-LLC owns:
 
-Just a Geek is the public/company/brand repository.
+- company and public-facing material;
+- website and publication content;
+- organizational history and portfolio material.
 
-Just a Geek owns:
+It does not own Catalyst engineering governance or standards.
 
-- website content
-- company history
-- public pages for AEMS, ATARIX, and JAG
-- portfolio/archive material
-- publication index
-
-Just a Geek may publish outputs from AEMS, ATARIX, and JAG, but should not own their source material.
-
-## Extraction order
-
-1. Stabilize the current ATARIX documentation migration.
-2. Create empty `aems`, `jag`, and `just-a-geek` repositories.
-3. Extract AEMS specifications and reusable tools from ATARIX into `aems`.
-4. Leave ATARIX project-specific configuration in `atarix`.
-5. Add `aems` as a submodule, vendored tool, or CI dependency only after AEMS has a stable public interface.
-6. Create `jag` as a placeholder repo with a product charter, not active code, until the AEMS graph model is stable.
-7. Create `just-a-geek` as a minimal static-site repository later.
-
-## Dependency rule
+## Current Dependency Rule
 
 ```text
-AEMS  -> standalone
-ATARIX -> may consume AEMS
-JAG    -> may consume AEMS and ATARIX metadata
-Just a Geek -> may publish outputs from all repos
+Catylist → AES → AEMS → governed repositories
 ```
 
-No repository should create circular build dependencies.
+Atarix and other implementation repositories may consume AEMS tooling and reference AES and Catylist documents. Circular policy dependencies are prohibited.
 
-## Immediate next actions
+## Historical Extraction Outcome
 
-- Open tracking issues in `atarix` for AEMS, JAG, and Just a Geek extraction.
-- Finish the current migration PR before moving files out.
-- Create empty destination repositories manually in GitHub.
-- Populate destination repositories only after ATARIX CI is green.
+The major repository separation described by the original plan has occurred:
+
+- Catylist exists as the program governance repository;
+- AES exists as the engineering standards repository;
+- AEMS exists as the project manager and enforcement orchestrator;
+- JAG and Just-a-Geek-LLC exist as separate repositories;
+- Atarix remains the system architecture and implementation repository.
+
+Remaining document migration is tracked in:
+
+- `docs/roadmap/document-authority-migration-audit.md`
