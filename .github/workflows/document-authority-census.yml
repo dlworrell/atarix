@@ -5,10 +5,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - docs/engineering/reports/document-authority-census.md
+      - docs/engineering/reports/document-authority-census.json
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   census:
@@ -16,23 +19,44 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Generate full-tree census
         run: |
-          mkdir -p reports
+          mkdir -p docs/engineering/reports
           python3 scripts/document_authority_census.py . \
             --repo-name dlworrell/atarix \
-            --format markdown > reports/document-authority-census.md
+            --format markdown > docs/engineering/reports/document-authority-census.md
           python3 scripts/document_authority_census.py . \
             --repo-name dlworrell/atarix \
-            --format json > reports/document-authority-census.json
+            --format json > docs/engineering/reports/document-authority-census.json
 
       - name: Upload census evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: atarix-document-authority-census
-          path: reports/
+          path: |
+            docs/engineering/reports/document-authority-census.md
+            docs/engineering/reports/document-authority-census.json
+
+      - name: Publish census on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if git diff --quiet -- \
+            docs/engineering/reports/document-authority-census.md \
+            docs/engineering/reports/document-authority-census.json; then
+            echo "Census evidence is unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            docs/engineering/reports/document-authority-census.md \
+            docs/engineering/reports/document-authority-census.json
+          git commit -m "audit(atarix): update document authority census"
+          git push
 
       - name: Enforce approved documentation locations
         run: |
