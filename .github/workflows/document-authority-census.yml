@@ -1,0 +1,41 @@
+name: Document authority census
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Generate full-tree census
+        run: |
+          mkdir -p reports
+          python3 scripts/document_authority_census.py . \
+            --repo-name dlworrell/atarix \
+            --format markdown > reports/document-authority-census.md
+          python3 scripts/document_authority_census.py . \
+            --repo-name dlworrell/atarix \
+            --format json > reports/document-authority-census.json
+
+      - name: Upload census evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atarix-document-authority-census
+          path: reports/
+
+      - name: Enforce approved documentation locations
+        run: |
+          python3 scripts/document_authority_census.py . \
+            --repo-name dlworrell/atarix \
+            --strict
