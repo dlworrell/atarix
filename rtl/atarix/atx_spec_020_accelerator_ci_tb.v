@@ -45,6 +45,19 @@ module atx_spec_020_accelerator_ci_tb;
     integer tests_run = 0;
     integer tests_failed = 0;
     integer timeout_count = 0;
+    integer hold_count = 0;
+
+    reg [7:0] held_resp_status;
+    reg [31:0] held_resp_resolved_id;
+    reg [31:0] held_resp_generation;
+    reg [3:0] held_resp_offset;
+    reg [31:0] held_resp_cycles;
+    reg [31:0] held_audit_sequence;
+    reg [7:0] held_audit_status;
+    reg [31:0] held_audit_registry;
+    reg [31:0] held_audit_generation;
+    reg [7:0] held_audit_probes;
+    reg [3:0] held_audit_offset;
 
     atx_spec_020_accelerator dut (
         .clk(clk), .rst_n(rst_n),
@@ -75,14 +88,31 @@ module atx_spec_020_accelerator_ci_tb;
 
     always #5 clk = ~clk;
 
+    task fail;
+        input [8*80-1:0] message;
+        begin
+            tests_failed = tests_failed + 1;
+            $display("FAIL %0s", message);
+        end
+    endtask
+
     task clear_inputs;
         begin
-            req_valid = 0; req_type = 16'h0020;
-            req_crc_ok = 1; req_ring_ok = 1; req_capability_ok = 1; req_policy_ok = 1;
-            req_key_hash = 32'h0000002a; req_probe_limit = 8'h04;
-            table_control_bytes = 128'h0; table_lookup_valid = 1;
-            table_generation = 32'h00000005; table_base_resolved_id = 32'h00002000;
-            resp_ready = 0; audit_ready = 1;
+            req_valid = 0;
+            req_type = 16'h0020;
+            req_crc_ok = 1;
+            req_ring_ok = 1;
+            req_capability_ok = 1;
+            req_policy_ok = 1;
+            req_registry_id = 32'h00001000;
+            req_key_hash = 32'h0000002a;
+            req_probe_limit = 8'h04;
+            table_control_bytes = 128'h0;
+            table_lookup_valid = 1;
+            table_generation = 32'h00000005;
+            table_base_resolved_id = 32'h00002000;
+            resp_ready = 0;
+            audit_ready = 1;
         end
     endtask
 
@@ -94,54 +124,187 @@ module atx_spec_020_accelerator_ci_tb;
         end
     endtask
 
+    task check_no_unknowns;
+        input [8*40-1:0] name;
+        begin
+            if ($isunknown({
+                resp_status, resp_resolved_id, resp_resolved_generation,
+                resp_match_offset, resp_cycles, audit_sequence, audit_status,
+                audit_registry_id, audit_generation, audit_probe_count,
+                audit_match_offset
+            })) begin
+                fail({name, ": X/Z on architectural output"});
+            end
+        end
+    endtask
+
     task run_case;
         input [31:0] seq;
         input [8*40-1:0] name;
-        input [7:0] expected;
+        input [7:0] expected_status;
+        input [31:0] expected_resolved_id;
+        input [31:0] expected_generation;
+        input [3:0] expected_offset;
+        input [7:0] expected_probes;
+        input integer audit_hold_cycles;
+        input integer resp_hold_cycles;
         begin
             req_sequence = seq;
             timeout_count = 0;
+            audit_ready = (audit_hold_cycles == 0);
+
             @(posedge clk);
+            if (!req_ready)
+                fail({name, ": req_ready low before request"});
             req_valid = 1;
             @(posedge clk);
             req_valid = 0;
+
+            while (audit_valid != 1 && timeout_count < 100) begin
+                @(posedge clk);
+                timeout_count = timeout_count + 1;
+            end
+
+            tests_run = tests_run + 1;
+            if (audit_valid != 1) begin
+                fail({name, ": audit timeout"});
+            end else begin
+                check_no_unknowns(name);
+                if (audit_sequence !== seq) fail({name, ": audit sequence mismatch"});
+                if (audit_status !== expected_status) fail({name, ": audit status mismatch"});
+                if (audit_registry_id !== req_registry_id) fail({name, ": audit registry mismatch"});
+                if (audit_generation !== table_generation) fail({name, ": audit generation mismatch"});
+                if (audit_probe_count !== expected_probes) fail({name, ": audit probe count mismatch"});
+                if (audit_match_offset !== expected_offset) fail({name, ": audit offset mismatch"});
+
+                held_audit_sequence = audit_sequence;
+                held_audit_status = audit_status;
+                held_audit_registry = audit_registry_id;
+                held_audit_generation = audit_generation;
+                held_audit_probes = audit_probe_count;
+                held_audit_offset = audit_match_offset;
+
+                for (hold_count = 0; hold_count < audit_hold_cycles; hold_count = hold_count + 1) begin
+                    @(posedge clk);
+                    if (!audit_valid) fail({name, ": audit_valid dropped under backpressure"});
+                    if ({audit_sequence, audit_status, audit_registry_id, audit_generation,
+                         audit_probe_count, audit_match_offset} !==
+                        {held_audit_sequence, held_audit_status, held_audit_registry,
+                         held_audit_generation, held_audit_probes, held_audit_offset})
+                        fail({name, ": audit payload changed under backpressure"});
+                end
+
+                if (audit_hold_cycles != 0) begin
+                    audit_ready = 1;
+                    @(posedge clk);
+                end
+            end
+
+            timeout_count = 0;
             while (resp_valid != 1 && timeout_count < 100) begin
                 @(posedge clk);
                 timeout_count = timeout_count + 1;
             end
-            tests_run = tests_run + 1;
+
             if (resp_valid != 1) begin
-                tests_failed = tests_failed + 1;
-                $display("FAIL %-32s timeout", name);
-            end else if (resp_status !== expected) begin
-                tests_failed = tests_failed + 1;
-                $display("FAIL %-32s expected=0x%02x got=0x%02x", name, expected, resp_status);
+                fail({name, ": response timeout"});
             end else begin
-                $display("PASS %-32s status=0x%02x probes=%0d offset=%0d resolved=0x%08x", name, resp_status, audit_probe_count, audit_match_offset, resp_resolved_id);
+                check_no_unknowns(name);
+                if (resp_status !== expected_status) fail({name, ": response status mismatch"});
+                if (resp_resolved_id !== expected_resolved_id) fail({name, ": resolved ID mismatch"});
+                if (resp_resolved_generation !== expected_generation) fail({name, ": response generation mismatch"});
+                if (resp_match_offset !== expected_offset) fail({name, ": response offset mismatch"});
+                if (resp_cycles == 0) fail({name, ": zero response cycle count"});
+
+                held_resp_status = resp_status;
+                held_resp_resolved_id = resp_resolved_id;
+                held_resp_generation = resp_resolved_generation;
+                held_resp_offset = resp_match_offset;
+                held_resp_cycles = resp_cycles;
+
+                for (hold_count = 0; hold_count < resp_hold_cycles; hold_count = hold_count + 1) begin
+                    @(posedge clk);
+                    if (!resp_valid) fail({name, ": resp_valid dropped under backpressure"});
+                    if ({resp_status, resp_resolved_id, resp_resolved_generation,
+                         resp_match_offset, resp_cycles} !==
+                        {held_resp_status, held_resp_resolved_id, held_resp_generation,
+                         held_resp_offset, held_resp_cycles})
+                        fail({name, ": response payload changed under backpressure"});
+                end
+
+                $display("PASS %-32s status=0x%02x probes=%0d offset=%0d resolved=0x%08x",
+                         name, resp_status, audit_probe_count, audit_match_offset,
+                         resp_resolved_id);
             end
+
             resp_ready = 1;
             @(posedge clk);
+            @(posedge clk);
             resp_ready = 0;
+            audit_ready = 1;
             repeat (2) @(posedge clk);
+        end
+    endtask
+
+    task check_idle_reset;
+        input [8*40-1:0] name;
+        begin
+            rst_n = 0;
+            repeat (2) @(posedge clk);
+            if (req_ready !== 1'b1) fail({name, ": req_ready not asserted in reset"});
+            if (resp_valid !== 1'b0) fail({name, ": spurious response in reset"});
+            if (audit_valid !== 1'b0) fail({name, ": spurious audit in reset"});
+            rst_n = 1;
+            repeat (2) @(posedge clk);
+            if (req_ready !== 1'b1) fail({name, ": req_ready not restored after reset"});
+            $display("PASS %-32s", name);
+            tests_run = tests_run + 1;
         end
     endtask
 
     initial begin
         $dumpfile("atx_spec_020_accelerator_tb.vcd");
         $dumpvars(0, atx_spec_020_accelerator_ci_tb);
+
         repeat (4) @(posedge clk);
         rst_n = 1;
         repeat (2) @(posedge clk);
         $display("ATX-SPEC-020 CI Accelerator Simulation");
 
-        clear_inputs(); set_lane(5, 7'h2a); run_case(1, "authorized_lane5_hit", 8'h00);
-        clear_inputs(); req_crc_ok = 0; set_lane(5, 7'h2a); run_case(2, "crc_mismatch", 8'h04);
-        clear_inputs(); req_ring_ok = 0; set_lane(5, 7'h2a); run_case(3, "ring_denied", 8'h09);
-        clear_inputs(); req_capability_ok = 0; set_lane(5, 7'h2a); run_case(4, "cap_denied", 8'h0b);
-        clear_inputs(); req_policy_ok = 0; set_lane(5, 7'h2a); run_case(5, "policy_denied", 8'h0a);
-        clear_inputs(); req_type = 16'h9999; set_lane(5, 7'h2a); run_case(6, "unknown_type", 8'h02);
-        clear_inputs(); table_lookup_valid = 0; run_case(7, "table_timeout", 8'h0e);
-        clear_inputs(); req_key_hash = 32'h0000003b; set_lane(5, 7'h2a); run_case(8, "miss_sequence_error", 8'h05);
+        clear_inputs(); set_lane(5, 7'h2a);
+        run_case(1, "authorized_lane5_hit", 8'h00, 32'h00002005, 32'h00000005, 4'd5, 8'd1, 0, 3);
+
+        clear_inputs(); set_lane(0, 7'h2a);
+        run_case(2, "authorized_lane0_boundary", 8'h00, 32'h00002000, 32'h00000005, 4'd0, 8'd1, 0, 1);
+
+        clear_inputs(); set_lane(15, 7'h2a);
+        run_case(3, "authorized_lane15_boundary", 8'h00, 32'h0000200f, 32'h00000005, 4'd15, 8'd1, 2, 1);
+
+        clear_inputs(); set_lane(3, 7'h2a); set_lane(11, 7'h2a);
+        run_case(4, "multiple_match_lowest_lane", 8'h00, 32'h00002003, 32'h00000005, 4'd3, 8'd1, 0, 0);
+
+        clear_inputs(); req_crc_ok = 0; set_lane(5, 7'h2a);
+        run_case(5, "crc_mismatch", 8'h04, 32'hffffffff, 32'h00000000, 4'd0, 8'd0, 0, 0);
+
+        clear_inputs(); req_ring_ok = 0; set_lane(5, 7'h2a);
+        run_case(6, "ring_denied", 8'h09, 32'hffffffff, 32'h00000000, 4'd0, 8'd0, 0, 0);
+
+        clear_inputs(); req_capability_ok = 0; set_lane(5, 7'h2a);
+        run_case(7, "cap_denied", 8'h0b, 32'hffffffff, 32'h00000000, 4'd0, 8'd0, 0, 0);
+
+        clear_inputs(); req_policy_ok = 0; set_lane(5, 7'h2a);
+        run_case(8, "policy_denied", 8'h0a, 32'hffffffff, 32'h00000000, 4'd0, 8'd0, 0, 0);
+
+        clear_inputs(); req_type = 16'h9999; set_lane(5, 7'h2a);
+        run_case(9, "unknown_type", 8'h02, 32'hffffffff, 32'h00000000, 4'd0, 8'd0, 0, 0);
+
+        clear_inputs(); table_lookup_valid = 0;
+        run_case(10, "table_timeout", 8'h0e, 32'hffffffff, 32'h00000000, 4'd0, 8'd0, 0, 0);
+
+        clear_inputs(); req_key_hash = 32'h0000003b; set_lane(5, 7'h2a);
+        run_case(11, "miss_sequence_error", 8'h05, 32'hffffffff, 32'h00000000, 4'd0, 8'd5, 0, 0);
+
+        check_idle_reset("idle_reset_contract");
 
         $display("ATX020 SUMMARY tests_run=%0d tests_failed=%0d", tests_run, tests_failed);
         if (tests_failed == 0) $display("ATX020 RESULT PASS");
