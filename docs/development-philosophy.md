@@ -1,114 +1,48 @@
 # ATARIX Development Philosophy
 
-## Purpose
+Status: Superseded as a general engineering standard
 
-This document defines how ATARIX is developed.
+## Canonical Authority
 
-Architecture decisions are influenced by four major traditions:
+The general engineering principles originally captured here have been migrated into:
 
-- Vega816 and BB816 practical 65C816 engineering
-- Sun/NuBus/UPA workstation architecture
-- curl development discipline
-- OpenBSD security philosophy
+- `dlworrell/AES/standards/AES-DEV-001-development-principles-and-check-in-discipline.md`
 
-## Documentation First
+ATARIX-specific extensions are maintained in:
 
-Architecture first.
+- `docs/engineering/ATARIX-DEV-001-development-principles.md`
 
-Specification second.
+This file remains as a historical migration record. It is not the canonical source for Catalyst-wide engineering requirements.
 
-Implementation third.
+## Original Purpose
 
-No major hardware, FPGA, firmware, or operating-system component should exist without a corresponding specification.
+This document originally defined how ATARIX was developed and supplied source material for the Catalyst engineering standard.
 
-## Version Everything
+The original principles included:
 
-Interfaces are versioned.
+- architecture before specification before implementation;
+- versioned interfaces;
+- small commits, pull requests, and reviews;
+- observable systems;
+- security by design;
+- cryptography by reuse rather than invention;
+- explicit recovery behavior;
+- architecture decision records;
+- explicit ring and capability authority models;
+- preference for understandable, observable, auditable, recoverable, and secure systems over clever systems.
 
-Examples:
+## Current Ownership
 
-- Discovery Format v1
-- Mailbox Protocol v1
-- DMA Descriptor v1
-- Fabric Controller v1
+General requirements belong in AES.
 
-Existing interfaces should not be silently changed.
+ATARIX retains only project-specific extensions, including:
 
-## Small Changes
+- the Vega816, BB816, Sun/NuBus/UPA, curl, and OpenBSD lineage;
+- ATARIX protocol and interface examples;
+- ATARIX-specific hardware, FPGA, firmware, operating-system, and toolchain expectations;
+- ring and capability authority details;
+- project-specific ADR examples.
 
-Prefer:
+## Migration Rule
 
-- Small commits
-- Small pull requests
-- Small reviews
-
-Large architectural changes should be decomposed into reviewable units.
-
-## Observable Systems
-
-Every subsystem should expose:
-
-- Status
-- Counters
-- Fault history
-- Health metrics
-- Recovery information
-
-Debuggability is a first-class design goal.
-
-## Security by Design
-
-Borrowing from OpenBSD:
-
-- Secure by default
-- Least privilege
-- Privilege separation
-- Capability revocation
-- Explicit trust boundaries
-- Cryptography by reuse, not invention
-
-## Cryptographic Standards
-
-Preferred primitives:
-
-- Ed25519 for signatures
-- ChaCha20-Poly1305 for authenticated encryption
-- BLAKE2b and SHA-256 for hashing
-
-Avoid custom cryptography.
-
-## Recovery First
-
-Every subsystem should define:
-
-- Failure modes
-- Recovery behavior
-- Reset behavior
-- Diagnostic visibility
-
-The machine should fail visibly and recover deliberately.
-
-## Architecture Decision Records
-
-Major decisions should be documented as ADRs.
-
-Examples:
-
-- Why ULX3S was selected
-- Why RP2350 was selected
-- Why the CPU bus remains local
-- Why capabilities are used
-- Why the supervisor is outside the ring model
-
-## Ring and Capability Model
-
-ATARIX uses:
-
-- Rings for execution authority
-- Capabilities for resource authority
-
-Neither mechanism is sufficient alone.
-
-## Design Principle
-
-Prefer systems that are understandable, observable, auditable, recoverable, and secure over systems that are merely clever.
+Future general engineering requirements discovered during ATARIX work must be proposed in AES rather than added here. ATARIX may reference and extend AES locally, but it must not become a second standards authority.
