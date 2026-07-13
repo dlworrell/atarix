@@ -60,6 +60,11 @@ EXCLUDED_DIRECTORIES = {
     "vendor",
 }
 
+GENERATED_REPORT_PATHS = {
+    "docs/engineering/reports/document-authority-census.json",
+    "docs/engineering/reports/document-authority-census.md",
+}
+
 APPROVED_DOCUMENT_ROOTS = {
     ".github",
     "docs",
@@ -151,6 +156,8 @@ def iter_documents(root: Path) -> Iterable[Path]:
         if not path.is_file():
             continue
         relative = path.relative_to(root)
+        if relative.as_posix() in GENERATED_REPORT_PATHS:
+            continue
         if is_excluded(relative):
             continue
         if is_document(path):
