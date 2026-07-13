@@ -52,6 +52,7 @@ iverilog -g2012 -o "${ACCEL_BIN}" \
 
 printf '%s\n' 'Step 2: Run accelerator simulation'
 "${TIMEOUT_CMD[@]}" vvp "${ACCEL_BIN}" | tee "${ACCEL_LOG}"
+cp -f "${ACCEL_LOG}" "${ARTIFACT_DIR}/"
 grep -q 'ATX020 RESULT PASS' "${ACCEL_LOG}" || { printf '%s\n' 'ERROR: accelerator simulation failed.' >&2; exit 1; }
 [ ! -f atx_spec_020_accelerator_tb.vcd ] || mv -f atx_spec_020_accelerator_tb.vcd "${ARTIFACT_DIR}/"
 
@@ -67,6 +68,7 @@ iverilog -g2012 -o "${MODULE_BIN}" \
 
 printf '%s\n' 'Step 4: Run module validation simulation'
 "${TIMEOUT_CMD[@]}" vvp "${MODULE_BIN}" | tee "${MODULE_LOG}"
+cp -f "${MODULE_LOG}" "${ARTIFACT_DIR}/"
 grep -q 'ATX020 MODULES RESULT PASS' "${MODULE_LOG}" || { printf '%s\n' 'ERROR: module validation simulation failed.' >&2; exit 1; }
 [ ! -f atx_spec_020_modules_tb.vcd ] || mv -f atx_spec_020_modules_tb.vcd "${ARTIFACT_DIR}/"
 
@@ -85,11 +87,12 @@ for seed in ${RANDOM_SEEDS}; do
     printf 'Random regression seed=%s\n' "${seed}" | tee -a "${RANDOM_COMBINED_LOG}"
     "${TIMEOUT_CMD[@]}" vvp "${RANDOM_BIN}" +SEED="${seed}" | tee "${seed_log}"
     cat "${seed_log}" >> "${RANDOM_COMBINED_LOG}"
+    cp -f "${seed_log}" "${ARTIFACT_DIR}/"
+    cp -f "${RANDOM_COMBINED_LOG}" "${ARTIFACT_DIR}/"
     grep -q 'ATX020 RANDOM RESULT PASS' "${seed_log}" || {
-        printf 'ERROR: randomized regression failed for seed %s.\n' "${seed}" >&2
+        printf 'ERROR: randomized regression failed for seed %s. Counterexample log preserved at %s.\n' "${seed}" "${ARTIFACT_DIR}/$(basename "${seed_log}")" >&2
         exit 1
     }
-    cp -f "${seed_log}" "${ARTIFACT_DIR}/"
 done
 
 printf '%s\n' '------------------------------------------------------------'
@@ -110,8 +113,6 @@ printf '%s\n' 'Step 7: Generate simulation summary'
     grep -E 'gain proxy|scalar_cycles|Expected gain proxy' "${ACCEL_LOG}" "${MODULE_LOG}" || true
 } > "${SUMMARY_FILE}"
 
-cp -f "${ACCEL_LOG}" "${ARTIFACT_DIR}/"
-cp -f "${MODULE_LOG}" "${ARTIFACT_DIR}/"
 cp -f "${RANDOM_COMBINED_LOG}" "${ARTIFACT_DIR}/"
 
 printf '%s\n' 'Step 8: Print summary'
