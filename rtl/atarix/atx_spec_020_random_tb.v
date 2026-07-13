@@ -53,6 +53,7 @@ module atx_spec_020_random_tb;
     wire [3:0] audit_match_offset;
 
     integer seed;
+    integer initial_seed;
     integer i;
     integer lane;
     integer tests_failed = 0;
@@ -67,6 +68,7 @@ module atx_spec_020_random_tb;
     reg [3:0] expected_offset;
     reg [7:0] expected_probes;
     reg [6:0] fingerprint;
+    reg [6:0] nonmatch_fingerprint;
     reg [31:0] rv;
     reg [31:0] held_resp_cycles;
 
@@ -100,10 +102,11 @@ module atx_spec_020_random_tb;
         input [8*80-1:0] reason;
         begin
             tests_failed = tests_failed + 1;
-            $display("FAIL random case=%0d seed=%0d reason=%0s type=%04x crc=%0d ring=%0d cap=%0d policy=%0d lookup=%0d limit=%0d matches=%0d lowest=%0d status=%02x",
-                     i, seed, reason, req_type, req_crc_ok, req_ring_ok,
+            $display("FAIL random case=%0d seed=%0d reason=%0s type=%04x crc=%0d ring=%0d cap=%0d policy=%0d lookup=%0d limit=%0d matches=%0d lowest=%0d expected=%02x actual=%02x controls=%032x",
+                     i, initial_seed, reason, req_type, req_crc_ok, req_ring_ok,
                      req_capability_ok, req_policy_ok, table_lookup_valid,
-                     req_probe_limit, match_count, lowest_lane, resp_status);
+                     req_probe_limit, match_count, lowest_lane,
+                     expected_status, resp_status, table_control_bytes);
         end
     endtask
 
@@ -150,7 +153,8 @@ module atx_spec_020_random_tb;
     initial begin
         seed = 32'h02002026;
         if ($value$plusargs("SEED=%d", seed)) begin end
-        $display("ATX-SPEC-020 RANDOM seed=%0d cases=%0d", seed, CASES);
+        initial_seed = seed;
+        $display("ATX-SPEC-020 RANDOM seed=%0d cases=%0d", initial_seed, CASES);
         repeat (4) @(posedge clk);
         rst_n = 1;
         repeat (2) @(posedge clk);
@@ -181,7 +185,10 @@ module atx_spec_020_random_tb;
                     match_count = match_count + 1;
                     if (lowest_lane < 0) lowest_lane = lane;
                 end else if ((rv & 7) == 1) begin
-                    set_lane(lane, rv[6:0] ^ 7'h55);
+                    nonmatch_fingerprint = rv[6:0] ^ 7'h55;
+                    if (nonmatch_fingerprint == fingerprint)
+                        nonmatch_fingerprint = nonmatch_fingerprint ^ 7'h01;
+                    set_lane(lane, nonmatch_fingerprint);
                 end
             end
 
@@ -251,7 +258,7 @@ module atx_spec_020_random_tb;
             repeat (2) @(posedge clk);
         end
 
-        $display("ATX020 RANDOM SUMMARY cases=%0d failed=%0d seed=%0d", CASES, tests_failed, seed);
+        $display("ATX020 RANDOM SUMMARY cases=%0d failed=%0d seed=%0d", CASES, tests_failed, initial_seed);
         if (tests_failed == 0) $display("ATX020 RANDOM RESULT PASS");
         else $display("ATX020 RANDOM RESULT FAIL");
         #20;
