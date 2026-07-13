@@ -253,8 +253,8 @@ module atx_spec_020_accelerator (
 
                 STATE_RESPOND: begin
                     resp_valid <= 1'b1;
-                    resp_cycles <= cycle_counter;
                     if (!response_seen) begin
+                        resp_cycles <= cycle_counter;
                         response_seen <= 1'b1;
 `ifndef SYNTHESIS
                         $display("ATX020 RESP seq=%0d status=0x%02x resolved=0x%08x gen=%0d cycles=%0d",
