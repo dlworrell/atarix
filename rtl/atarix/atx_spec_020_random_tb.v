@@ -239,9 +239,11 @@ module atx_spec_020_random_tb;
                     {expected_status, expected_resolved, expected_generation,
                      expected_offset})
                     fail_case("response mismatch");
-                if ($isunknown({resp_status, resp_resolved_id,
-                                resp_resolved_generation, resp_match_offset,
-                                resp_cycles}))
+                if ((^resp_status === 1'bx) ||
+                    (^resp_resolved_id === 1'bx) ||
+                    (^resp_resolved_generation === 1'bx) ||
+                    (^resp_match_offset === 1'bx) ||
+                    (^resp_cycles === 1'bx))
                     fail_case("response contains X/Z");
                 held_resp_cycles = resp_cycles;
                 repeat (resp_hold) begin
