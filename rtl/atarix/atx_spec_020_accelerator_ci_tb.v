@@ -151,7 +151,9 @@ module atx_spec_020_accelerator_ci_tb;
         begin
             req_sequence = seq;
             timeout_count = 0;
-            audit_ready = (audit_hold_cycles == 0);
+            // Hold the audit channel until the testbench has observed and checked it.
+            // Otherwise audit_valid may be asserted and consumed on the same edge.
+            audit_ready = 0;
 
             @(posedge clk);
             if (!req_ready)
@@ -194,10 +196,8 @@ module atx_spec_020_accelerator_ci_tb;
                         fail({name, ": audit payload changed under backpressure"});
                 end
 
-                if (audit_hold_cycles != 0) begin
-                    audit_ready = 1;
-                    @(posedge clk);
-                end
+                audit_ready = 1;
+                @(posedge clk);
             end
 
             timeout_count = 0;
