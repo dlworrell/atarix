@@ -34,6 +34,9 @@ Catylist → AES → AEMS → governed repositories
 | `docs/roadmap/repository-extraction-plan.md` | Transitional program/repository governance | Catylist | Marked superseded and rewritten as a historical pointer to canonical governance |
 | `docs/diagnostic-access-v1.md` | ATARIX system interface specification | Atarix | Retain; project-specific architecture contract |
 | `docs/cpu-observability-contract-v1.md` | ATARIX CPU/system observability interface | Atarix | Retain; project-specific versioned contract |
+| `project-zero/README.md` | Obsolete duplicate Project Zero entry point | `docs/roadmap/atarix-project-zero-inventory.md` | Removed after migration |
+| `rtl/atarix/ATX-SPEC-020-CI.md` | Misplaced verification specification | `docs/verification/ATX-SPEC-020-rtl-ci.md` | Moved to canonical documentation tree |
+| `tools/aems/README.md` | AEMS-owned project documentation | `dlworrell/AEMS` | Removed from Atarix after extraction |
 
 ## Confirmed Migration
 
@@ -53,16 +56,35 @@ The following general principles from the original ATARIX development philosophy
 
 The original ATARIX file is therefore no longer a standards authority.
 
+## Full-Tree Census
+
+The document-authority census scans the complete repository rather than only `docs/`.
+
+The initial v1 run found 165 documentation-like files and reported 18 files outside the approved documentation roots. Manual review showed that most of those 18 were legitimate component-local README files colocated with implementation, simulation, test, firmware, RTL, or interface code.
+
+The v2 placement model therefore distinguishes:
+
+- **canonical** documentation under `docs/`, `.github/`, or approved repository-root paths;
+- **colocated** component README files beside the implementation they explain;
+- **violation** paths containing misplaced normative, cross-project, or migrated documentation.
+
+The three genuine migration violations identified by the v1 run were:
+
+1. `project-zero/README.md`;
+2. `rtl/atarix/ATX-SPEC-020-CI.md`;
+3. `tools/aems/README.md`.
+
+All three are now represented as forbidden historical paths in the v2 census and have canonical destinations recorded above.
+
 ## Remaining Review Queue
 
-The following categories still require a complete path-by-path inventory:
+The location census is now mechanically enforceable. Semantic review remains necessary for documents inside `docs/` whose wording may still describe the wrong authority. Priority categories are:
 
-1. Documents under `docs/roadmap/` that describe ecosystem-wide sequencing rather than ATARIX implementation.
-2. Documents under `docs/engineering/` that define general requirements rather than local ATARIX profiles or evidence.
-3. Schemas, validation models, evidence models, or reusable tooling that may belong in AEMS.
-4. Repository templates or general document templates that may belong in `repo_templates` or AES.
-5. Company, publication, or public-site material that may belong in Just-a-Geek-LLC.
-6. JAG product or assistant specifications that may belong in JAG.
+1. `docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md` and related AEMS-era material;
+2. `docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md`;
+3. general documentation taxonomy, engineering-gate, review-template, and doctrine files that may belong in AES or AEMS;
+4. repository-organization and ecosystem-sequencing documents that may belong in Catylist;
+5. product-assistant material that may belong in JAG.
 
 ## Migration Procedure
 
@@ -78,9 +100,6 @@ For each remaining candidate:
 
 ## Current Conclusion
 
-Two clear migration remnants were found and corrected:
+The full-tree location policy has been corrected and the three genuine off-tree migration remnants have canonical destinations. The next workflow run must use census schema `catalyst.atarix.document-authority-census.v2`; a green strict result is the evidence required to close the location portion of the migration.
 
-- the general development philosophy now points to AES;
-- the obsolete repository extraction plan now points to Catylist, AES, and AEMS according to the accepted authority chain.
-
-The reviewed diagnostic and observability contracts correctly remain in Atarix because they define ATARIX-specific interfaces rather than ecosystem-wide standards.
+The broader semantic migration is not yet complete until the remaining AEMS-, AES-, Catylist-, and JAG-oriented documents inside `docs/` are reviewed and either migrated or explicitly retained as ATARIX-local profiles or historical records.
