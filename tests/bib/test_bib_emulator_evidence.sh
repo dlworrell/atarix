@@ -8,9 +8,9 @@ fi
 
 top_srcdir=$1
 top_builddir=$2
-capture_dir="$top_srcdir/evidence/atx-bib-001"
-expected_output="$top_srcdir/docs/evidence/atx-bib-001/emulator-capture-v1.txt"
-decoder="$top_builddir/tools/atarix-bibdump"
+capture_dir=$(cd "$top_srcdir/evidence/atx-bib-001" && pwd)
+expected_output=$(cd "$top_srcdir/docs/evidence/atx-bib-001" && pwd)/emulator-capture-v1.txt
+decoder=$(cd "$top_builddir/tools" && pwd)/atarix-bibdump
 tmp_dir=${TMPDIR:-/tmp}/atarix-bib-evidence.$$
 trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 mkdir -p "$tmp_dir"
