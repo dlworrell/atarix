@@ -30,14 +30,14 @@ static int build(uint8_t *buffer, uint32_t *length) {
             ATARIX_BIB_TLV_SERVICE_DIRECTORY_REFERENCE,
             ATARIX_BIB_TLV_FLAG_MANDATORY,
             UINT64_C(0x1001), UINT64_C(0x100000), UINT64_C(0x2000),
-            1u, 0u, 0u, NULL, 0u),
+            1u, 0u),
         ATARIX_BIB_BUILDER_OK);
     failures += fail("memory",
         atarix_bib_builder_add_reference(&builder,
             ATARIX_BIB_TLV_MEMORY_MAP_REFERENCE,
             ATARIX_BIB_TLV_FLAG_MANDATORY,
             UINT64_C(0x1002), UINT64_C(0x200000), UINT64_C(0x3000),
-            1u, 0u, 0u, NULL, 0u),
+            1u, 0u),
         ATARIX_BIB_BUILDER_OK);
     failures += fail("seal",
         atarix_bib_builder_seal(&builder, length),
