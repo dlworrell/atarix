@@ -41,7 +41,8 @@ TESTS = \
     ring/test_ring_supervisor_override \
     memory/test_memory_descriptor \
     bib/test_bib_vectors \
-    bib/test_bib_builder
+    bib/test_bib_builder \
+    bib/test_bib_reader
 
 check_PROGRAMS = $(TESTS)
 
@@ -97,3 +98,4 @@ memory_test_memory_descriptor_SOURCES = memory/test_memory_descriptor.c
 
 bib_test_bib_vectors_SOURCES = bib/test_bib_vectors.c
 bib_test_bib_builder_SOURCES = bib/test_bib_builder.c
+bib_test_bib_reader_SOURCES = bib/test_bib_reader.c
