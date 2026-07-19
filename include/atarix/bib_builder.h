@@ -43,6 +43,7 @@ atarix_bib_builder_result_t atarix_bib_builder_add_tlv(
     const void *payload,
     uint32_t payload_length);
 
+/* Adds the fixed 40-byte reference payload with no following integrity data. */
 atarix_bib_builder_result_t atarix_bib_builder_add_reference(
     atarix_bib_builder_t *builder,
     uint16_t type,
@@ -51,10 +52,7 @@ atarix_bib_builder_result_t atarix_bib_builder_add_reference(
     uint64_t address,
     uint64_t length,
     uint32_t format_major,
-    uint32_t format_minor,
-    uint32_t integrity_kind,
-    const void *integrity,
-    uint32_t integrity_length);
+    uint32_t format_minor);
 
 atarix_bib_builder_result_t atarix_bib_builder_seal(
     atarix_bib_builder_t *builder,
