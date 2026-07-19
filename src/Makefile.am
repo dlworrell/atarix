@@ -13,6 +13,7 @@ libatarix_a_SOURCES = \
     sim/sim_fabric.c \
     ring/ring.c \
     bib/bib_builder.c \
+    bib/bib_reader.c \
     memory.c
 
 AM_CPPFLAGS = -I$(top_srcdir)/include
