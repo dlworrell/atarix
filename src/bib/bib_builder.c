@@ -107,7 +107,8 @@ atarix_bib_builder_result_t atarix_bib_builder_add_tlv(
     if (!align8_u32(unaligned_length, &record_length)) {
         return ATARIX_BIB_BUILDER_E_LENGTH;
     }
-    if (record_length > builder->capacity - builder->length) {
+    if (builder->length > builder->capacity ||
+        record_length > builder->capacity - builder->length) {
         return ATARIX_BIB_BUILDER_E_CAPACITY;
     }
 
@@ -134,17 +135,8 @@ atarix_bib_builder_result_t atarix_bib_builder_add_reference(
     uint64_t address,
     uint64_t length,
     uint32_t format_major,
-    uint32_t format_minor,
-    uint32_t integrity_kind,
-    const void *integrity,
-    uint32_t integrity_length) {
+    uint32_t format_minor) {
     uint8_t payload[ATARIX_BIB_REFERENCE_FIXED_SIZE_V1];
-
-    if ((integrity_length != 0u && integrity == NULL) ||
-        integrity_length != 0u) {
-        return integrity_length != 0u ? ATARIX_BIB_BUILDER_E_LENGTH
-                                      : ATARIX_BIB_BUILDER_E_ARGUMENT;
-    }
 
     memset(payload, 0, sizeof(payload));
     write_le64(payload + 0, object_id);
@@ -152,8 +144,6 @@ atarix_bib_builder_result_t atarix_bib_builder_add_reference(
     write_le64(payload + 16, length);
     write_le32(payload + 24, format_major);
     write_le32(payload + 28, format_minor);
-    write_le32(payload + 32, integrity_kind);
-    write_le32(payload + 36, integrity_length);
 
     return atarix_bib_builder_add_tlv(builder, type, flags, payload, sizeof(payload));
 }
