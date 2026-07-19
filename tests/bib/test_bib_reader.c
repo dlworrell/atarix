@@ -25,6 +25,8 @@ static int build(uint8_t *buffer, uint32_t *length) {
             UINT64_C(0x1122334455667788),
             UINT64_C(0x8877665544332211), 7u),
         ATARIX_BIB_BUILDER_OK);
+
+    /* The v1 reference helper emits the fixed payload without integrity data. */
     failures += fail("service",
         atarix_bib_builder_add_reference(&builder,
             ATARIX_BIB_TLV_SERVICE_DIRECTORY_REFERENCE,
