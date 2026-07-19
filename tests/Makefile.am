@@ -50,6 +50,11 @@ check_PROGRAMS = $(TESTS)
 LDADD = ../src/libatarix.a
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/tests/discovery -I$(top_srcdir)/tests/capability -I$(top_srcdir)/tests/mailbox -I$(top_srcdir)/tests/sim -I$(top_srcdir)/tests/ring -I$(top_srcdir)/tests/memory -I$(top_srcdir)/tests/bib
 
+check-local:
+	$(SHELL) $(srcdir)/bib/test_bib_emulator_evidence.sh "$(top_srcdir)" "$(top_builddir)"
+
+EXTRA_DIST = bib/test_bib_emulator_evidence.sh
+
 discovery_test_discovery_header_SOURCES = discovery/test_discovery_header.c
 discovery_test_discovery_crc_SOURCES = discovery/test_discovery_crc.c
 discovery_test_discovery_records_SOURCES = discovery/test_discovery_records.c
