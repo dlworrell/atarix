@@ -34,6 +34,7 @@ TESTS = \
     sim/test_sim_fabric_duplicate \
     sim/test_sim_fabric_capacity \
     sim/test_sim_fabric_lookup_missing \
+    sim/test_sim_bib_capture \
     ring/test_ring_self_access \
     ring/test_ring_upward_denied \
     ring/test_ring_downward_allowed \
@@ -87,6 +88,7 @@ sim_test_sim_fabric_attach_SOURCES = sim/test_sim_fabric_attach.c
 sim_test_sim_fabric_duplicate_SOURCES = sim/test_sim_fabric_duplicate.c
 sim_test_sim_fabric_capacity_SOURCES = sim/test_sim_fabric_capacity.c
 sim_test_sim_fabric_lookup_missing_SOURCES = sim/test_sim_fabric_lookup_missing.c
+sim_test_sim_bib_capture_SOURCES = sim/test_sim_bib_capture.c
 
 ring_test_ring_self_access_SOURCES = ring/test_ring_self_access.c
 ring_test_ring_upward_denied_SOURCES = ring/test_ring_upward_denied.c
