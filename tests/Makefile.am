@@ -40,7 +40,8 @@ TESTS = \
     ring/test_ring_quarantine_denied \
     ring/test_ring_supervisor_override \
     memory/test_memory_descriptor \
-    bib/test_bib_vectors
+    bib/test_bib_vectors \
+    bib/test_bib_builder
 
 check_PROGRAMS = $(TESTS)
 
@@ -95,3 +96,4 @@ ring_test_ring_supervisor_override_SOURCES = ring/test_ring_supervisor_override.
 memory_test_memory_descriptor_SOURCES = memory/test_memory_descriptor.c
 
 bib_test_bib_vectors_SOURCES = bib/test_bib_vectors.c
+bib_test_bib_builder_SOURCES = bib/test_bib_builder.c
