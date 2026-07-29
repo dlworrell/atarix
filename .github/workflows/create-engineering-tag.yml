@@ -1,0 +1,167 @@
+name: Create Engineering Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch or commit to tag
+        required: true
+        default: main
+        type: string
+      tag_name:
+        description: Annotated tag name, for example atx-eng-gate-2026-06-17-pass
+        required: true
+        type: string
+      tag_message:
+        description: Human-readable annotation describing the engineering baseline
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    name: Create and verify annotated tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate workflow inputs
+        shell: bash
+        env:
+          TARGET_REF: ${{ inputs.branch }}
+          TAG_NAME: ${{ inputs.tag_name }}
+          TAG_MESSAGE: ${{ inputs.tag_message }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "$TARGET_REF" ]]; then
+            echo "ERROR: branch/ref must not be empty." >&2
+            exit 1
+          fi
+
+          if [[ -z "$TAG_NAME" ]]; then
+            echo "ERROR: tag_name must not be empty." >&2
+            exit 1
+          fi
+
+          if [[ -z "$TAG_MESSAGE" ]]; then
+            echo "ERROR: tag_message must not be empty." >&2
+            exit 1
+          fi
+
+          if ! git check-ref-format "refs/tags/$TAG_NAME"; then
+            echo "ERROR: invalid Git tag name: $TAG_NAME" >&2
+            exit 1
+          fi
+
+          echo "PASS: workflow inputs are syntactically valid."
+          echo "Target ref: $TARGET_REF"
+          echo "Tag name: $TAG_NAME"
+
+      - name: Check out requested baseline
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Configure tag author
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Reject duplicate tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          set -euo pipefail
+          git fetch --force --tags origin
+
+          if git show-ref --verify --quiet "refs/tags/$TAG_NAME"; then
+            echo "ERROR: tag already exists locally or remotely: $TAG_NAME" >&2
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+            echo "ERROR: remote tag already exists: $TAG_NAME" >&2
+            exit 1
+          fi
+
+          echo "PASS: tag does not already exist."
+
+      - name: Create annotated tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          TAG_MESSAGE: ${{ inputs.tag_message }}
+        run: |
+          set -euo pipefail
+          git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
+          echo "PASS: created annotated tag $TAG_NAME at $(git rev-parse HEAD)."
+
+      - name: Push tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          set -euo pipefail
+          git push origin "refs/tags/$TAG_NAME"
+          echo "PASS: pushed tag $TAG_NAME."
+
+      - name: Verify remote tag
+        id: verify
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          set -euo pipefail
+
+          REMOTE_LINE="$(git ls-remote --tags origin "refs/tags/$TAG_NAME^{}" || true)"
+          if [[ -z "$REMOTE_LINE" ]]; then
+            REMOTE_LINE="$(git ls-remote --tags origin "refs/tags/$TAG_NAME")"
+          fi
+
+          if [[ -z "$REMOTE_LINE" ]]; then
+            echo "ERROR: remote verification failed for tag $TAG_NAME." >&2
+            exit 1
+          fi
+
+          REMOTE_SHA="${REMOTE_LINE%%$'\t'*}"
+          LOCAL_SHA="$(git rev-parse HEAD)"
+
+          if [[ "$REMOTE_SHA" != "$LOCAL_SHA" ]]; then
+            echo "ERROR: remote tag resolves to $REMOTE_SHA, expected $LOCAL_SHA." >&2
+            exit 1
+          fi
+
+          echo "commit_sha=$LOCAL_SHA" >> "$GITHUB_OUTPUT"
+          echo "PASS: remote tag resolves to expected commit $LOCAL_SHA."
+
+      - name: Write engineering tag report
+        if: always()
+        shell: bash
+        env:
+          TARGET_REF: ${{ inputs.branch }}
+          TAG_NAME: ${{ inputs.tag_name }}
+          TAG_MESSAGE: ${{ inputs.tag_message }}
+          COMMIT_SHA: ${{ steps.verify.outputs.commit_sha }}
+        run: |
+          {
+            echo "# Engineering Tag Report"
+            echo
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Repository | \`${GITHUB_REPOSITORY}\` |"
+            echo "| Requested ref | \`${TARGET_REF}\` |"
+            echo "| Tag | \`${TAG_NAME}\` |"
+            echo "| Commit | \`${COMMIT_SHA:-verification-not-completed}\` |"
+            echo "| Workflow result | \`${{ job.status }}\` |"
+            echo
+            echo "## Annotation"
+            echo
+            echo "$TAG_MESSAGE"
+          } >> "$GITHUB_STEP_SUMMARY"
