@@ -1,0 +1,1338 @@
+{
+  "schema_version": "1.0.0",
+  "repository": "dlworrell/atarix",
+  "baseline": {
+    "captured_at": "2026-07-27",
+    "source": "AEMS workflow run 30327790203; artifact 8676292176; sha256:d29ea776a6ccf9f5e40e92597235ffedf7ddb35e5364b68ca57f5a3bdda97679",
+    "findings": [
+      {
+        "finding_id": "aes-sec-001:6de913551f61e2efdcba9f302a9a6e63f1e1983219b1ee1bf014592e36f7c7ec",
+        "source_fingerprint": "sha256:3f08fd1921e8c903aca2c83cc0cf65c567f1a9076a40e3e20d8ad2e717b0c96b",
+        "path": "src/bib/bib_builder.c",
+        "line": 63,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:3a9cfd18f1839d8aacdc1f3aacbbc4c6a5084144a5caf9d202c345e410002da3",
+        "source_fingerprint": "sha256:f8a8b8dc3427a0cc4872611aec3afe4ec227ac1ed5bf7d8760684549bab90a7d",
+        "path": "src/bib/bib_builder.c",
+        "line": 64,
+        "symbol": "memcpy"
+      },
+      {
+        "finding_id": "aes-sec-001:609bd4fbd04e27270ad1071759d69c8c2870a9de5d587b29d9ea8da13ce10722",
+        "source_fingerprint": "sha256:270605f70dcea0379bfa9e6222728f270db457c58e5fa6e63c03276fb247952a",
+        "path": "src/bib/bib_builder.c",
+        "line": 116,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:61af72a0888acb4ec47d402c8facbcfde76d4fb4b55531d46204af220f31bd62",
+        "source_fingerprint": "sha256:5d605adc52e103c490c18fca7c275b7986ba72e99de5d9273d52094b07c67bb4",
+        "path": "src/bib/bib_builder.c",
+        "line": 122,
+        "symbol": "memcpy"
+      },
+      {
+        "finding_id": "aes-sec-001:bdec2aae01685a8ba3acecb5dfae7de539d275c8ee1e9b9e0080c6cb236db873",
+        "source_fingerprint": "sha256:fbe07fe10b98bcfebc98f2eb1c5664c3d30c909fec44f5f7cb27fb273e3f52e4",
+        "path": "src/bib/bib_builder.c",
+        "line": 141,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:e3ef8729a86653d43b4580bbfada95b405326d9203a0607db780b8da8d7aa746",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 86,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:e31bbf90ddd487112866d95666a3f4ec1d52cb927783e3230c121ad15b1af3b0",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 123,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:a584185e5921a37ab1a18a83e97168309b7539d64996f0ac8a992f3c257441fe",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 132,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:f9402cc54bdb9c5e41c52de688d467a49a76e03e3c4e4daa1e4563762f9c7dcf",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 137,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:817db2c0ea8cf7e5cb12bad8ff155a4efe1a08c46409afff0c10ffa7a5867c18",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 145,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:5673cdef34e9a5db373cedfca2b0c3caf8f2ae95f5a13c444156c097ffe3a560",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 151,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:aec3bc1e3f9c8271215b8c150a3d9b3e9a0e2bb37ca425ba1846d1c44a72f0c7",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 160,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:5fe9d9ddcf8de31f7239ccd1f4cc222d86ac86927a51a8dd37bdd84072fc2175",
+        "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+        "path": "src/bib/bib_reader.c",
+        "line": 164,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:4add9f65a12fff06897a1f28fd21270b7de9a4822198734a2778edebbb01ac0c",
+        "source_fingerprint": "sha256:365fbeffb9c7318926a8667e7bd383adda9eaf012c217acbe371eb691f047040",
+        "path": "src/sim/sim_fabric.c",
+        "line": 11,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:aaf52f3f29913e96ca798e65615b515de7526f9b353bd4e631fa1596aaeeb67d",
+        "source_fingerprint": "sha256:3b02b8bce51041e8f0547ed04597b7f1451d6feee5d2e4b4d0e026b01f85f3d4",
+        "path": "src/sim/sim_mailbox.c",
+        "line": 13,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:0de773e8735c608b01ea1d9482a9ce95922f10f498c31fdc16a001fe4d322c1b",
+        "source_fingerprint": "sha256:4a9cd59b4edd76a18528d4d5209520d4c8e2791913cb4fd7f2cfb6c3010904ef",
+        "path": "tests/bib/test_bib_reader.c",
+        "line": 92,
+        "symbol": "memcpy"
+      },
+      {
+        "finding_id": "aes-sec-001:586bc4c94b90602a4e23512425eb7599ae42611bf1b137a00b7467d34942e707",
+        "source_fingerprint": "sha256:4a9cd59b4edd76a18528d4d5209520d4c8e2791913cb4fd7f2cfb6c3010904ef",
+        "path": "tests/bib/test_bib_reader.c",
+        "line": 96,
+        "symbol": "memcpy"
+      },
+      {
+        "finding_id": "aes-sec-001:d54d10a84579abaa7153a84a1e617d2f0bf4cdcd061de8b4b8b79e8b7bbb15d1",
+        "source_fingerprint": "sha256:21d6ae1b01b81f0eefd2e48141320c1b45b8d3a00244391a77fbc0aaeae148d3",
+        "path": "tests/bib/test_bib_vectors.c",
+        "line": 83,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:d8a8178845a39bcda7323fda05a8400c9074a645bf8052b7be56cee128f5d2a7",
+        "source_fingerprint": "sha256:dfd64473f985b2ba2944e6e263ed8117204877c7b78d7bf3a75e8f00792ffa6c",
+        "path": "tests/bib/test_bib_vectors.c",
+        "line": 84,
+        "symbol": "memcpy"
+      },
+      {
+        "finding_id": "aes-sec-001:196004b5d43a2bb928d2c57fe5cc4a0c2cb568c655f4a93a31ae6bc83b674f2e",
+        "source_fingerprint": "sha256:8298be26cd3cebc08dbaafc46604e46483f9e454c110d2aa8bce1041fea0cda6",
+        "path": "tests/bib/test_bib_vectors.c",
+        "line": 143,
+        "symbol": "memcpy"
+      },
+      {
+        "finding_id": "aes-sec-001:af50ed412fd645724bcce4b436e2279df1c68557c4ac6293cdc54fca68779419",
+        "source_fingerprint": "sha256:e26e610a6ecbfadc9035073920ad8d3e204a2d3e1d3304ca22852722dfa1e9de",
+        "path": "tests/capability/test_capability_delegation.c",
+        "line": 12,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:ea4842f5be5401121f6f8e501a2acd79b57a17d26fb4037d01cf9f786a9e369e",
+        "source_fingerprint": "sha256:e4ad06f25c86074413985181b6a73d75e05a98b7d9325057e45d9ac1f2a1ebfb",
+        "path": "tests/capability/test_capability_ownership.c",
+        "line": 25,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:616d9b48110febfb68809a8d49355503bb8a8a28e4ea6926017baab2848706d8",
+        "source_fingerprint": "sha256:01cdb4e8280fba2d957952feac11b65f78cbec44c934c3d22aba395d119e0ab4",
+        "path": "tests/capability/test_capability_ownership.c",
+        "line": 37,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:86a72fc5016b068e7a52fb1ab950e7a7f209a1d19a29df05acb4d8bf529f8c66",
+        "source_fingerprint": "sha256:1db027c48633335eeaebe1ca28a24b65e25a67871c76f8165542d3fa967e7e31",
+        "path": "tests/capability/test_capability_respects_ring_boundary.c",
+        "line": 9,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:e464aea76d09458bc87515ed690c0f1fedceb71a735e18355d13474f803c2363",
+        "source_fingerprint": "sha256:ee14c5213316832caf239e5a1e93fd3da31322de0d64252eff8ab31232053f39",
+        "path": "tests/capability/test_capability_respects_ring_boundary.c",
+        "line": 22,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:57d369b60c0f2a5286b80abad6070150f16fb59cd7105f0f027c762cc0553af4",
+        "source_fingerprint": "sha256:5e45ba4242464b404b6ef8ef9030f11d43e77069674eb175e448f2d9620a7859",
+        "path": "tests/capability/test_capability_revocation.c",
+        "line": 8,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:2b9453d51519298b447c498fedb1007a46974b8df500aae5a7d65ddd11a3e11d",
+        "source_fingerprint": "sha256:830484ed9c9526301a0192a0fdac79875c93ad46a0dbb08732895e7912cae1b8",
+        "path": "tests/capability/test_capability_revocation.c",
+        "line": 21,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:98b1061c5534cc9bd6d462cb1fea9e553a728d1b8c4900cab96255d31e952998",
+        "source_fingerprint": "sha256:905fc8db58706ffd6f6651eaced66430961eeffb82132bf054ddd5cc92c11865",
+        "path": "tests/capability/test_capability_ring_boundary.c",
+        "line": 10,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:c0aa83aa573dde6a4605149df86d4e5fa018126ee67365d0d3ca72c1d2603d54",
+        "source_fingerprint": "sha256:bcb82c6b7c62957964330ee873b68b9995790ff9716c4927508b0cfbeac534b7",
+        "path": "tests/capability/test_capability_ring_boundary.c",
+        "line": 24,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:6ab531c3a06fff3910a803e617a0f54a91f6bc83b1cf87958510040a01478852",
+        "source_fingerprint": "sha256:a79ef45be7629af3d74a85f66ecca2ff01cc63ac37199a8af536d03846e76304",
+        "path": "tests/capability/test_capability_validation.c",
+        "line": 16,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:ebedb03dd8a09dd8fac1c41ee358f4ba7e422eb14de59c7987bd8cebd95240ee",
+        "source_fingerprint": "sha256:b95279d3271f6f169e8b8d80ddb70ed4986a1a4c3daedc84260fb5e24ecdcc35",
+        "path": "tests/capability/test_delegation_cannot_cross_ring_boundary.c",
+        "line": 13,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:b4fae1c6932c8c1571bc3f668858a4564f1c09102fedc76471ede6b8df855fd5",
+        "source_fingerprint": "sha256:16710e7f4e915d1108fd879a003066ea2c504112a12d333e1f1b3c44ad82d952",
+        "path": "tests/capability/test_revoked_capability_still_denied_after_ring_check.c",
+        "line": 9,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:c5bbf1d2211f1c5e758d8e9ee923b765ac7b81d767f4a7871a39ad0e6bac781e",
+        "source_fingerprint": "sha256:feef5e68083ea61f0031557348e5d0c499f57ef9c13041de58dc033fa0fb662a",
+        "path": "tests/capability/test_revoked_capability_still_denied_after_ring_check.c",
+        "line": 22,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:d7bda64c74047016cf4bee426160d44311095fca7f8b4e9673400e3deafc79ea",
+        "source_fingerprint": "sha256:99ad14454128f1fd68858356ce8bad2de852360ba9b6c95fcb7bcf898ddb949c",
+        "path": "tests/discovery/discovery_test_utils.h",
+        "line": 39,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:a9a42c042f361a43544f0a438be7bc1e723f251d7e4d2419b16d43c2ccd6aa56",
+        "source_fingerprint": "sha256:4838b95bc8b387a2c80e8cb0819e43ee63ca3b22f37bb7d2cd3dad2baebed380",
+        "path": "tests/discovery/discovery_test_utils.h",
+        "line": 70,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:2b70ac32fd74728454b5bfa07c4cd10bbb67499ff66add7a222e4db3716f2060",
+        "source_fingerprint": "sha256:ec14c45819bc2179bcfe4a736eb4661ac68245f9c13f2cbdcf7ff515d14a0b6f",
+        "path": "tests/discovery/discovery_test_utils.h",
+        "line": 82,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:acad16070ae947561bc628e1c17e90f171f9c59480e3bc0d044811d0a3aec7a1",
+        "source_fingerprint": "sha256:e54cd82072741e15acc82756c57dc05586d555de5df5a453e283b17ca6e70223",
+        "path": "tests/discovery/test_duplicate_handle.c",
+        "line": 21,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:d75f06532ccc7600b14564c60ec6b5b7566036e164d60e0baa35673cc3a33eeb",
+        "source_fingerprint": "sha256:74a9748c2f203e7ae5beb1d1fefd7c1eabee16958aae86644f2dba9b2ecaa22f",
+        "path": "tests/discovery/test_unknown_record.c",
+        "line": 17,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:cc2357cae6c1d942f2f6272a23b1fcc27bb7d87d12139469f028b0c312842be5",
+        "source_fingerprint": "sha256:e4a0c0770c506ecdba592cfa9116bf9816e9ff8bbfefab0b9be4ebfd66a2357a",
+        "path": "tests/mailbox/test_mailbox_duplicate.c",
+        "line": 11,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:f5284e02cf987d044584d9dc2840d29c239db43121e6d920a9a366c34b4e8ca8",
+        "source_fingerprint": "sha256:3c95a171c8ccdb5981f686433dd772cf8e10b43f81c5c13ee6d1ba127ada6413",
+        "path": "tests/mailbox/test_mailbox_max_payload.c",
+        "line": 12,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:4005988459c468ac0936750afbce89b53fd83b52373538da0c9c1725dc9a5b71",
+        "source_fingerprint": "sha256:3011494fe4f1f498571380b68776bbeba42bf85bf4d6dada99e37d5ef0cbf639",
+        "path": "tests/mailbox/test_mailbox_out_of_order.c",
+        "line": 11,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:87a49fffac26cfa775d53e90afe8409e5a26eae75b9dcda9797c4f401e81b602",
+        "source_fingerprint": "sha256:2fe24046b88a2833ace84cb54ea908f9dbd96133cdcf126dc7b9f77bfcf23412",
+        "path": "tests/mailbox/test_mailbox_sequence.c",
+        "line": 22,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:27ac2832b0bbdf0dcc4849ed9477562501ad93d3adc918eea69f0fdad40609ac",
+        "source_fingerprint": "sha256:0927996ad599eb25b28a625a5e87027228e6f0155e5c751b72687de64b587a9b",
+        "path": "tools/bibdump/bibdump.c",
+        "line": 75,
+        "symbol": "malloc"
+      },
+      {
+        "finding_id": "aes-sec-001:d3f65af3b2f34cc821b9be1fb7b73de069a1714e0798af91f58000f51e553b84",
+        "source_fingerprint": "sha256:3e9a30182176eec44be8bf6995af151b1db58522cf51fce832059dbace5a990a",
+        "path": "tools/bibdump/bibdump.c",
+        "line": 83,
+        "symbol": "free"
+      },
+      {
+        "finding_id": "aes-sec-001:c3975389becb806438ba0b4f1f4fa99c6a44e6e7db1bb06db7675f8e678b30a0",
+        "source_fingerprint": "sha256:aa0d3bc0e74d978f6e7f7026de96db032b6d76b0e1e3dfd6254ee8abe66c5ad6",
+        "path": "tools/bibdump/bibdump.c",
+        "line": 176,
+        "symbol": "free"
+      },
+      {
+        "finding_id": "aes-sec-001:a9e06daff517737ec52ae75dc6a448c68b44aefbd45c127e061ecb3843b16b26",
+        "source_fingerprint": "sha256:d3248a019f5311c410afabf47c0b199fd5e0bf4adad50f115bb890b18ed1854c",
+        "path": "tools/mkdiscovery/mkdiscovery.c",
+        "line": 49,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:7b78f57b1a4942ade4bf1213cf7749344ddb804a9855530e192ed3f0ead961e5",
+        "source_fingerprint": "sha256:9577bbb8fd6c0ab8faad8578419ede4f62f407bdff526b3958d7e3bcd70b6a1b",
+        "path": "tools/mkdiscovery/mkdiscovery.c",
+        "line": 58,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:febacb159cdee332d1c39195cd97285109b9c4d14f93c9349757d0d0cce9a84f",
+        "source_fingerprint": "sha256:9577bbb8fd6c0ab8faad8578419ede4f62f407bdff526b3958d7e3bcd70b6a1b",
+        "path": "tools/mkdiscovery/mkdiscovery.c",
+        "line": 72,
+        "symbol": "memset"
+      },
+      {
+        "finding_id": "aes-sec-001:41337d79853aca1801e54ef5607ed97b07cfc09bc030655adba2200664454cd3",
+        "source_fingerprint": "sha256:20b246077f1d24a989c88ca6af5899ab1ed1dc6688447702ba520106a3ef9656",
+        "path": "tools/mkdiscovery/mkdiscovery.c",
+        "line": 91,
+        "symbol": "memset"
+      }
+    ]
+  },
+  "dispositions": [
+    {
+      "finding_id": "aes-sec-001:6de913551f61e2efdcba9f302a9a6e63f1e1983219b1ee1bf014592e36f7c7ec",
+      "source_fingerprint": "sha256:3f08fd1921e8c903aca2c83cc0cf65c567f1a9076a40e3e20d8ad2e717b0c96b",
+      "path": "src/bib/bib_builder.c",
+      "line": 63,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "Builder initialization rejects null storage, capacities below the fixed header, and capacities above the serialized uint32_t domain before initializing the caller-declared buffer.",
+      "invariant": "The destination denotes at least capacity bytes by API contract, and the validated capacity is used unchanged as the memset byte count. This is serialization initialization, not secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_builder.c",
+        "tests/bib/test_bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:3a9cfd18f1839d8aacdc1f3aacbbc4c6a5084144a5caf9d202c345e410002da3",
+      "source_fingerprint": "sha256:f8a8b8dc3427a0cc4872611aec3afe4ec227ac1ed5bf7d8760684549bab90a7d",
+      "path": "src/bib/bib_builder.c",
+      "line": 64,
+      "symbol": "memcpy",
+      "classification": "approved-invariant",
+      "rationale": "The builder admits this path only when capacity is at least the 64-byte v1 header, so the eight-byte literal copy is fully contained in the destination.",
+      "invariant": "The source literal contains eight magic bytes and the validated destination has at least ATARIX_BIB_HEADER_SIZE_V1 bytes; the copy count is exactly eight.",
+      "evidence": [
+        "tests/bib/test_bib_builder.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:609bd4fbd04e27270ad1071759d69c8c2870a9de5d587b29d9ea8da13ce10722",
+      "source_fingerprint": "sha256:270605f70dcea0379bfa9e6222728f270db457c58e5fa6e63c03276fb247952a",
+      "path": "src/bib/bib_builder.c",
+      "line": 116,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "TLV length arithmetic is checked for uint32_t overflow, aligned safely, and compared with the builder's remaining capacity before the record region is initialized.",
+      "invariant": "record points inside builder->buffer at builder->length, and record_length is no greater than builder->capacity - builder->length. This is deterministic record initialization.",
+      "evidence": [
+        "tests/bib/test_bib_builder.c",
+        "tests/bib/test_bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:61af72a0888acb4ec47d402c8facbcfde76d4fb4b55531d46204af220f31bd62",
+      "source_fingerprint": "sha256:5d605adc52e103c490c18fca7c275b7986ba72e99de5d9273d52094b07c67bb4",
+      "path": "src/bib/bib_builder.c",
+      "line": 122,
+      "symbol": "memcpy",
+      "classification": "approved-invariant",
+      "rationale": "The payload is required when payload_length is nonzero; header-plus-payload arithmetic is overflow-checked, and the aligned record is proven to fit before copying.",
+      "invariant": "payload_length is no greater than record_length minus ATARIX_BIB_TLV_HEADER_SIZE_V1, the source is nonnull, and the destination range is inside the validated record.",
+      "evidence": [
+        "tests/bib/test_bib_builder.c",
+        "tests/bib/test_bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:bdec2aae01685a8ba3acecb5dfae7de539d275c8ee1e9b9e0080c6cb236db873",
+      "source_fingerprint": "sha256:fbe07fe10b98bcfebc98f2eb1c5664c3d30c909fec44f5f7cb27fb273e3f52e4",
+      "path": "src/bib/bib_builder.c",
+      "line": 141,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reference payload is a fixed local array and is initialized over its complete declared size before individual fields are encoded.",
+      "invariant": "payload is an ATARIX_BIB_REFERENCE_FIXED_SIZE_V1-byte local array and sizeof(payload) is the exact destination extent. This is ordinary serialization initialization.",
+      "evidence": [
+        "tests/bib/test_bib_builder.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:e3ef8729a86653d43b4580bbfada95b405326d9203a0607db780b8da8d7aa746",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 86,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:e31bbf90ddd487112866d95666a3f4ec1d52cb927783e3230c121ad15b1af3b0",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 123,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:a584185e5921a37ab1a18a83e97168309b7539d64996f0ac8a992f3c257441fe",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 132,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:f9402cc54bdb9c5e41c52de688d467a49a76e03e3c4e4daa1e4563762f9c7dcf",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 137,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:817db2c0ea8cf7e5cb12bad8ff155a4efe1a08c46409afff0c10ffa7a5867c18",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 145,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:5673cdef34e9a5db373cedfca2b0c3caf8f2ae95f5a13c444156c097ffe3a560",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 151,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:aec3bc1e3f9c8271215b8c150a3d9b3e9a0e2bb37ca425ba1846d1c44a72f0c7",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 160,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:5fe9d9ddcf8de31f7239ccd1f4cc222d86ac86927a51a8dd37bdd84072fc2175",
+      "source_fingerprint": "sha256:2b23719a0fb5a6f232c26407bf8ab3b2c253f7ab8c91d6c9b109d9c4ed985ef5",
+      "path": "src/bib/bib_reader.c",
+      "line": 164,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The reader first rejects a null output view. Complete-object resets establish an empty fail-closed view before parsing and on every post-population validation failure.",
+      "invariant": "view is nonnull on every reset path and sizeof(*view) is its complete destination extent. No reset is relied on as secret erasure.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "tests/bib/test_bib_vectors.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:4add9f65a12fff06897a1f28fd21270b7de9a4822198734a2778edebbb01ac0c",
+      "source_fingerprint": "sha256:365fbeffb9c7318926a8667e7bd383adda9eaf012c217acbe371eb691f047040",
+      "path": "src/sim/sim_fabric.c",
+      "line": 11,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The initializer returns for a null fabric and otherwise initializes exactly one complete fabric object.",
+      "invariant": "fabric is nonnull and sizeof(*fabric) is the complete destination extent.",
+      "evidence": [
+        "tests/sim/test_sim_fabric_attach.c",
+        "tests/sim/test_sim_fabric_capacity.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:aaf52f3f29913e96ca798e65615b515de7526f9b353bd4e631fa1596aaeeb67d",
+      "source_fingerprint": "sha256:3b02b8bce51041e8f0547ed04597b7f1451d6feee5d2e4b4d0e026b01f85f3d4",
+      "path": "src/sim/sim_mailbox.c",
+      "line": 13,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The endpoint initializer returns for a null endpoint and initializes the complete embedded receive window before it can accept sequence state.",
+      "invariant": "endpoint is nonnull and sizeof(endpoint->rx_window) is the exact embedded-object extent.",
+      "evidence": [
+        "tests/sim/test_sim_ping_pong.c",
+        "tests/sim/test_sim_reject_invalid.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:0de773e8735c608b01ea1d9482a9ce95922f10f498c31fdc16a001fe4d322c1b",
+      "source_fingerprint": "sha256:4a9cd59b4edd76a18528d4d5209520d4c8e2791913cb4fd7f2cfb6c3010904ef",
+      "path": "tests/bib/test_bib_reader.c",
+      "line": 92,
+      "symbol": "memcpy",
+      "classification": "approved-invariant",
+      "rationale": "The producer is configured with BUFFER_SIZE storage and can return no serialized length beyond that capacity; source and corruption arrays are both BUFFER_SIZE bytes.",
+      "invariant": "length is bounded by the builder's BUFFER_SIZE capacity, and both buffer and corrupt have that exact declared capacity before the fixture copy.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "src/bib/bib_builder.c",
+        "src/bib/bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:586bc4c94b90602a4e23512425eb7599ae42611bf1b137a00b7467d34942e707",
+      "source_fingerprint": "sha256:4a9cd59b4edd76a18528d4d5209520d4c8e2791913cb4fd7f2cfb6c3010904ef",
+      "path": "tests/bib/test_bib_reader.c",
+      "line": 96,
+      "symbol": "memcpy",
+      "classification": "approved-invariant",
+      "rationale": "The producer is configured with BUFFER_SIZE storage and can return no serialized length beyond that capacity; source and corruption arrays are both BUFFER_SIZE bytes.",
+      "invariant": "length is bounded by the builder's BUFFER_SIZE capacity, and both buffer and corrupt have that exact declared capacity before the fixture copy.",
+      "evidence": [
+        "tests/bib/test_bib_reader.c",
+        "src/bib/bib_builder.c",
+        "src/bib/bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:d54d10a84579abaa7153a84a1e617d2f0bf4cdcd061de8b4b8b79e8b7bbb15d1",
+      "source_fingerprint": "sha256:21d6ae1b01b81f0eefd2e48141320c1b45b8d3a00244391a77fbc0aaeae148d3",
+      "path": "tests/bib/test_bib_vectors.c",
+      "line": 83,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The golden-vector fixture operates on a VECTOR_SIZE-byte destination; initialization covers the declared array and the magic copy is only eight bytes.",
+      "invariant": "The destination has VECTOR_SIZE bytes, VECTOR_SIZE exceeds the eight-byte magic, and each byte count is a compile-time bound tied to the declared fixture.",
+      "evidence": [
+        "tests/bib/test_bib_vectors.c",
+        "src/bib/bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:d8a8178845a39bcda7323fda05a8400c9074a645bf8052b7be56cee128f5d2a7",
+      "source_fingerprint": "sha256:dfd64473f985b2ba2944e6e263ed8117204877c7b78d7bf3a75e8f00792ffa6c",
+      "path": "tests/bib/test_bib_vectors.c",
+      "line": 84,
+      "symbol": "memcpy",
+      "classification": "approved-invariant",
+      "rationale": "The golden-vector fixture operates on a VECTOR_SIZE-byte destination; initialization covers the declared array and the magic copy is only eight bytes.",
+      "invariant": "The destination has VECTOR_SIZE bytes, VECTOR_SIZE exceeds the eight-byte magic, and each byte count is a compile-time bound tied to the declared fixture.",
+      "evidence": [
+        "tests/bib/test_bib_vectors.c",
+        "src/bib/bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:196004b5d43a2bb928d2c57fe5cc4a0c2cb568c655f4a93a31ae6bc83b674f2e",
+      "source_fingerprint": "sha256:8298be26cd3cebc08dbaafc46604e46483f9e454c110d2aa8bce1041fea0cda6",
+      "path": "tests/bib/test_bib_vectors.c",
+      "line": 143,
+      "symbol": "memcpy",
+      "classification": "approved-invariant",
+      "rationale": "The independent validator rejects total lengths above both the supplied window and VECTOR_SIZE before copying into its VECTOR_SIZE local array.",
+      "invariant": "total_length is no greater than VECTOR_SIZE and no greater than the readable input window before memcpy.",
+      "evidence": [
+        "tests/bib/test_bib_vectors.c",
+        "src/bib/bib_reader.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:af50ed412fd645724bcce4b436e2279df1c68557c4ac6293cdc54fca68779419",
+      "source_fingerprint": "sha256:e26e610a6ecbfadc9035073920ad8d3e204a2d3e1d3304ca22852722dfa1e9de",
+      "path": "tests/capability/test_capability_delegation.c",
+      "line": 12,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_delegation.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:ea4842f5be5401121f6f8e501a2acd79b57a17d26fb4037d01cf9f786a9e369e",
+      "source_fingerprint": "sha256:e4ad06f25c86074413985181b6a73d75e05a98b7d9325057e45d9ac1f2a1ebfb",
+      "path": "tests/capability/test_capability_ownership.c",
+      "line": 25,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_ownership.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:616d9b48110febfb68809a8d49355503bb8a8a28e4ea6926017baab2848706d8",
+      "source_fingerprint": "sha256:01cdb4e8280fba2d957952feac11b65f78cbec44c934c3d22aba395d119e0ab4",
+      "path": "tests/capability/test_capability_ownership.c",
+      "line": 37,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_ownership.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:86a72fc5016b068e7a52fb1ab950e7a7f209a1d19a29df05acb4d8bf529f8c66",
+      "source_fingerprint": "sha256:1db027c48633335eeaebe1ca28a24b65e25a67871c76f8165542d3fa967e7e31",
+      "path": "tests/capability/test_capability_respects_ring_boundary.c",
+      "line": 9,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_respects_ring_boundary.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:e464aea76d09458bc87515ed690c0f1fedceb71a735e18355d13474f803c2363",
+      "source_fingerprint": "sha256:ee14c5213316832caf239e5a1e93fd3da31322de0d64252eff8ab31232053f39",
+      "path": "tests/capability/test_capability_respects_ring_boundary.c",
+      "line": 22,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_respects_ring_boundary.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:57d369b60c0f2a5286b80abad6070150f16fb59cd7105f0f027c762cc0553af4",
+      "source_fingerprint": "sha256:5e45ba4242464b404b6ef8ef9030f11d43e77069674eb175e448f2d9620a7859",
+      "path": "tests/capability/test_capability_revocation.c",
+      "line": 8,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_revocation.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:2b9453d51519298b447c498fedb1007a46974b8df500aae5a7d65ddd11a3e11d",
+      "source_fingerprint": "sha256:830484ed9c9526301a0192a0fdac79875c93ad46a0dbb08732895e7912cae1b8",
+      "path": "tests/capability/test_capability_revocation.c",
+      "line": 21,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_revocation.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:98b1061c5534cc9bd6d462cb1fea9e553a728d1b8c4900cab96255d31e952998",
+      "source_fingerprint": "sha256:905fc8db58706ffd6f6651eaced66430961eeffb82132bf054ddd5cc92c11865",
+      "path": "tests/capability/test_capability_ring_boundary.c",
+      "line": 10,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_ring_boundary.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:c0aa83aa573dde6a4605149df86d4e5fa018126ee67365d0d3ca72c1d2603d54",
+      "source_fingerprint": "sha256:bcb82c6b7c62957964330ee873b68b9995790ff9716c4927508b0cfbeac534b7",
+      "path": "tests/capability/test_capability_ring_boundary.c",
+      "line": 24,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_ring_boundary.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:6ab531c3a06fff3910a803e617a0f54a91f6bc83b1cf87958510040a01478852",
+      "source_fingerprint": "sha256:a79ef45be7629af3d74a85f66ecca2ff01cc63ac37199a8af536d03846e76304",
+      "path": "tests/capability/test_capability_validation.c",
+      "line": 16,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_capability_validation.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:ebedb03dd8a09dd8fac1c41ee358f4ba7e422eb14de59c7987bd8cebd95240ee",
+      "source_fingerprint": "sha256:b95279d3271f6f169e8b8d80ddb70ed4986a1a4c3daedc84260fb5e24ecdcc35",
+      "path": "tests/capability/test_delegation_cannot_cross_ring_boundary.c",
+      "line": 13,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_delegation_cannot_cross_ring_boundary.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:b4fae1c6932c8c1571bc3f668858a4564f1c09102fedc76471ede6b8df855fd5",
+      "source_fingerprint": "sha256:16710e7f4e915d1108fd879a003066ea2c504112a12d333e1f1b3c44ad82d952",
+      "path": "tests/capability/test_revoked_capability_still_denied_after_ring_check.c",
+      "line": 9,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_revoked_capability_still_denied_after_ring_check.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:c5bbf1d2211f1c5e758d8e9ee923b765ac7b81d767f4a7871a39ad0e6bac781e",
+      "source_fingerprint": "sha256:feef5e68083ea61f0031557348e5d0c499f57ef9c13041de58dc033fa0fb662a",
+      "path": "tests/capability/test_revoked_capability_still_denied_after_ring_check.c",
+      "line": 22,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test helper receives the address of a concrete local capability or request object and initializes that complete object before assigning policy fields.",
+      "invariant": "The helper argument points to a live object of the dereferenced type, and sizeof(*argument) is the exact destination extent. This is ordinary test-fixture initialization.",
+      "evidence": [
+        "tests/capability/test_revoked_capability_still_denied_after_ring_check.c",
+        "src/capability/capability_policy.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:d7bda64c74047016cf4bee426160d44311095fca7f8b4e9673400e3deafc79ea",
+      "source_fingerprint": "sha256:99ad14454128f1fd68858356ce8bad2de852360ba9b6c95fcb7bcf898ddb949c",
+      "path": "tests/discovery/discovery_test_utils.h",
+      "line": 39,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "Discovery test helpers operate on ATARIX_TEST_IMAGE_SIZE-byte fixture arrays and initialize the complete image before constructing bounded records.",
+      "invariant": "All helper call sites provide an ATARIX_TEST_IMAGE_SIZE-byte image; the memset count is the same compile-time fixture extent.",
+      "evidence": [
+        "tests/discovery/discovery_test_utils.h",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:a9a42c042f361a43544f0a438be7bc1e723f251d7e4d2419b16d43c2ccd6aa56",
+      "source_fingerprint": "sha256:4838b95bc8b387a2c80e8cb0819e43ee63ca3b22f37bb7d2cd3dad2baebed380",
+      "path": "tests/discovery/discovery_test_utils.h",
+      "line": 70,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The resource or service pointer identifies a fixed record region inside the already initialized ATARIX_TEST_IMAGE_SIZE fixture, and the helper initializes exactly one complete record.",
+      "invariant": "The record pointer is derived from the bounded test image and sizeof(*record) is the exact destination extent before the offset advances.",
+      "evidence": [
+        "tests/discovery/discovery_test_utils.h",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:2b70ac32fd74728454b5bfa07c4cd10bbb67499ff66add7a222e4db3716f2060",
+      "source_fingerprint": "sha256:ec14c45819bc2179bcfe4a736eb4661ac68245f9c13f2cbdcf7ff515d14a0b6f",
+      "path": "tests/discovery/discovery_test_utils.h",
+      "line": 82,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The resource or service pointer identifies a fixed record region inside the already initialized ATARIX_TEST_IMAGE_SIZE fixture, and the helper initializes exactly one complete record.",
+      "invariant": "The record pointer is derived from the bounded test image and sizeof(*record) is the exact destination extent before the offset advances.",
+      "evidence": [
+        "tests/discovery/discovery_test_utils.h",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:acad16070ae947561bc628e1c17e90f171f9c59480e3bc0d044811d0a3aec7a1",
+      "source_fingerprint": "sha256:e54cd82072741e15acc82756c57dc05586d555de5df5a453e283b17ca6e70223",
+      "path": "tests/discovery/test_duplicate_handle.c",
+      "line": 21,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test declares image as an ATARIX_TEST_IMAGE_SIZE local array and initializes exactly sizeof(image) before constructing the malformed or duplicate-record fixture.",
+      "invariant": "image is a live local array and sizeof(image) is its complete destination extent.",
+      "evidence": [
+        "tests/discovery/test_duplicate_handle.c",
+        "tests/discovery/discovery_test_utils.h",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:d75f06532ccc7600b14564c60ec6b5b7566036e164d60e0baa35673cc3a33eeb",
+      "source_fingerprint": "sha256:74a9748c2f203e7ae5beb1d1fefd7c1eabee16958aae86644f2dba9b2ecaa22f",
+      "path": "tests/discovery/test_unknown_record.c",
+      "line": 17,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The test declares image as an ATARIX_TEST_IMAGE_SIZE local array and initializes exactly sizeof(image) before constructing the malformed or duplicate-record fixture.",
+      "invariant": "image is a live local array and sizeof(image) is its complete destination extent.",
+      "evidence": [
+        "tests/discovery/test_unknown_record.c",
+        "tests/discovery/discovery_test_utils.h",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:cc2357cae6c1d942f2f6272a23b1fcc27bb7d87d12139469f028b0c312842be5",
+      "source_fingerprint": "sha256:e4a0c0770c506ecdba592cfa9116bf9816e9ff8bbfefab0b9be4ebfd66a2357a",
+      "path": "tests/mailbox/test_mailbox_duplicate.c",
+      "line": 11,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The sequence fixture initializes one complete local receive-window object before exercising duplicate, ordering, and recovery behavior.",
+      "invariant": "window is a live local object and sizeof(window) is its exact destination extent.",
+      "evidence": [
+        "tests/mailbox/test_mailbox_duplicate.c",
+        "src/mailbox/mailbox.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:f5284e02cf987d044584d9dc2840d29c239db43121e6d920a9a366c34b4e8ca8",
+      "source_fingerprint": "sha256:3c95a171c8ccdb5981f686433dd772cf8e10b43f81c5c13ee6d1ba127ada6413",
+      "path": "tests/mailbox/test_mailbox_max_payload.c",
+      "line": 12,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The maximum-payload fixture initializes a local array over exactly its declared size before passing the same size to mailbox build and validation.",
+      "invariant": "payload is ATARIX_MAILBOX_MAX_PAYLOAD_V1 bytes and sizeof(payload) is the exact destination extent.",
+      "evidence": [
+        "tests/mailbox/test_mailbox_max_payload.c",
+        "src/mailbox/mailbox.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:4005988459c468ac0936750afbce89b53fd83b52373538da0c9c1725dc9a5b71",
+      "source_fingerprint": "sha256:3011494fe4f1f498571380b68776bbeba42bf85bf4d6dada99e37d5ef0cbf639",
+      "path": "tests/mailbox/test_mailbox_out_of_order.c",
+      "line": 11,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The sequence fixture initializes one complete local receive-window object before exercising duplicate, ordering, and recovery behavior.",
+      "invariant": "window is a live local object and sizeof(window) is its exact destination extent.",
+      "evidence": [
+        "tests/mailbox/test_mailbox_out_of_order.c",
+        "src/mailbox/mailbox.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:87a49fffac26cfa775d53e90afe8409e5a26eae75b9dcda9797c4f401e81b602",
+      "source_fingerprint": "sha256:2fe24046b88a2833ace84cb54ea908f9dbd96133cdcf126dc7b9f77bfcf23412",
+      "path": "tests/mailbox/test_mailbox_sequence.c",
+      "line": 22,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The sequence fixture initializes one complete local receive-window object before exercising duplicate, ordering, and recovery behavior.",
+      "invariant": "window is a live local object and sizeof(window) is its exact destination extent.",
+      "evidence": [
+        "tests/mailbox/test_mailbox_sequence.c",
+        "src/mailbox/mailbox.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:27ac2832b0bbdf0dcc4849ed9477562501ad93d3adc918eea69f0fdad40609ac",
+      "source_fingerprint": "sha256:0927996ad599eb25b28a625a5e87027228e6f0155e5c751b72687de64b587a9b",
+      "path": "tools/bibdump/bibdump.c",
+      "line": 75,
+      "symbol": "malloc",
+      "classification": "approved-invariant",
+      "rationale": "File size acquisition rejects ftell errors and sizes above ATARIX_BIB_RECOMMENDED_MAX_SIZE_V1. The allocation uses one byte for an empty file and checks failure before any access.",
+      "invariant": "The requested allocation is between one byte and the documented BIB diagnostic limit; malloc success is required before reading or publishing ownership.",
+      "evidence": [
+        "tools/bibdump/bibdump.c",
+        "tests/bib/test_bib_emulator_evidence.sh",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:d3f65af3b2f34cc821b9be1fb7b73de069a1714e0798af91f58000f51e553b84",
+      "source_fingerprint": "sha256:3e9a30182176eec44be8bf6995af151b1db58522cf51fce832059dbace5a990a",
+      "path": "tools/bibdump/bibdump.c",
+      "line": 83,
+      "symbol": "free",
+      "classification": "approved-invariant",
+      "rationale": "The read-error branch exclusively owns data, releases it once, and immediately returns before the pointer can be published or reused.",
+      "invariant": "data comes from the single checked allocation in read_file; this branch frees it exactly once and returns without any later access.",
+      "evidence": [
+        "tools/bibdump/bibdump.c",
+        "tests/bib/test_bib_emulator_evidence.sh",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:c3975389becb806438ba0b4f1f4fa99c6a44e6e7db1bb06db7675f8e678b30a0",
+      "source_fingerprint": "sha256:aa0d3bc0e74d978f6e7f7026de96db032b6d76b0e1e3dfd6254ee8abe66c5ad6",
+      "path": "tools/bibdump/bibdump.c",
+      "line": 176,
+      "symbol": "free",
+      "classification": "approved-invariant",
+      "rationale": "main receives exclusive buffer ownership only after read_file succeeds, uses it for one diagnostic decode, releases it once, and returns immediately.",
+      "invariant": "buffer is assigned by the successful read_file ownership transfer, is freed exactly once after dump_bib, and is not accessed afterward.",
+      "evidence": [
+        "tools/bibdump/bibdump.c",
+        "tests/bib/test_bib_emulator_evidence.sh",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:a9e06daff517737ec52ae75dc6a448c68b44aefbd45c127e061ecb3843b16b26",
+      "source_fingerprint": "sha256:d3248a019f5311c410afabf47c0b199fd5e0bf4adad50f115bb890b18ed1854c",
+      "path": "tools/mkdiscovery/mkdiscovery.c",
+      "line": 49,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The tool initializes one complete local discovery record before setting fields and appending it through the remaining-capacity checked append_bytes helper.",
+      "invariant": "The destination is a live local record and sizeof(record) is its exact extent; append_bytes separately proves the serialized destination capacity.",
+      "evidence": [
+        "tools/mkdiscovery/mkdiscovery.c",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:7b78f57b1a4942ade4bf1213cf7749344ddb804a9855530e192ed3f0ead961e5",
+      "source_fingerprint": "sha256:9577bbb8fd6c0ab8faad8578419ede4f62f407bdff526b3958d7e3bcd70b6a1b",
+      "path": "tools/mkdiscovery/mkdiscovery.c",
+      "line": 58,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The tool initializes one complete local discovery record before setting fields and appending it through the remaining-capacity checked append_bytes helper.",
+      "invariant": "The destination is a live local record and sizeof(record) is its exact extent; append_bytes separately proves the serialized destination capacity.",
+      "evidence": [
+        "tools/mkdiscovery/mkdiscovery.c",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:febacb159cdee332d1c39195cd97285109b9c4d14f93c9349757d0d0cce9a84f",
+      "source_fingerprint": "sha256:9577bbb8fd6c0ab8faad8578419ede4f62f407bdff526b3958d7e3bcd70b6a1b",
+      "path": "tools/mkdiscovery/mkdiscovery.c",
+      "line": 72,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "The tool initializes one complete local discovery record before setting fields and appending it through the remaining-capacity checked append_bytes helper.",
+      "invariant": "The destination is a live local record and sizeof(record) is its exact extent; append_bytes separately proves the serialized destination capacity.",
+      "evidence": [
+        "tools/mkdiscovery/mkdiscovery.c",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    },
+    {
+      "finding_id": "aes-sec-001:41337d79853aca1801e54ef5607ed97b07cfc09bc030655adba2200664454cd3",
+      "source_fingerprint": "sha256:20b246077f1d24a989c88ca6af5899ab1ed1dc6688447702ba520106a3ef9656",
+      "path": "tools/mkdiscovery/mkdiscovery.c",
+      "line": 91,
+      "symbol": "memset",
+      "classification": "approved-invariant",
+      "rationale": "main passes its fixed MKDISCOVERY_MAX_IMAGE local array together with sizeof(image); build_profile initializes exactly that caller-declared capacity before bounded appends.",
+      "invariant": "image_capacity equals the actual destination array size at the sole call site, and all record appends check remaining capacity.",
+      "evidence": [
+        "tools/mkdiscovery/mkdiscovery.c",
+        "tests/discovery/test_discovery_records.c",
+        "https://github.com/dlworrell/atarix/issues/55"
+      ],
+      "owner": "dlworrell",
+      "reviewer": "dlworrell",
+      "reviewed_at": "2026-07-29",
+      "reassess_after": "2027-07-29",
+      "resolution_commit": null
+    }
+  ]
+}
+
