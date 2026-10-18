@@ -1,0 +1,20 @@
+name: AEMS Release Evidence Tests
+
+on:
+  pull_request:
+    paths:
+      - 'tools/aems/release_evidence.py'
+      - 'tests/test_aems_release_evidence.py'
+      - '.github/workflows/aems-release-evidence-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exercise AEMS release evidence qualification
+        run: python3 -m unittest discover -s tests -p 'test_aems_release_evidence.py' -v
