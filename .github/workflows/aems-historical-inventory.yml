@@ -1,0 +1,47 @@
+name: AEMS Historical Inventory
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: Start date (UTC, YYYY-MM-DD)
+        required: true
+        default: '2026-06-17'
+        type: string
+      until:
+        description: End date (UTC, YYYY-MM-DD), blank means today
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Check AEMS documentation and specification registry
+        run: |
+          python3 tools/aems/aems.py check-specs
+          python3 tools/aems/aems.py check-docs
+      - name: Inventory historical commits
+        env:
+          SINCE: ${{ inputs.since }}
+          UNTIL: ${{ inputs.until }}
+        run: |
+          set -euo pipefail
+          args=(--since "$SINCE" --output build/aems/historical-inventory.json)
+          if [[ -n "$UNTIL" ]]; then args+=(--until "$UNTIL"); fi
+          python3 tools/aems/historical_inventory.py "${args[@]}"
+      - name: Upload inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aems-historical-inventory
+          path: build/aems/historical-inventory.json
+          if-no-files-found: warn
