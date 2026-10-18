@@ -66,6 +66,28 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Install engineering verification tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ iverilog verilator
+
+      - name: Validate AEMS specification registry
+        run: python3 tools/aems/aems.py check-specs
+
+      - name: Validate AEMS document graph
+        run: python3 tools/aems/aems.py check-docs
+
+      - name: Run Engineering Gate on selected commit
+        run: bash scripts/engineering/run_gate.sh
+
+      - name: Upload engineering evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-tag-engineering-evidence
+          path: build/engineering-gate/artifacts/**
+          if-no-files-found: warn
+
       - name: Configure tag author
         shell: bash
         run: |
