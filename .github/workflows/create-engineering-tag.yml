@@ -88,6 +88,24 @@ jobs:
           path: build/engineering-gate/artifacts/**
           if-no-files-found: warn
 
+      - name: Generate release evidence manifest
+        env:
+          SOURCE_REF: ${{ inputs.branch }}
+        run: |
+          python3 tools/aems/release_evidence.py generate --gate-completed --source-ref "$SOURCE_REF"
+
+      - name: Validate release evidence for exact commit
+        run: |
+          python3 tools/aems/release_evidence.py validate --expected-commit "$(git rev-parse HEAD)"
+
+      - name: Upload release evidence manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-evidence-manifest
+          path: build/aems/release-evidence.json
+          if-no-files-found: warn
+
       - name: Configure tag author
         shell: bash
         run: |
