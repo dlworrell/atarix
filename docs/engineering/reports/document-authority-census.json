@@ -1,0 +1,1538 @@
+{
+  "documents": [
+    {
+      "canonical_owner": "Atarix",
+      "location": ".github",
+      "path": ".github/pull_request_template.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3258,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "repository-root",
+      "path": "README.md",
+      "placement": "canonical",
+      "reason": "Approved repository-root project document.",
+      "size_bytes": 15657,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/ADR-DISCOVERABLE-OBSERVABLE-TESTABLE-INSTRUMENTABLE-RECOVERABLE.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4335,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/ADR-IDENTITY-TRUST-CAPABILITY-SEPARATION.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2454,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/ADR-RING-SECURITY-MODEL.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6287,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/ADR-THREE-FABRIC-ARCHITECTURE.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4441,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/abi-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3983,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/address-space-architecture.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 9609,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0001-fabric-centric-architecture.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 631,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0001-ulx3s-selection.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 476,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0002-rp2350-selection.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1449,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0003-local-cpu-bus.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 520,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0009-observability-first.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1043,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0010-evidence-based-engineering.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 964,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0011-little-endian-data-model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1339,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0012-abstraction-and-compatibility.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2010,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0013-resource-oriented-architecture.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1671,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0014-testing-and-verification-strategy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1459,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0015-consume-catylist-aes-aems-authority-chain.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3478,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-00X-capability-evaluation-model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6585,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-00Y-service-oriented-resource-access.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4688,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-00Z-core-architectural-doctrines.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4664,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/README.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 428,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-100/chapters/01-purpose-and-scope.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1640,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-100/chapters/09-system-layers.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1632,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-100/chapters/15-lookup-acceleration.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2223,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-100/chapters/20-aems-and-engineering-gates.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1881,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-100/index.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3833,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-001-Security-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5597,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-002-Authority-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5162,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-003-Capability-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4268,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-004-Lifecycle-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4504,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-005-Mailbox-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3988,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-006-Object-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4444,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-007-Namespace-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4036,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-008-Directory-Service-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10480,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-009-Resource-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 11574,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-010-Audit-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10268,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-011-Error-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 9133,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-013-Policy-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 12353,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-014-Bootstrap-Security-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 12332,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-015-POSIX-Compatibility-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 28319,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-016-Supervisor-Management-Fabric.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 11412,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-018-Recovery-and-Reconciliation-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 11633,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-019-Service-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 11535,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 8273,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-020-Hash-Table-and-Lookup-Acceleration-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 15930,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10352,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1078,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1184,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-092-Engineering-Release-and-Configuration-Management.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10392,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/architecture-backlog.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5039,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/architecture-review-checklist.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1248,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/design-principles.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1019,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/directory-service.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1346,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/namespace-model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1341,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/object-model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1642,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/pillars.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 765,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/backplane-spec.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2373,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/bios-api-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 450,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/boot-firmware-architecture-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4041,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/boot-information-block-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 13449,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/boot-sequence-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5856,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/bus-architecture.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6485,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/capability-model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 9288,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/capability-record-format-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4551,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/card-health-model-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4796,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/card-identity-eeprom.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 11425,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/clock-reset-spec.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4288,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/core-doctrines.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4686,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/cpu-card-architecture-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 13020,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/cpu-card-spec.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1176,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/cpu-local-dma-memory-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4518,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/cpu-observability-contract-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3473,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/cpu-test-suite-integration-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4381,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/data-model-and-endianness-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5028,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/data-model-and-endianness.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 9454,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-001-Architectural-Philosophy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 774,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-002-Architectural-Invariants.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 948,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-003-Engineering-Principles.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 811,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-004-Human-Factors-and-Readability.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 882,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-005-Evolution-Strategy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 769,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-006-Performance-Philosophy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 788,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design/ATX-DESIGN-007-Security-Philosophy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 810,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design-rationale-history-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 11662,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/design.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2930,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/development-philosophy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1776,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/diagnostic-access-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5509,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/discovery-rom-and-slot-architecture-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2905,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/discovery-rom-format-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 9219,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/discovery-rom-format.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6844,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/dma-engine-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 8317,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/doctrine/ARC-REVIEW.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1638,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/doctrine/ARC-SEC.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1651,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/engineering/AES-SEC-001-waivers.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 91,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/engineering/ATARIX-DEV-001-development-principles.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5975,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/engineering/Documentation-Taxonomy-and-Style-Guide.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1359,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/engineering/Engineering-Gate.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2753,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/engineering/SECURE-C-CXX.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1631,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/engineering/closure-development-cycle.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10280,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/evidence/atx-bib-001/emulator-capture-v1.txt",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 754,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/fabric-controller-architecture-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3772,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/fabric-service-model-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3247,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/fpga-fabric.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1846,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/fpga-instrumentation-testbench-services-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5418,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/github-project-organization-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3707,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/gnu-dev-tools-setup.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4249,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/hardware/bench-validation-plan-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7511,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/hardware.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1686,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/identity-eeprom-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 14009,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/interrupt-architecture-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6047,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/mailbox-protocol-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3587,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/management-anomaly-detection-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7023,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/memory-map.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3461,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/netboot-ntp-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5190,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/nubus-upa-influences-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3666,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/operation-id-registry-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2438,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/os-architecture.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1392,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/register-map-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3125,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/research/RESEARCH-BACKLOG.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2085,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/research/hashing/krapivin-2025-open-addressing-summary.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5536,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/resource-type-registry-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3856,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/rev-a-hardware-baseline.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7105,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/reviews/ATX-SPEC-015-Reconciliation-Review.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7468,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/reviews/Architecture-Review-002.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10072,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/reviews/Architecture-Review-003.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1224,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/reviews/architecture-review-001.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 10809,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/reviews/architecture-review-template.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1760,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/reviews/capability-sprint-1-review.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4258,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/ring-security-test-plan.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6837,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/roadmap/atarix-project-zero-inventory.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2687,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/roadmap/document-authority-migration-audit.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6211,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/roadmap/repository-extraction-plan.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2907,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/roadmap.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 934,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/routing-design-notes.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5285,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/security.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 8904,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/service-directory-format-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3080,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/service-id-registry-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3973,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/service-model.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3500,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/software.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 964,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/specification-roadmap.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3277,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/supervisor-card-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 8354,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/supervisor-observability-contract-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7647,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/system-spec-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 2950,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/test-write.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 28,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/testing-strategy.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7232,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/timing-observability-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 7703,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/toolchain-and-build-strategy-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 6358,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/toolchain.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 852,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/trust-model-v1.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3562,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/ulx3s-backplane-controller.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 3277,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/vega816-analysis.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5308,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/verification/ATX-SPEC-020-rtl-ci.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1958,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "include",
+      "path": "include/atarix/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 441,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "rtl",
+      "path": "rtl/atarix/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 4024,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "sim",
+      "path": "sim/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 2441,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "sim",
+      "path": "sim/common/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 302,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "sim",
+      "path": "sim/fabric/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 411,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "sim",
+      "path": "sim/mailbox/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 322,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "sim",
+      "path": "sim/supervisor/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 284,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "sim",
+      "path": "sim/tests/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 268,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "src",
+      "path": "src/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 527,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "src",
+      "path": "src/emulator/discovery/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 369,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "src",
+      "path": "src/emulator/fabric/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 391,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "src",
+      "path": "src/emulator/mailbox/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 319,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "src",
+      "path": "src/firmware/monitor/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 395,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "tests",
+      "path": "tests/cpu/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 800,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "tests",
+      "path": "tests/reference/README.md",
+      "placement": "colocated",
+      "reason": "Component-local README retained beside the implementation it explains.",
+      "size_bytes": 962,
+      "violation": false
+    }
+  ],
+  "repository": "dlworrell/atarix",
+  "root": "/home/runner/work/atarix/atarix",
+  "schema": "catalyst.atarix.document-authority-census.v2",
+  "summary": {
+    "document_count": 168,
+    "locations": {
+      ".github": 1,
+      "docs": 151,
+      "include": 1,
+      "repository-root": 1,
+      "rtl": 1,
+      "sim": 6,
+      "src": 5,
+      "tests": 2
+    },
+    "placements": {
+      "canonical": 153,
+      "colocated": 15
+    },
+    "strict_passed": true,
+    "violation_count": 0
+  }
+}
