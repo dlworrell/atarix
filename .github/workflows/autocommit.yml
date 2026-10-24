@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   autocommit:
@@ -14,17 +15,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Configure git author
+      - name: Propose changed files as a verified pull request
+        # ADR-0006: no direct pushes to main; automation commits must be verified.
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Commit changed files
-        run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add -A
-            git commit -m "Autocommit generated updates"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          python3 .github/scripts/publish_signed_pr.py \
+            --branch automation/autocommit \
+            --title "Autocommit generated updates" \
+            .
