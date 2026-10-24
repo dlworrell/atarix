@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Build standard docs outputs
         run: make docs-book
 
       - name: Upload ATX-100 master manual
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: atx100-master-manual
           path: build/ATX-100-MASTER.md
@@ -25,7 +25,7 @@ jobs:
 
       - name: Upload complete docs book
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: atarix-docs-book
           path: build/ATARIX-DOCS-BOOK.md
@@ -33,7 +33,7 @@ jobs:
 
       - name: Upload ATX-100 migration plan
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: atx100-migration-plan
           path: build/ATX-100-MIGRATION-PLAN.md
