@@ -1,26 +1,22 @@
-name: Autocommit
-
+name: Verified signing repair (manual)
 on:
   workflow_dispatch:
-
 permissions:
   contents: write
-  pull-requests: write
-
+concurrency:
+  group: signing-repair-${{ github.repository }}
+  cancel-in-progress: false
 jobs:
-  autocommit:
-    runs-on: ubuntu-latest
-
+  verified-repair:
+    if: github.event_name == 'workflow_dispatch' && github.actor == 'dlworrell'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Propose changed files as a verified pull request
-        # ADR-0006: no direct pushes to main; automation commits must be verified.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Publish exact reviewed tree with GitHub signing and verify
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 .github/scripts/publish_signed_pr.py \
-            --branch automation/autocommit \
-            --title "Autocommit generated updates" \
-            .
+          GITHUB_TOKEN: ${{ github.token }}
+          EXPECTED_PAYLOAD_SHA256: 595347752266c3f3e5f4c537df4c4b71d4f637638e8e3407e88da2f0386a7d93
+        run: python3 .github/signing-repair/publish.py
