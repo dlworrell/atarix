@@ -912,6 +912,15 @@
     {
       "canonical_owner": "Atarix",
       "location": "docs",
+      "path": "docs/engineering/fitment-branch-retention.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 4686,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
       "path": "docs/engineering/reports/publisher-pr-publication-2026-10-26.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
@@ -1419,7 +1428,7 @@
       "path": "project-zero/inventory/current/atarix-doc-candidates.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 7143,
+      "size_bytes": 7637,
       "violation": false
     },
     {
@@ -1428,7 +1437,7 @@
       "path": "project-zero/inventory/current/atarix-docs-tree.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 6160,
+      "size_bytes": 6379,
       "violation": false
     },
     {
@@ -1437,7 +1446,7 @@
       "path": "project-zero/inventory/current/atarix-full-tree.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 11395,
+      "size_bytes": 11889,
       "violation": false
     },
     {
@@ -1571,10 +1580,10 @@
   "root": "/home/runner/work/atarix/atarix",
   "schema": "catalyst.atarix.document-authority-census.v2",
   "summary": {
-    "document_count": 174,
+    "document_count": 175,
     "locations": {
       ".github": 1,
-      "docs": 153,
+      "docs": 154,
       "include": 1,
       "project-zero": 4,
       "repository-root": 1,
@@ -1584,7 +1593,7 @@
       "tests": 2
     },
     "placements": {
-      "canonical": 155,
+      "canonical": 156,
       "colocated": 19
     },
     "strict_passed": true,
