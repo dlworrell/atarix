@@ -17,7 +17,11 @@ MUTATION = "mutation($input:CreateCommitOnBranchInput!){createCommitOnBranch(inp
 REF_MUTATION = "mutation($input:UpdateRefsInput!){updateRefs(input:$input){clientMutationId}}"
 
 def run(*args: str, stdin: str | None = None) -> str:
-    return subprocess.run(args,input=stdin,check=True,capture_output=True,text=True).stdout
+    try:
+        return subprocess.run(args,input=stdin,check=True,capture_output=True,text=True).stdout
+    except subprocess.CalledProcessError as error:
+        detail=(error.stderr or error.stdout or "no command output").strip()
+        raise RuntimeError(f"{' '.join(args[:2])} failed (exit {error.returncode}): {detail}") from error
 
 def changes(base_sha: str, paths: list[str]) -> tuple[list[dict],list[dict]]:
     run("git","add","-A","--",*paths)
@@ -88,8 +92,19 @@ def main(argv: list[str] | None = None) -> int:
     if existing:
         print(f"Pull request already open: {existing[0]['url']}")
     else:
-        url=run("gh","pr","create","--repo",repo,"--head",args.branch,"--base",args.base,
-                "--title",args.title,"--body",args.body or args.title).strip()
+        try:
+            url=run("gh","pr","create","--repo",repo,"--head",args.branch,"--base",args.base,
+                    "--title",args.title,"--body",args.body or args.title).strip()
+        except RuntimeError as error:
+            if "not permitted to create or approve pull requests" in str(error):
+                raise RuntimeError(
+                    f"Verified commit {commit['oid']} is retained on {args.branch}. "
+                    "PR creation is blocked by the repository Actions policy: "
+                    "'Allow GitHub Actions to create and approve pull requests' is disabled. "
+                    "An authorized maintainer client can open the PR from this existing branch. "
+                    "No replacement signature or new key is needed. " + str(error)
+                ) from error
+            raise
         print(f"Opened {url}")
     return 0
 
