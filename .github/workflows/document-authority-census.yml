@@ -46,7 +46,8 @@ jobs:
 
       - name: Propose census update as a verified pull request
         # ADR-0006: no direct pushes to main; automation commits must be verified.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev-daily'
+        # Manual recovery must publish too; pull-request runs remain evidence-only.
+        if: github.ref == 'refs/heads/dev-daily' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

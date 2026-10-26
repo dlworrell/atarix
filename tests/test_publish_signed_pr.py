@@ -14,14 +14,14 @@ spec.loader.exec_module(publisher)
 OID="f"*40
 BASE="a"*40
 class PublisherTest(unittest.TestCase):
-    def execute(self,verification=None,parents=None,old=None,lease_error=False,event="workflow_dispatch",default="main",pr_error=None,env=None,extra=()):
+    def execute(self,verification=None,parents=None,old=None,lease_error=False,event="workflow_dispatch",default="main",pr_error=None,env=None,extra=(),existing=(),changed=True):
         calls=[]
         def fake(*args,stdin=None):
             calls.append((args,json.loads(stdin) if stdin else None))
             if args[:3]==("gh","pr","create"):
                 if pr_error: raise RuntimeError(pr_error)
                 return "https://example.invalid/pr/1"
-            if args[:3]==("gh","pr","list"): return "[]"
+            if args[:3]==("gh","pr","list"): return json.dumps(existing)
             endpoint=args[2]
             if endpoint=="repos/o/r": return json.dumps({"node_id":"REPO","default_branch":default})
             if "matching-refs" in endpoint:
@@ -37,7 +37,7 @@ class PublisherTest(unittest.TestCase):
                                    "parents":[{"sha":p} for p in (parents if parents is not None else [BASE])]})
             return "{}"
         with mock.patch.dict(os.environ,{"GITHUB_REPOSITORY":"o/r","GITHUB_EVENT_NAME":event,**(env or {})}), \
-             mock.patch.object(publisher,"changes",return_value=([{"path":"x","contents":"eA=="}],[])), \
+             mock.patch.object(publisher,"changes",return_value=([{"path":"x","contents":"eA=="}] if changed else [],[])), \
              mock.patch.object(publisher,"run",side_effect=fake):
             result=publisher.main(["--branch","automation/x","--title","fix: x","--base","main","--base-sha",BASE,*extra,"x"])
         return result,calls
@@ -130,6 +130,39 @@ class PublisherTest(unittest.TestCase):
     def test_ring0_opener_still_requires_a_verified_commit(self):
         with self.assertRaisesRegex(RuntimeError,"did not verify"):
             self.execute({"verified":False,"reason":"unsigned"},extra=("--pr-opener","ring-0"))
+    def test_existing_pull_request_is_reused_without_creating_another(self):
+        result,calls=self.execute({"verified":True,"reason":"valid"},
+                                  existing=[{"url":"https://example.invalid/pr/existing"}])
+        self.assertEqual(result,0)
+        self.assertTrue(any(a[:3]==("gh","pr","list") for a,_ in calls))
+        self.assertFalse(any(a[:3]==("gh","pr","create") for a,_ in calls))
+    def test_no_changes_need_no_github_access_or_summary(self):
+        for extra in ((),("--pr-opener","ring-0")):
+            with self.subTest(extra=extra), tempfile.TemporaryDirectory() as tmp:
+                summary=Path(tmp)/"summary.md"
+                result,calls=self.execute(changed=False,extra=extra,
+                                          env={"GITHUB_STEP_SUMMARY":str(summary)})
+                self.assertEqual(result,0)
+                self.assertEqual(calls,[])
+                self.assertFalse(summary.exists())
+    def test_ring0_cannot_report_handoff_after_bad_parent_or_stale_lease(self):
+        cases=({"parents":["b"*40]}, {"old":"b"*40,"lease_error":True})
+        for case in cases:
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as tmp:
+                summary=Path(tmp)/"summary.md"
+                with self.assertRaises(RuntimeError):
+                    self.execute({"verified":True,"reason":"valid"},**case,
+                                 extra=("--pr-opener","ring-0"),
+                                 env={"GITHUB_STEP_SUMMARY":str(summary)})
+                self.assertFalse(summary.exists())
+    def test_command_error_falls_back_to_redacted_stdout(self):
+        error=subprocess.CalledProcessError(1,("gh","api"),stderr="",output="API denied token-from-env")
+        with mock.patch.dict(os.environ,{"GITHUB_TOKEN":"token-from-env"}), \
+             mock.patch.object(publisher.subprocess,"run",side_effect=error):
+            with self.assertRaisesRegex(RuntimeError,"API denied \\*\\*\\*") as failure:
+                publisher.run("gh","api","graphql")
+        self.assertNotIn("token-from-env",str(failure.exception))
+        self.assertTrue(failure.exception.__suppress_context__)
 
 if __name__=="__main__":
     unittest.main()
