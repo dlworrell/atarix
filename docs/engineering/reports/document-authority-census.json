@@ -912,6 +912,15 @@
     {
       "canonical_owner": "Atarix",
       "location": "docs",
+      "path": "docs/engineering/reports/publisher-pr-publication-2026-10-26.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 5129,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
       "path": "docs/evidence/atx-bib-001/emulator-capture-v1.txt",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
@@ -1562,10 +1571,10 @@
   "root": "/home/runner/work/atarix/atarix",
   "schema": "catalyst.atarix.document-authority-census.v2",
   "summary": {
-    "document_count": 173,
+    "document_count": 174,
     "locations": {
       ".github": 1,
-      "docs": 152,
+      "docs": 153,
       "include": 1,
       "project-zero": 4,
       "repository-root": 1,
@@ -1575,7 +1584,7 @@
       "tests": 2
     },
     "placements": {
-      "canonical": 154,
+      "canonical": 155,
       "colocated": 19
     },
     "strict_passed": true,
