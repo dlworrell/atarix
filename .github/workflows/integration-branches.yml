@@ -1,0 +1,25 @@
+name: Integration branch retention
+
+on:
+  pull_request:
+    branches: [dev-daily, fitment, main]
+  push:
+    branches: [dev-daily, fitment, main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 7 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  retention:
+    name: Integration branch retention
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read integration heads and active deletion rules
+        uses: dlworrell/AEMS/.github/actions/integration-branches@f99cfb44788b914359019a35141b7eaf4eb80c5f
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ github.token }}
