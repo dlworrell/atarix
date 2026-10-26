@@ -4,14 +4,15 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - dev-daily
     paths-ignore:
       - docs/engineering/reports/document-authority-census.md
       - docs/engineering/reports/document-authority-census.json
   workflow_dispatch:
 
 # The catylist-ring-0 sweep opens the pull request (Catylist ADR-0012),
-# so this workflow needs no pull-request access.
+# so this workflow needs no pull-request access. Reports are generated from
+# dev-daily and proposed into it (Catylist ADR-0013).
 permissions:
   contents: write
 
@@ -45,7 +46,7 @@ jobs:
 
       - name: Propose census update as a verified pull request
         # ADR-0006: no direct pushes to main; automation commits must be verified.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev-daily'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
