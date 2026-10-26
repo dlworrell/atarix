@@ -10,18 +10,36 @@ import argparse
 import base64
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
 MUTATION = "mutation($input:CreateCommitOnBranchInput!){createCommitOnBranch(input:$input){commit{oid url}}}"
 REF_MUTATION = "mutation($input:UpdateRefsInput!){updateRefs(input:$input){clientMutationId}}"
 
+TOKEN_PATTERN = re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b")
+POLICY_REJECTION = "not permitted to create or approve pull requests"
+
+def redact(text: str) -> str:
+    """Remove credential values from text that may reach logs or summaries."""
+    for name in ("GH_TOKEN","GITHUB_TOKEN"):
+        value=os.environ.get(name)
+        if value:
+            text=text.replace(value,"***")
+    return TOKEN_PATTERN.sub("***",text)
+
 def run(*args: str, stdin: str | None = None) -> str:
     try:
         return subprocess.run(args,input=stdin,check=True,capture_output=True,text=True).stdout
     except subprocess.CalledProcessError as error:
-        detail=(error.stderr or error.stdout or "no command output").strip()
-        raise RuntimeError(f"{' '.join(args[:2])} failed (exit {error.returncode}): {detail}") from error
+        detail=redact((error.stderr or error.stdout or "no command output").strip())
+        raise RuntimeError(f"{' '.join(args[:2])} failed (exit {error.returncode}): {detail}") from None
+
+def summarize(text: str) -> None:
+    path=os.environ.get("GITHUB_STEP_SUMMARY")
+    if path:
+        with open(path,"a",encoding="utf-8") as handle:
+            handle.write(redact(text)+"\n")
 
 def changes(base_sha: str, paths: list[str]) -> tuple[list[dict],list[dict]]:
     run("git","add","-A","--",*paths)
@@ -37,7 +55,9 @@ def changes(base_sha: str, paths: list[str]) -> tuple[list[dict],list[dict]]:
 def graphql(payload: dict) -> dict:
     result=json.loads(run("gh","api","graphql","--input","-",stdin=json.dumps(payload)))
     if not isinstance(result,dict) or result.get("errors"):
-        raise RuntimeError("GitHub refused the leased ref update or commit mutation")
+        messages="; ".join(str(e.get("message","")) for e in result.get("errors",[]) if isinstance(e,dict)) \
+            if isinstance(result,dict) else ""
+        raise RuntimeError("GitHub refused the leased ref update or commit mutation: "+redact(messages or "no detail"))
     return result
 
 def verify_commit(repo: str, oid: str, parent: str) -> None:
@@ -96,7 +116,11 @@ def main(argv: list[str] | None = None) -> int:
             url=run("gh","pr","create","--repo",repo,"--head",args.branch,"--base",args.base,
                     "--title",args.title,"--body",args.body or args.title).strip()
         except RuntimeError as error:
-            if "not permitted to create or approve pull requests" in str(error):
+            if POLICY_REJECTION in str(error):
+                server=os.environ.get("GITHUB_SERVER_URL","https://github.com")
+                summarize(f"### Pull request not opened\n\nVerified commit `{commit['oid']}` is on "
+                          f"`{args.branch}`. Repository Actions policy blocks PR creation by workflows. "
+                          f"Open it from [the compare view]({server}/{repo}/compare/{args.base}...{args.branch}?expand=1).")
                 raise RuntimeError(
                     f"Verified commit {commit['oid']} is retained on {args.branch}. "
                     "PR creation is blocked by the repository Actions policy: "
