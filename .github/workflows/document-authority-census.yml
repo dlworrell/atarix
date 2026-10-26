@@ -10,9 +10,10 @@ on:
       - docs/engineering/reports/document-authority-census.json
   workflow_dispatch:
 
+# The catylist-ring-0 sweep opens the pull request (Catylist ADR-0012),
+# so this workflow needs no pull-request access.
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   census:
@@ -51,6 +52,7 @@ jobs:
           python3 .github/scripts/publish_signed_pr.py \
             --branch automation/document-authority-census \
             --title "audit(atarix): update document authority census" \
+            --pr-opener ring-0 \
             docs/engineering/reports/document-authority-census.md \
             docs/engineering/reports/document-authority-census.json
 

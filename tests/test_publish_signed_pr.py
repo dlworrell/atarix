@@ -14,7 +14,7 @@ spec.loader.exec_module(publisher)
 OID="f"*40
 BASE="a"*40
 class PublisherTest(unittest.TestCase):
-    def execute(self,verification=None,parents=None,old=None,lease_error=False,event="workflow_dispatch",default="main",pr_error=None,env=None):
+    def execute(self,verification=None,parents=None,old=None,lease_error=False,event="workflow_dispatch",default="main",pr_error=None,env=None,extra=()):
         calls=[]
         def fake(*args,stdin=None):
             calls.append((args,json.loads(stdin) if stdin else None))
@@ -39,7 +39,7 @@ class PublisherTest(unittest.TestCase):
         with mock.patch.dict(os.environ,{"GITHUB_REPOSITORY":"o/r","GITHUB_EVENT_NAME":event,**(env or {})}), \
              mock.patch.object(publisher,"changes",return_value=([{"path":"x","contents":"eA=="}],[])), \
              mock.patch.object(publisher,"run",side_effect=fake):
-            result=publisher.main(["--branch","automation/x","--title","fix: x","--base","main","--base-sha",BASE,"x"])
+            result=publisher.main(["--branch","automation/x","--title","fix: x","--base","main","--base-sha",BASE,*extra,"x"])
         return result,calls
     def test_verified_signature_allows_pull_request(self):
         result,calls=self.execute({"verified":True,"reason":"valid"})
@@ -117,6 +117,19 @@ class PublisherTest(unittest.TestCase):
                 self.execute({"verified":True,"reason":"valid"},pr_error="unrelated service error",
                              env={"GITHUB_STEP_SUMMARY":str(summary)})
             self.assertFalse(summary.exists())
+    def test_ring0_opener_publishes_verified_commit_without_touching_pull_requests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            summary=Path(tmp)/"summary.md"
+            result,calls=self.execute({"verified":True,"reason":"valid"},extra=("--pr-opener","ring-0"),
+                                      env={"GITHUB_STEP_SUMMARY":str(summary)})
+            text=summary.read_text()
+        self.assertEqual(result,0)
+        self.assertFalse(any(a[:2]==("gh","pr") for a,_ in calls))
+        self.assertTrue(any(p and "CreateCommitOnBranchInput" in p["query"] for _,p in calls))
+        self.assertIn(f"Verified commit `{OID}` is on `automation/x`",text)
+    def test_ring0_opener_still_requires_a_verified_commit(self):
+        with self.assertRaisesRegex(RuntimeError,"did not verify"):
+            self.execute({"verified":False,"reason":"unsigned"},extra=("--pr-opener","ring-0"))
 
 if __name__=="__main__":
     unittest.main()
