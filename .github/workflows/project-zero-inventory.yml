@@ -6,9 +6,10 @@ on:
     paths-ignore:
       - "project-zero/inventory/current/**"
 
+# The catylist-ring-0 sweep opens the pull request (Catylist ADR-0012),
+# so this workflow needs no pull-request access.
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   inventory:
@@ -75,4 +76,5 @@ jobs:
           python3 .github/scripts/publish_signed_pr.py \
             --branch automation/project-zero-inventory \
             --title "chore: update Project Zero inventory" \
+            --pr-opener ring-0 \
             project-zero/inventory/current

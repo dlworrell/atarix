@@ -75,6 +75,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--body",default="")
     parser.add_argument("--base",default=os.environ.get("GITHUB_REF_NAME","main"))
     parser.add_argument("--base-sha",default=os.environ.get("GITHUB_SHA"))
+    parser.add_argument("--pr-opener",choices=("self","ring-0"),default="self",
+                        help="ring-0: leave opening the pull request to the catylist-ring-0 sweep (Catylist ADR-0012)")
     parser.add_argument("paths",nargs="+")
     args=parser.parse_args(argv)
     repo=os.environ["GITHUB_REPOSITORY"]
@@ -107,6 +109,11 @@ def main(argv: list[str] | None = None) -> int:
     commit=result["data"]["createCommitOnBranch"]["commit"]
     verify_commit(repo,commit["oid"],args.base_sha)
     print(f"Verified commit {commit['oid']} on {args.branch}: {len(additions)} added or changed, {len(deletions)} deleted")
+    if args.pr_opener=="ring-0":
+        print(f"Pull request left to ring-0: it opens one for {args.branch} within its next sweep.")
+        summarize(f"### Verified commit published\n\nVerified commit `{commit['oid']}` is on `{args.branch}`. "
+                  "The catylist-ring-0 sweep opens the pull request within 30 minutes (Catylist ADR-0012).")
+        return 0
     existing=json.loads(run("gh","pr","list","--repo",repo,"--head",args.branch,"--base",args.base,
                             "--state","open","--json","url") or "[]")
     if existing:
