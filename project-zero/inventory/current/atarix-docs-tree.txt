@@ -98,6 +98,10 @@ docs/engineering/Documentation-Taxonomy-and-Style-Guide.md
 docs/engineering/Engineering-Gate.md
 docs/engineering/SECURE-C-CXX.md
 docs/engineering/closure-development-cycle.md
+docs/engineering/fitment-branch-retention.md
+docs/engineering/reports/document-authority-census.json
+docs/engineering/reports/document-authority-census.md
+docs/engineering/reports/publisher-pr-publication-2026-10-26.md
 docs/evidence/atx-bib-001/emulator-capture-v1.txt
 docs/fabric-controller-architecture-v1.md
 docs/fabric-service-model-v1.md
