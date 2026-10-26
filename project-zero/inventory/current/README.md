@@ -1,9 +1,9 @@
 # Atarix Project Zero Inventory Summary
 
-Generated: 2026-10-26T19:32:31Z
-Source commit: 199a24245094117a7f777974b5e2807f272e4ed8
+Generated: 2026-10-26T20:57:29Z
+Source commit: 4057a76ec7e8460f93414e9bb72d4f91a04516e8
 Workflow: Project Zero Inventory
-Run: https://github.com/dlworrell/atarix/actions/runs/40387625697
+Run: https://github.com/dlworrell/atarix/actions/runs/40400205719
 
 ## Counts
 
