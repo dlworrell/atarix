@@ -1,0 +1,42 @@
+name: Diagnose signed PR publication
+on:
+  push:
+    branches: [diagnostic/atarix-pr-publication-20261025]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  diagnose:
+    if: github.actor == 'dlworrell'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Verify existing commit and report exact PR API failure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, sys
+          repo = "dlworrell/atarix"
+          branch = "automation/project-zero-inventory"
+          oid = "2aae75e714eef5cc7d4cf428e8494c2590e65231"
+          def gh(*args):
+              p = subprocess.run(["gh", *args], text=True, capture_output=True)
+              print(json.dumps({"operation": list(args[:2]), "returncode": p.returncode, "stdout": p.stdout, "stderr": p.stderr}), flush=True)
+              return p
+          c = gh("api", f"repos/{repo}/commits/{oid}")
+          c.check_returncode()
+          data = json.loads(c.stdout)
+          assert data["sha"] == oid and data["commit"]["verification"]["verified"] is True and data["commit"]["verification"]["reason"] == "valid"
+          h = gh("api", f"repos/{repo}/git/ref/heads/{branch}")
+          h.check_returncode()
+          assert json.loads(h.stdout)["object"]["sha"] == oid
+          r = gh("pr", "list", "--repo", repo, "--head", branch, "--base", "main", "--state", "open", "--json", "url")
+          r.check_returncode()
+          if json.loads(r.stdout):
+              print("Existing PR found; no duplicate created.")
+              sys.exit(0)
+          p = gh("pr", "create", "--repo", repo, "--head", branch, "--base", "main", "--title", "chore: update Project Zero inventory", "--body", "Retains the four inventory artifacts already produced by run 40248589256. Exact signed head: " + oid)
+          print("PR_CREATE_DIAGNOSTIC_RETURN_CODE=" + str(p.returncode), flush=True)
+          PY
