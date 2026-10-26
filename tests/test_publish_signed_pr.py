@@ -13,11 +13,13 @@ spec.loader.exec_module(publisher)
 OID="f"*40
 BASE="a"*40
 class PublisherTest(unittest.TestCase):
-    def execute(self,verification=None,parents=None,old=None,lease_error=False,event="workflow_dispatch",default="main"):
+    def execute(self,verification=None,parents=None,old=None,lease_error=False,event="workflow_dispatch",default="main",pr_error=None):
         calls=[]
         def fake(*args,stdin=None):
             calls.append((args,json.loads(stdin) if stdin else None))
-            if args[:3]==("gh","pr","create"): return "https://example.invalid/pr/1"
+            if args[:3]==("gh","pr","create"):
+                if pr_error: raise RuntimeError(pr_error)
+                return "https://example.invalid/pr/1"
             if args[:3]==("gh","pr","list"): return "[]"
             endpoint=args[2]
             if endpoint=="repos/o/r": return json.dumps({"node_id":"REPO","default_branch":default})
@@ -62,6 +64,22 @@ class PublisherTest(unittest.TestCase):
             self.execute(event="pull_request_target")
         with self.assertRaisesRegex(RuntimeError,"Default branch"):
             self.execute(default="automation/x")
+    def test_command_error_retains_stderr_and_failure(self):
+        error=subprocess.CalledProcessError(1,("gh","pr","create"),stderr="GraphQL: specific policy refusal\n")
+        with mock.patch.object(publisher.subprocess,"run",side_effect=error):
+            with self.assertRaisesRegex(RuntimeError,"exit 1.*specific policy refusal"):
+                publisher.run("gh","pr","create")
+    def test_disabled_actions_policy_identifies_the_retained_verified_commit(self):
+        error="GitHub Actions is not permitted to create or approve pull requests (createPullRequest)"
+        with self.assertRaises(RuntimeError) as failure:
+            self.execute({"verified":True,"reason":"valid"},pr_error=error)
+        message=str(failure.exception)
+        self.assertIn(f"Verified commit {OID} is retained on automation/x",message)
+        self.assertIn("repository Actions policy",message)
+        self.assertIn(error,message)
+    def test_other_pr_errors_remain_failures(self):
+        with self.assertRaisesRegex(RuntimeError,"unrelated service error"):
+            self.execute({"verified":True,"reason":"valid"},pr_error="unrelated service error")
 
 if __name__=="__main__":
     unittest.main()
