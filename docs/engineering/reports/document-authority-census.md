@@ -2,7 +2,7 @@
 
 - Schema: `catalyst.atarix.document-authority-census.v2`
 - Repository: `dlworrell/atarix`
-- Documents found: `173`
+- Documents found: `175`
 - Placement violations: `0`
 - Strict authority check passed: `True`
 
@@ -111,6 +111,8 @@
 | `docs/engineering/Engineering-Gate.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/engineering/SECURE-C-CXX.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/engineering/closure-development-cycle.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `docs/engineering/fitment-branch-retention.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `docs/engineering/reports/publisher-pr-publication-2026-10-26.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/evidence/atx-bib-001/emulator-capture-v1.txt` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/fabric-controller-architecture-v1.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/fabric-service-model-v1.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
