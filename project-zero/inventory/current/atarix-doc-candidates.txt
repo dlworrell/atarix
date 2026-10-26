@@ -11,7 +11,9 @@
 .github/workflows/create-engineering-tag.yml
 .github/workflows/document-authority-census.yml
 .github/workflows/engineering-gate.yml
+.github/workflows/integration-branches.yml
 .github/workflows/project-zero-inventory.yml
+.github/workflows/release.yml
 .github/workflows/rtl-atx-spec-020.yml
 README.md
 docs/ADR-DISCOVERABLE-OBSERVABLE-TESTABLE-INSTRUMENTABLE-RECOVERABLE.md
@@ -114,6 +116,10 @@ docs/engineering/Documentation-Taxonomy-and-Style-Guide.md
 docs/engineering/Engineering-Gate.md
 docs/engineering/SECURE-C-CXX.md
 docs/engineering/closure-development-cycle.md
+docs/engineering/fitment-branch-retention.md
+docs/engineering/reports/document-authority-census.json
+docs/engineering/reports/document-authority-census.md
+docs/engineering/reports/publisher-pr-publication-2026-10-26.md
 docs/evidence/atx-bib-001/emulator-capture-v1.txt
 docs/fabric-controller-architecture-v1.md
 docs/fabric-service-model-v1.md
@@ -168,6 +174,10 @@ docs/ulx3s-backplane-controller.md
 docs/vega816-analysis.md
 docs/verification/ATX-SPEC-020-rtl-ci.md
 include/atarix/README.md
+project-zero/inventory/current/README.md
+project-zero/inventory/current/atarix-doc-candidates.txt
+project-zero/inventory/current/atarix-docs-tree.txt
+project-zero/inventory/current/atarix-full-tree.txt
 rtl/atarix/README.md
 sim/README.md
 sim/common/README.md
