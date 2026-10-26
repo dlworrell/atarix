@@ -7,7 +7,9 @@ on:
       - "project-zero/inventory/current/**"
 
 # The catylist-ring-0 sweep opens the pull request (Catylist ADR-0012),
-# so this workflow needs no pull-request access.
+# so this workflow needs no pull-request access. Reports are generated from
+# dev-daily and proposed into it (Catylist ADR-0013), so they are promoted
+# and reviewed with everything else.
 permissions:
   contents: write
 
@@ -69,7 +71,7 @@ jobs:
       - name: Propose inventory update as a verified pull request
         # ADR-0006: no direct pushes to main; automation commits must be verified.
         # Other branches keep the inventory as an artifact only.
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/dev-daily'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
