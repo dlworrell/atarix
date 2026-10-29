@@ -2,7 +2,7 @@
 
 - Schema: `catalyst.atarix.document-authority-census.v2`
 - Repository: `dlworrell/atarix`
-- Documents found: `175`
+- Documents found: `177`
 - Placement violations: `0`
 - Strict authority check passed: `True`
 
@@ -11,6 +11,7 @@
 | Path | Location | Placement | Violation | Canonical owner | Reason |
 |---|---|---|---:|---|---|
 | `.github/pull_request_template.md` | `.github` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `CODE_OF_CONDUCT.md` | `repository-root` | `canonical` | `False` | `Atarix` | Approved repository-root project document. |
 | `README.md` | `repository-root` | `canonical` | `False` | `Atarix` | Approved repository-root project document. |
 | `docs/ADR-DISCOVERABLE-OBSERVABLE-TESTABLE-INSTRUMENTABLE-RECOVERABLE.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/ADR-IDENTITY-TRUST-CAPABILITY-SEPARATION.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
@@ -18,6 +19,7 @@
 | `docs/ADR-THREE-FABRIC-ARCHITECTURE.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/abi-v1.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/address-space-architecture.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `docs/adr/ADR-0000-catylist-code-of-conduct.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-0001-fabric-centric-architecture.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-0001-ulx3s-selection.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-0002-rp2350-selection.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |

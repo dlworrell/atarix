@@ -6,7 +6,16 @@
       "path": ".github/pull_request_template.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3258,
+      "size_bytes": 3351,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "repository-root",
+      "path": "CODE_OF_CONDUCT.md",
+      "placement": "canonical",
+      "reason": "Approved repository-root project document.",
+      "size_bytes": 1889,
       "violation": false
     },
     {
@@ -70,6 +79,15 @@
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
       "size_bytes": 9609,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0000-catylist-code-of-conduct.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 1159,
       "violation": false
     },
     {
@@ -204,7 +222,7 @@
       "path": "docs/adr/README.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 428,
+      "size_bytes": 543,
       "violation": false
     },
     {
@@ -1580,20 +1598,20 @@
   "root": "/home/runner/work/atarix/atarix",
   "schema": "catalyst.atarix.document-authority-census.v2",
   "summary": {
-    "document_count": 175,
+    "document_count": 177,
     "locations": {
       ".github": 1,
-      "docs": 154,
+      "docs": 155,
       "include": 1,
       "project-zero": 4,
-      "repository-root": 1,
+      "repository-root": 2,
       "rtl": 1,
       "sim": 6,
       "src": 5,
       "tests": 2
     },
     "placements": {
-      "canonical": 156,
+      "canonical": 158,
       "colocated": 19
     },
     "strict_passed": true,
