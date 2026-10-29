@@ -17,6 +17,7 @@
 .github/workflows/project-zero-inventory.yml
 .github/workflows/release.yml
 .github/workflows/rtl-atx-spec-020.yml
+CODE_OF_CONDUCT.md
 Makefile
 Makefile.am
 README.md
@@ -28,6 +29,7 @@ docs/ADR-RING-SECURITY-MODEL.md
 docs/ADR-THREE-FABRIC-ARCHITECTURE.md
 docs/abi-v1.md
 docs/address-space-architecture.md
+docs/adr/ADR-0000-catylist-code-of-conduct.md
 docs/adr/ADR-0001-fabric-centric-architecture.md
 docs/adr/ADR-0001-ulx3s-selection.md
 docs/adr/ADR-0002-rp2350-selection.md
