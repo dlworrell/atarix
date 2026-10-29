@@ -1446,7 +1446,7 @@
       "path": "project-zero/inventory/current/atarix-doc-candidates.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 7637,
+      "size_bytes": 7702,
       "violation": false
     },
     {
@@ -1455,7 +1455,7 @@
       "path": "project-zero/inventory/current/atarix-docs-tree.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 6379,
+      "size_bytes": 6425,
       "violation": false
     },
     {
@@ -1464,7 +1464,7 @@
       "path": "project-zero/inventory/current/atarix-full-tree.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 11889,
+      "size_bytes": 11954,
       "violation": false
     },
     {
