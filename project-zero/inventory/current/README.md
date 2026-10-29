@@ -1,15 +1,15 @@
 # Atarix Project Zero Inventory Summary
 
-Generated: 2026-10-26T20:57:29Z
-Source commit: 4057a76ec7e8460f93414e9bb72d4f91a04516e8
+Generated: 2026-10-29T04:24:28Z
+Source commit: 19447204d561f7d29a55f4b03e6c8aff7a2fc49b
 Workflow: Project Zero Inventory
-Run: https://github.com/dlworrell/atarix/actions/runs/40400205719
+Run: https://github.com/dlworrell/atarix/actions/runs/40817551842
 
 ## Counts
 
-- Full tracked file count: 323
-- Documentation candidate count: 195
-- docs/ tracked file count: 157
+- Full tracked file count: 325
+- Documentation candidate count: 197
+- docs/ tracked file count: 158
 
 ## Outputs
 
