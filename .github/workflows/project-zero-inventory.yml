@@ -41,12 +41,14 @@ jobs:
           git ls-files 'docs/**' | sort > project-zero/inventory/current/atarix-docs-tree.txt
 
           {
+            # Only content that changes with the tracked tree goes in the
+            # committed summary. A timestamp, commit or run link here made
+            # every push propose a new pull request (and a census update in
+            # turn) even when no file was added or removed; those details
+            # are in the run log and the uploaded artifact instead.
             echo "# Atarix Project Zero Inventory Summary"
             echo
-            echo "Generated: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-            echo "Source commit: ${GITHUB_SHA}"
             echo "Workflow: ${GITHUB_WORKFLOW}"
-            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo
             echo "## Counts"
             echo
@@ -60,6 +62,10 @@ jobs:
             echo "- atarix-doc-candidates.txt"
             echo "- atarix-docs-tree.txt"
           } > project-zero/inventory/current/README.md
+
+      - name: Record the source of this inventory
+        run: |
+          echo "Inventory of ${GITHUB_SHA}, generated $(date -u +'%Y-%m-%dT%H:%M:%SZ')." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload inventory artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
