@@ -1,7 +1,8 @@
 # ADR: SQLite as the AEMS Engineering Evidence Index
 
-Status: Proposed
+Status: Accepted (direction only; rollout gated)
 Date: 2026-10-18
+Acceptance: accepted by Donovan Worrell on 2026-11-01, as owner decision, by merging this status change. Acceptance adopts SQLite as a disposable, rebuildable evidence index. It meets none of the criteria below; they now gate implementation and rollout, and the index never becomes authoritative.
 Owner: ATARIX
 Review: Catylist governance issue #34; AES engineering-criteria review requested
 Related: ATX-SPEC-090, ATX-SPEC-092, ATARIX issue #56
@@ -38,7 +39,9 @@ Treat imported repository metadata, CI outputs, JSON and artifact paths as untru
 ## Recovery and migration
 Version the database schema; test upgrades, failures, and compatibility. Support deterministic full reconstruction from retained authoritative sources, idempotent imports, interrupted transaction recovery, integrity checks, WAL-safe backups and restores, and reconciliation that flags missing or contradictory evidence. Do not silently downgrade verification or remove historical audit records.
 
-## Acceptance criteria before acceptance or rollout
+## Criteria before implementation and rollout
+
+The owner accepted the direction on 2026-11-01 before these criteria were met. Each criterion must still be met, in reviewable PRs, before the index is built or relied on.
 - Reviewed schema with key, index, foreign-key and migration definitions.
 - Representative benchmark for historical commits, requirements and CI records.
 - Repeatable rebuild from Git, manifests and retained evidence, with consistent query results.
