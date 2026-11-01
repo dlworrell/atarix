@@ -36,3 +36,7 @@ AEMS v0.1 does not own GitHub Projects synchronization, release publication, or 
 ## Relationship To ATX-100
 
 AEMS supports ATX-100 by generating document maps, dependency graphs, traceability matrices, and release evidence appendices.
+
+## Related decision: evidence index
+
+[ADR-AEMS-SQLite-Evidence-Index](ADR-AEMS-SQLite-Evidence-Index.md) was accepted on 2026-11-01 as direction only. It adopts SQLite as a disposable, rebuildable query index over retained evidence. Git history, manifests and retained CI evidence stay authoritative. Nothing in this specification depends on the index until the ADR's criteria are met.
