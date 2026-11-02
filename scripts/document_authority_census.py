@@ -12,6 +12,8 @@ Both JSON and Markdown reports are deterministic and suitable for CI evidence.
 
 from __future__ import annotations
 
+import re
+
 import argparse
 import json
 from dataclasses import asdict, dataclass
@@ -48,6 +50,9 @@ COLOCATED_README_ROOTS = {"include", "rtl", "sim", "src", "tests"}
 COLOCATED_PREFIXES = (
     "project-zero/inventory/current/",
 )
+
+# REUSE keeps one plain-text license per SPDX identifier directly under LICENSES/.
+REUSE_LICENSE_TEXT = re.compile(r"LICENSES/[A-Za-z0-9][A-Za-z0-9.+-]*\.txt")
 
 FORBIDDEN_PATHS = {
     "project-zero/README.md": "Moved to docs/roadmap/atarix-project-zero-inventory.md.",
@@ -124,6 +129,9 @@ def classify_placement(relative: Path) -> tuple[str, bool, str, str]:
         if path in APPROVED_ROOT_DOCUMENTS:
             return "canonical", False, "Atarix", "Approved repository-root project document."
         return "violation", True, "Atarix", "Unapproved repository-root documentation file."
+
+    if REUSE_LICENSE_TEXT.fullmatch(path):
+        return "canonical", False, "Atarix", "REUSE license text, one file per SPDX identifier under LICENSES/."
 
     root = relative.parts[0]
     if root in {"docs", ".github"}:

@@ -25,6 +25,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Test the census placement rules
+        run: python3 -m unittest discover -s tests -p 'test_document_authority_census.py' -v
+
       - name: Generate full-tree census
         run: |
           mkdir -p docs/engineering/reports
