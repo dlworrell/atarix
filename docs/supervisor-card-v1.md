@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:562a0eec-b5db-4bf1-b8f2-d704c8ce56c5
+-->
+
 # ATARIX Supervisor Card Architecture v1
 
 ## Status

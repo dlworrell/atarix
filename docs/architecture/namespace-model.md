@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:53756892-553b-4bc6-8cd1-2ccd097279ee
+-->
+
 # Atarix Namespace Model
 
 ## Purpose

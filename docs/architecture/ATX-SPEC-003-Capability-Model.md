@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:a9a232a7-e9d3-4869-9068-7f2f09b85a1b
+-->
+
 # ATX-SPEC-003 Capability Model
 
 ## Status

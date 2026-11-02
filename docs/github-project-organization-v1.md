@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:b7df057e-fb75-43f8-9809-efc2689772cc
+-->
+
 # GitHub Project Organization v1
 
 Status: Accepted

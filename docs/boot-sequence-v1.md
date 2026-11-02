@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:15b9b3f4-91f6-454e-9ba7-a170b3676a03
+-->
+
 # ATARIX Boot Sequence v1
 
 ## Status

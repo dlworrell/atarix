@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:ceacf04a-f202-41a6-b78e-51970ebaebe8
+-->
+
 # ATARIX Boot Information Block v1
 
 Status: Draft specification  

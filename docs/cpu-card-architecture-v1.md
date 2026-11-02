@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:14fd1fa6-d069-42fa-b694-e53f8a808ab2
+-->
+
 # ATARIX CPU Card Architecture v1
 
 ## Status

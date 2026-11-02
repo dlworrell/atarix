@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:44541a56-b431-4ca0-b9f1-b60a607d88c7
+-->
+
 # ATX-SPEC-013 Policy Model
 
 ## Status

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:e0c6c165-7b45-4a2e-b7b4-33e756e0161b
+-->
+
 # ATARIX Memory Map
 
 ## Purpose

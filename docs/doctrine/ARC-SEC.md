@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:60fc217c-dbf4-4383-adad-c62635899793
+-->
+
 # Atarix Security Doctrine
 
 ## Status

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1feb131f-9052-41c3-bb68-fd34cf519340
+-->
+
 # ATARIX ABI v1
 
 ## Purpose

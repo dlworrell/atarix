@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d67aa101-4cb7-4d40-8f3e-9dfdd0b44c27
+-->
+
 # ATARIX Architecture Design Document
 
 ## Purpose

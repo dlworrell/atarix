@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2e022ed8-2d91-482e-a574-a215bc0cc90e
+-->
+
 # ATARIX Data Model and Endianness
 
 ## Status

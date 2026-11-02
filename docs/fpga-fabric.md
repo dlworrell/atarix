@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:9f4f51bb-d850-484c-b325-6d8cc00b0ea9
+-->
+
 # ATARIX FPGA Fabric Architecture
 
 ## Purpose

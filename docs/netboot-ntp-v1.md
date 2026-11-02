@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:29c3855d-da39-4d8e-93b2-a177e4a53e71
+-->
+
 # ATARIX Netboot and NTP Boot Services v1
 
 ## Status

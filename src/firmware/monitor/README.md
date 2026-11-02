@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d1e156a6-3c35-49d8-81c9-f4e160a0d21a
+-->
+
 # ATARIX ROM Monitor
 
 This directory will contain the first ATARIX ROM monitor implementation.

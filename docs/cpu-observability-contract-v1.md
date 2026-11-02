@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:12e3837d-e913-45a9-aab4-0c52ec0f04a6
+-->
+
 # CPU Observability Contract v1
 
 Status: Draft v1

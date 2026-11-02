@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:641d414d-aff6-4ea0-87ce-5f2bbf2dc9fc
+-->
+
 # Simulator Tests
 
 Simulator tests will validate virtual ATARIX node behavior under CI.

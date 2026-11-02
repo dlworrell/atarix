@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:fa1a363a-6efc-45b9-a463-ebb7dd7999b7
+-->
+
 # ATARIX Design Rationale History v1
 
 ## Purpose

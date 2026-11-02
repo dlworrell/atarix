@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:4e2897c4-1b27-4601-8b1e-1e8a9d37e5d0
+-->
+
 # ATARIX DMA Engine v1
 
 ## Status

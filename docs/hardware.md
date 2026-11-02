@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:5140f444-b1e2-4b3e-8cac-cc38d2c929f1
+-->
+
 # ATARIX Hardware Architecture
 
 ## Overview

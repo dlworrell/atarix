@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:4613fd41-f1ee-4cc9-b861-3b5b75dba1b1
+-->
+
 # Resource Type Registry v1
 
 Status: Draft v1

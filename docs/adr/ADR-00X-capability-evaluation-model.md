@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2acb680c-6d39-459f-8cc2-f50056c25d5d
+-->
+
 # ADR-00X: Capability Evaluation Model
 
 Status: Accepted

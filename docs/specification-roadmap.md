@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:dba28c62-f1fa-4487-b1de-ac70cbb23e3d
+-->
+
 # ATARIX Specification Roadmap
 
 ## Purpose

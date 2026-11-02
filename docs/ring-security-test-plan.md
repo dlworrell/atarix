@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c0915fda-5ec8-403f-a333-e82b70a3701b
+-->
+
 # ATARIX Ring Security Test Plan
 
 Status: Planned

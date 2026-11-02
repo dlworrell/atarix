@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:47849e48-b891-4d70-bfd3-a89d3ed8385e
+-->
+
 # ATARIX System Specification v1
 
 ## Status

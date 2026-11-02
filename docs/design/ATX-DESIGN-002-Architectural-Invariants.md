@@ -7,6 +7,12 @@ lifecycle: Draft
 version: 0.1
 canonical_owner: ATX-100
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:487b7828-1095-4c12-8aaf-8caf3a9097e1
+-->
+
 
 # ATX-DESIGN-002: Architectural Invariants
 

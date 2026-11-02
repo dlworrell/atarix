@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2a755676-da4e-4afb-a144-7169613c6bc1
+-->
+
 # Trust Model v1
 
 Status: Draft v1

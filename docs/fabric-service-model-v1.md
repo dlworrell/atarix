@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:ceba6153-6a03-4180-9609-bf7c0317897a
+-->
+
 # Fabric Service Model v1
 
 ## Purpose

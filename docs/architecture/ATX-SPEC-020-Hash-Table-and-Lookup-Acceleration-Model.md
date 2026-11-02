@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:eb22ea17-0e87-4573-a0da-93fb4bb92c14
+-->
+
 # ATX-SPEC-020 Hash Table and Lookup Acceleration Model
 
 ## Status

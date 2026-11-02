@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:a7053029-c944-4ad7-8f71-c5ffbf6c1611
+-->
+
 # ATARIX Reference Fixtures
 
 This directory is reserved for canonical binary conformance fixtures.

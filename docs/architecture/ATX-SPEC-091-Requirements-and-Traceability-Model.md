@@ -7,6 +7,12 @@ lifecycle: Draft
 version: 0.1
 canonical_owner: ATX-100
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:5fb7b69c-394d-4d5d-83dd-88c180ac2c6b
+-->
+
 
 # ATX-SPEC-091: Requirements and Traceability Model
 

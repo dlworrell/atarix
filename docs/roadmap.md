@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:a12190f6-9903-4a69-8467-16e84221ed90
+-->
+
 # ATARIX Roadmap
 
 ## Phase 1 - Rev A

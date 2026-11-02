@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:f77a0659-71d6-4e36-a1b7-9e9145befe9a
+-->
+
 # Hardware Bench Validation Plan v1
 
 Status: Draft

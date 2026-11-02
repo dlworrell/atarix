@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:522e3dc8-b9d7-45b5-b1f3-a0c3ae82d1b5
+-->
+
 # ADR-0001 Fabric-Centric Architecture
 
 Status: Accepted

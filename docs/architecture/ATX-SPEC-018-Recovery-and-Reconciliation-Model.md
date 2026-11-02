@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:254134d3-e233-4c60-ba8f-3b1dc07a7788
+-->
+
 # ATX-SPEC-018 Recovery and Reconciliation Model
 
 ## Status

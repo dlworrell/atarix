@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d15f91fa-4cb1-4118-a704-96f4f272bc75
+-->
+
 # ATX-SPEC-011 Error Model
 
 ## Status

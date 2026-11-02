@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:f4706c07-d306-4b42-b56b-d987202717c2
+-->
+
 # CPU-Local DMA Memory Architecture v1
 
 ## Purpose

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:365f3bc9-7a8d-4edc-add1-82db51d7a9fd
+-->
+
 # ATARIX Security Architecture
 
 ## Status
