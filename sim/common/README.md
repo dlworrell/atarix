@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:b42c0f7d-1699-4193-a783-785aaba51518
+-->
+
 # Simulator Common
 
 Shared simulator definitions live here.

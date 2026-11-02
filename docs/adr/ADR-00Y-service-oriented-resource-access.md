@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:33f65459-ec4b-42a9-8105-b55d85cc0673
+-->
+
 # ADR-00Y: Service-Oriented Resource Access
 
 Status: Accepted

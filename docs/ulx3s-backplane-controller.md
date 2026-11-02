@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:9e227a1c-ae3e-4fdf-9a96-ae4464d95b18
+-->
+
 # ULX3S Backplane Fabric Controller
 
 ## Status

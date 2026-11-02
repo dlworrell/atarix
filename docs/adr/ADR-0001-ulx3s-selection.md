@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:5445bcc3-d5ec-41b0-8f7c-cad4a2332f3d
+-->
+
 # ADR-0001: ULX3S LFE5U-85F Selection
 
 Status: Accepted

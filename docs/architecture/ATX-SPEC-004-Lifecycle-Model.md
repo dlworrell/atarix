@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1962fc61-5912-4fb2-9ace-5ca214da574a
+-->
+
 # ATX-SPEC-004 Lifecycle Model
 
 ## Status

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7a39e1ce-175e-4bec-893b-1b5502fa85db
+-->
+
 # Discovery ROM Format v1
 
 Status: Draft v1

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d0aa3d67-ee79-4738-be5e-3ccac1560b30
+-->
+
 # Atarix Project Zero Inventory
 
 Status: Historical operational record

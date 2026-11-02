@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:e1263728-64a2-4bcd-b1d9-732e4aa3dbd7
+-->
+
 # ATARIX Service Model
 
 Status: Baseline

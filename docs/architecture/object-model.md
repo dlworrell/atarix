@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7f7b9d56-60f1-4cd2-ac7c-a53fe5ec7762
+-->
+
 # Atarix Object Model
 
 ## Purpose

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:46660e3e-875c-446f-a743-ef7917de3f52
+-->
+
 # ATARIX Backplane Specification
 
 ## Purpose

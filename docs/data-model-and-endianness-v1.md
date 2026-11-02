@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:a96a31ea-4df6-43d7-8a5b-edf8ff3f1eb2
+-->
+
 # Data Model and Endianness v1
 
 ## Purpose

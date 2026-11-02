@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:986c5823-c952-4840-80a9-aa994403ad75
+-->
+
 # Atarix Architectural Pillars
 
 ## Purpose

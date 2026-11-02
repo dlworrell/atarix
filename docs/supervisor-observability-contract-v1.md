@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1a347cc2-14bd-4056-ba2c-35c6f4658333
+-->
+
 # Supervisor Observability Contract v1
 
 ## Purpose

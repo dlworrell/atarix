@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:ea77d22f-6b3b-4531-b890-70c0caf3643d
+-->
+
 # ATARIX Closure-Based Development Cycle
 
 Status: Draft

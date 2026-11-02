@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:f170f5f7-8c49-4394-873b-8cef3c74c8a5
+-->
+
 # FPGA Instrumentation and Testbench Services v1
 
 ## Purpose

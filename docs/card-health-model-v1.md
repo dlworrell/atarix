@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7fa5341c-d27c-41ca-9857-b8c245ebe1f1
+-->
+
 # Card Health Model v1
 
 Status: Draft v1

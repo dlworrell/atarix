@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:23dd56c2-cd3e-4ab6-a8f4-1cde46bf546a
+-->
+
 # ATARIX Mailbox Protocol v1
 
 Status: Baseline

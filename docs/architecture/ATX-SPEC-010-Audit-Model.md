@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d5ebc9df-9124-4a11-8a6c-57ee051ce5ff
+-->
+
 # ATX-SPEC-010 Audit Model
 
 ## Status

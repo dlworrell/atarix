@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:11d20a1d-80d9-4103-a8df-eae82c37e8bb
+-->
+
 # Fabric Controller Architecture v1
 
 ## Purpose

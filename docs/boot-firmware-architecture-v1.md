@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1a8f9cff-883e-41c7-a975-272315c34642
+-->
+
 # Boot Firmware and BIOS Architecture v1
 
 ## Purpose

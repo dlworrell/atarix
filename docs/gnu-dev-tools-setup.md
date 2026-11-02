@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c7d4874b-1d37-4758-a940-e8bb2d6d4d07
+-->
+
 # GNU Development Tools Setup
 
 Status: Draft v1

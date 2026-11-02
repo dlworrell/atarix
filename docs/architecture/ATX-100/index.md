@@ -13,6 +13,12 @@ related:
   - ATX-SPEC-090
   - ATX-SPEC-091
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:6b10e500-ea41-4153-82f0-47f6c68406ba
+-->
+
 
 # ATX-100: Atarix System Architecture
 

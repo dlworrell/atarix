@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:58ac45fc-3a1d-4ebf-8fb3-cf4dde095d6b
+-->
+
 # ATARIX Core Doctrines
 
 Status: Baseline

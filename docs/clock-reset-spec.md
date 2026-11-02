@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:3049c3c8-6a5f-480a-a55e-46102aeb6308
+-->
+
 # ATARIX Clock and Reset Specification
 
 ## Status

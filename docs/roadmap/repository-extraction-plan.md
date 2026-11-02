@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:b17bc35d-b6fe-46af-84a4-c97b73897dd0
+-->
+
 # Repository Extraction Plan
 
 Status: Superseded transitional plan

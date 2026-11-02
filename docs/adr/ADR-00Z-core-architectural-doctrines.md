@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:79bad607-21e0-4ac0-ae8a-462af74dc853
+-->
+
 # ADR-00Z: Core Architectural Doctrines
 
 Status: Accepted

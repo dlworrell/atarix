@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:203da506-7b87-4655-a8dd-5ad98b4d363e
+-->
+
 # Operation ID Registry v1
 
 Status: Draft v1
