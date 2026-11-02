@@ -7,6 +7,12 @@ lifecycle: Draft
 version: 0.1
 canonical_owner: ATX-100
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2226806c-5b28-46c8-b45a-a40786121238
+-->
+
 
 # ATX-SPEC-090: Atarix Engineering Management System
 
