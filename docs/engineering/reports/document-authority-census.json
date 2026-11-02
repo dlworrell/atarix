@@ -231,7 +231,7 @@
       "path": "docs/architecture/ADR-AEMS-SQLite-Evidence-Index.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6445,
+      "size_bytes": 6941,
       "violation": false
     },
     {
@@ -465,7 +465,7 @@
       "path": "docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1078,
+      "size_bytes": 1465,
       "violation": false
     },
     {
@@ -483,7 +483,7 @@
       "path": "docs/architecture/ATX-SPEC-092-Engineering-Release-and-Configuration-Management.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 10392,
+      "size_bytes": 10779,
       "violation": false
     },
     {

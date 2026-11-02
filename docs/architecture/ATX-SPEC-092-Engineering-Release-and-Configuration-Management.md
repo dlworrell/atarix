@@ -389,3 +389,7 @@ ATX-SPEC-092 v0.1 is ready for implementation review when:
 5. The workflow emits a readable release report.
 6. AEMS recognizes ATX-SPEC-092 in the document graph.
 7. A tracking issue exists for release manifests and release-history persistence.
+
+## Related decision: evidence index
+
+[ADR-AEMS-SQLite-Evidence-Index](ADR-AEMS-SQLite-Evidence-Index.md) was accepted on 2026-11-01 as direction only. It adopts SQLite as a disposable, rebuildable query index over retained evidence. Git history, manifests and retained CI evidence stay authoritative. Nothing in this specification depends on the index until the ADR's criteria are met.
