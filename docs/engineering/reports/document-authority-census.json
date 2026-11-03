@@ -20,11 +20,20 @@
     },
     {
       "canonical_owner": "Atarix",
+      "location": "LICENSES",
+      "path": "LICENSES/Apache-2.0.txt",
+      "placement": "canonical",
+      "reason": "REUSE license text, one file per SPDX identifier under LICENSES/.",
+      "size_bytes": 11357,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
       "location": "repository-root",
       "path": "README.md",
       "placement": "canonical",
       "reason": "Approved repository-root project document.",
-      "size_bytes": 15657,
+      "size_bytes": 15807,
       "violation": false
     },
     {
@@ -33,7 +42,7 @@
       "path": "docs/ADR-DISCOVERABLE-OBSERVABLE-TESTABLE-INSTRUMENTABLE-RECOVERABLE.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4335,
+      "size_bytes": 4485,
       "violation": false
     },
     {
@@ -42,7 +51,7 @@
       "path": "docs/ADR-IDENTITY-TRUST-CAPABILITY-SEPARATION.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2454,
+      "size_bytes": 2604,
       "violation": false
     },
     {
@@ -51,7 +60,7 @@
       "path": "docs/ADR-RING-SECURITY-MODEL.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6287,
+      "size_bytes": 6437,
       "violation": false
     },
     {
@@ -60,7 +69,7 @@
       "path": "docs/ADR-THREE-FABRIC-ARCHITECTURE.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4441,
+      "size_bytes": 4591,
       "violation": false
     },
     {
@@ -69,7 +78,7 @@
       "path": "docs/abi-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3983,
+      "size_bytes": 4133,
       "violation": false
     },
     {
@@ -78,7 +87,7 @@
       "path": "docs/address-space-architecture.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 9609,
+      "size_bytes": 9759,
       "violation": false
     },
     {
@@ -96,7 +105,7 @@
       "path": "docs/adr/ADR-0001-fabric-centric-architecture.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 631,
+      "size_bytes": 781,
       "violation": false
     },
     {
@@ -105,7 +114,7 @@
       "path": "docs/adr/ADR-0001-ulx3s-selection.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 476,
+      "size_bytes": 626,
       "violation": false
     },
     {
@@ -114,7 +123,7 @@
       "path": "docs/adr/ADR-0002-rp2350-selection.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1449,
+      "size_bytes": 1599,
       "violation": false
     },
     {
@@ -123,7 +132,7 @@
       "path": "docs/adr/ADR-0003-local-cpu-bus.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 520,
+      "size_bytes": 670,
       "violation": false
     },
     {
@@ -132,7 +141,7 @@
       "path": "docs/adr/ADR-0009-observability-first.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1043,
+      "size_bytes": 1193,
       "violation": false
     },
     {
@@ -141,7 +150,7 @@
       "path": "docs/adr/ADR-0010-evidence-based-engineering.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 964,
+      "size_bytes": 1114,
       "violation": false
     },
     {
@@ -150,7 +159,7 @@
       "path": "docs/adr/ADR-0011-little-endian-data-model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1339,
+      "size_bytes": 1489,
       "violation": false
     },
     {
@@ -159,7 +168,7 @@
       "path": "docs/adr/ADR-0012-abstraction-and-compatibility.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2010,
+      "size_bytes": 2160,
       "violation": false
     },
     {
@@ -168,7 +177,7 @@
       "path": "docs/adr/ADR-0013-resource-oriented-architecture.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1671,
+      "size_bytes": 1821,
       "violation": false
     },
     {
@@ -177,7 +186,7 @@
       "path": "docs/adr/ADR-0014-testing-and-verification-strategy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1459,
+      "size_bytes": 1609,
       "violation": false
     },
     {
@@ -186,7 +195,7 @@
       "path": "docs/adr/ADR-0015-consume-catylist-aes-aems-authority-chain.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3478,
+      "size_bytes": 3628,
       "violation": false
     },
     {
@@ -195,7 +204,7 @@
       "path": "docs/adr/ADR-00X-capability-evaluation-model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6585,
+      "size_bytes": 6735,
       "violation": false
     },
     {
@@ -204,7 +213,7 @@
       "path": "docs/adr/ADR-00Y-service-oriented-resource-access.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4688,
+      "size_bytes": 4838,
       "violation": false
     },
     {
@@ -213,7 +222,7 @@
       "path": "docs/adr/ADR-00Z-core-architectural-doctrines.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4664,
+      "size_bytes": 4814,
       "violation": false
     },
     {
@@ -222,7 +231,7 @@
       "path": "docs/adr/README.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 543,
+      "size_bytes": 693,
       "violation": false
     },
     {
@@ -231,7 +240,7 @@
       "path": "docs/architecture/ADR-AEMS-SQLite-Evidence-Index.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6941,
+      "size_bytes": 7091,
       "violation": false
     },
     {
@@ -240,7 +249,7 @@
       "path": "docs/architecture/ATX-100/chapters/01-purpose-and-scope.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1640,
+      "size_bytes": 1790,
       "violation": false
     },
     {
@@ -249,7 +258,7 @@
       "path": "docs/architecture/ATX-100/chapters/09-system-layers.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1632,
+      "size_bytes": 1782,
       "violation": false
     },
     {
@@ -258,7 +267,7 @@
       "path": "docs/architecture/ATX-100/chapters/15-lookup-acceleration.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2223,
+      "size_bytes": 2373,
       "violation": false
     },
     {
@@ -267,7 +276,7 @@
       "path": "docs/architecture/ATX-100/chapters/20-aems-and-engineering-gates.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1881,
+      "size_bytes": 2031,
       "violation": false
     },
     {
@@ -276,7 +285,7 @@
       "path": "docs/architecture/ATX-100/index.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3833,
+      "size_bytes": 3983,
       "violation": false
     },
     {
@@ -285,7 +294,7 @@
       "path": "docs/architecture/ATX-SPEC-001-Security-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5597,
+      "size_bytes": 5747,
       "violation": false
     },
     {
@@ -294,7 +303,7 @@
       "path": "docs/architecture/ATX-SPEC-002-Authority-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5162,
+      "size_bytes": 5312,
       "violation": false
     },
     {
@@ -303,7 +312,7 @@
       "path": "docs/architecture/ATX-SPEC-003-Capability-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4268,
+      "size_bytes": 4418,
       "violation": false
     },
     {
@@ -312,7 +321,7 @@
       "path": "docs/architecture/ATX-SPEC-004-Lifecycle-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4504,
+      "size_bytes": 4654,
       "violation": false
     },
     {
@@ -321,7 +330,7 @@
       "path": "docs/architecture/ATX-SPEC-005-Mailbox-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3988,
+      "size_bytes": 4138,
       "violation": false
     },
     {
@@ -330,7 +339,7 @@
       "path": "docs/architecture/ATX-SPEC-006-Object-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4444,
+      "size_bytes": 4594,
       "violation": false
     },
     {
@@ -339,7 +348,7 @@
       "path": "docs/architecture/ATX-SPEC-007-Namespace-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4036,
+      "size_bytes": 4186,
       "violation": false
     },
     {
@@ -348,7 +357,7 @@
       "path": "docs/architecture/ATX-SPEC-008-Directory-Service-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 10480,
+      "size_bytes": 10630,
       "violation": false
     },
     {
@@ -357,7 +366,7 @@
       "path": "docs/architecture/ATX-SPEC-009-Resource-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 11574,
+      "size_bytes": 11724,
       "violation": false
     },
     {
@@ -366,7 +375,7 @@
       "path": "docs/architecture/ATX-SPEC-010-Audit-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 10268,
+      "size_bytes": 10418,
       "violation": false
     },
     {
@@ -375,7 +384,7 @@
       "path": "docs/architecture/ATX-SPEC-011-Error-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 9133,
+      "size_bytes": 9283,
       "violation": false
     },
     {
@@ -384,7 +393,7 @@
       "path": "docs/architecture/ATX-SPEC-013-Policy-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 12353,
+      "size_bytes": 12503,
       "violation": false
     },
     {
@@ -393,7 +402,7 @@
       "path": "docs/architecture/ATX-SPEC-014-Bootstrap-Security-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 12332,
+      "size_bytes": 12482,
       "violation": false
     },
     {
@@ -402,7 +411,7 @@
       "path": "docs/architecture/ATX-SPEC-015-POSIX-Compatibility-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 28319,
+      "size_bytes": 28469,
       "violation": false
     },
     {
@@ -411,7 +420,7 @@
       "path": "docs/architecture/ATX-SPEC-016-Supervisor-Management-Fabric.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 11412,
+      "size_bytes": 11562,
       "violation": false
     },
     {
@@ -420,7 +429,7 @@
       "path": "docs/architecture/ATX-SPEC-018-Recovery-and-Reconciliation-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 11633,
+      "size_bytes": 11783,
       "violation": false
     },
     {
@@ -429,7 +438,7 @@
       "path": "docs/architecture/ATX-SPEC-019-Service-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 11535,
+      "size_bytes": 11685,
       "violation": false
     },
     {
@@ -438,7 +447,7 @@
       "path": "docs/architecture/ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 8273,
+      "size_bytes": 8423,
       "violation": false
     },
     {
@@ -447,7 +456,7 @@
       "path": "docs/architecture/ATX-SPEC-020-Hash-Table-and-Lookup-Acceleration-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 15930,
+      "size_bytes": 16080,
       "violation": false
     },
     {
@@ -456,7 +465,7 @@
       "path": "docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 10352,
+      "size_bytes": 10502,
       "violation": false
     },
     {
@@ -465,7 +474,7 @@
       "path": "docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1465,
+      "size_bytes": 1615,
       "violation": false
     },
     {
@@ -474,7 +483,7 @@
       "path": "docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1184,
+      "size_bytes": 1334,
       "violation": false
     },
     {
@@ -483,7 +492,7 @@
       "path": "docs/architecture/ATX-SPEC-092-Engineering-Release-and-Configuration-Management.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 10779,
+      "size_bytes": 10929,
       "violation": false
     },
     {
@@ -492,7 +501,7 @@
       "path": "docs/architecture/architecture-backlog.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5039,
+      "size_bytes": 5189,
       "violation": false
     },
     {
@@ -501,7 +510,7 @@
       "path": "docs/architecture/architecture-review-checklist.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1248,
+      "size_bytes": 1398,
       "violation": false
     },
     {
@@ -510,7 +519,7 @@
       "path": "docs/architecture/design-principles.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1019,
+      "size_bytes": 1169,
       "violation": false
     },
     {
@@ -519,7 +528,7 @@
       "path": "docs/architecture/directory-service.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1346,
+      "size_bytes": 1496,
       "violation": false
     },
     {
@@ -528,7 +537,7 @@
       "path": "docs/architecture/namespace-model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1341,
+      "size_bytes": 1491,
       "violation": false
     },
     {
@@ -537,7 +546,7 @@
       "path": "docs/architecture/object-model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1642,
+      "size_bytes": 1792,
       "violation": false
     },
     {
@@ -546,7 +555,7 @@
       "path": "docs/architecture/pillars.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 765,
+      "size_bytes": 915,
       "violation": false
     },
     {
@@ -555,7 +564,7 @@
       "path": "docs/backplane-spec.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2373,
+      "size_bytes": 2523,
       "violation": false
     },
     {
@@ -564,7 +573,7 @@
       "path": "docs/bios-api-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 450,
+      "size_bytes": 600,
       "violation": false
     },
     {
@@ -573,7 +582,7 @@
       "path": "docs/boot-firmware-architecture-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4041,
+      "size_bytes": 4191,
       "violation": false
     },
     {
@@ -582,7 +591,7 @@
       "path": "docs/boot-information-block-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 13449,
+      "size_bytes": 13599,
       "violation": false
     },
     {
@@ -591,7 +600,7 @@
       "path": "docs/boot-sequence-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5856,
+      "size_bytes": 6006,
       "violation": false
     },
     {
@@ -600,7 +609,7 @@
       "path": "docs/bus-architecture.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6485,
+      "size_bytes": 6635,
       "violation": false
     },
     {
@@ -609,7 +618,7 @@
       "path": "docs/capability-model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 9288,
+      "size_bytes": 9438,
       "violation": false
     },
     {
@@ -618,7 +627,7 @@
       "path": "docs/capability-record-format-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4551,
+      "size_bytes": 4701,
       "violation": false
     },
     {
@@ -627,7 +636,7 @@
       "path": "docs/card-health-model-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4796,
+      "size_bytes": 4946,
       "violation": false
     },
     {
@@ -636,7 +645,7 @@
       "path": "docs/card-identity-eeprom.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 11425,
+      "size_bytes": 11575,
       "violation": false
     },
     {
@@ -645,7 +654,7 @@
       "path": "docs/clock-reset-spec.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4288,
+      "size_bytes": 4438,
       "violation": false
     },
     {
@@ -654,7 +663,7 @@
       "path": "docs/core-doctrines.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4686,
+      "size_bytes": 4836,
       "violation": false
     },
     {
@@ -663,7 +672,7 @@
       "path": "docs/cpu-card-architecture-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 13020,
+      "size_bytes": 13170,
       "violation": false
     },
     {
@@ -672,7 +681,7 @@
       "path": "docs/cpu-card-spec.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1176,
+      "size_bytes": 1326,
       "violation": false
     },
     {
@@ -681,7 +690,7 @@
       "path": "docs/cpu-local-dma-memory-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4518,
+      "size_bytes": 4668,
       "violation": false
     },
     {
@@ -690,7 +699,7 @@
       "path": "docs/cpu-observability-contract-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3473,
+      "size_bytes": 3623,
       "violation": false
     },
     {
@@ -699,7 +708,7 @@
       "path": "docs/cpu-test-suite-integration-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4381,
+      "size_bytes": 4531,
       "violation": false
     },
     {
@@ -708,7 +717,7 @@
       "path": "docs/data-model-and-endianness-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5028,
+      "size_bytes": 5178,
       "violation": false
     },
     {
@@ -717,7 +726,7 @@
       "path": "docs/data-model-and-endianness.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 9454,
+      "size_bytes": 9604,
       "violation": false
     },
     {
@@ -726,7 +735,7 @@
       "path": "docs/design/ATX-DESIGN-001-Architectural-Philosophy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 774,
+      "size_bytes": 924,
       "violation": false
     },
     {
@@ -735,7 +744,7 @@
       "path": "docs/design/ATX-DESIGN-002-Architectural-Invariants.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 948,
+      "size_bytes": 1098,
       "violation": false
     },
     {
@@ -744,7 +753,7 @@
       "path": "docs/design/ATX-DESIGN-003-Engineering-Principles.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 811,
+      "size_bytes": 961,
       "violation": false
     },
     {
@@ -753,7 +762,7 @@
       "path": "docs/design/ATX-DESIGN-004-Human-Factors-and-Readability.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 882,
+      "size_bytes": 1032,
       "violation": false
     },
     {
@@ -762,7 +771,7 @@
       "path": "docs/design/ATX-DESIGN-005-Evolution-Strategy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 769,
+      "size_bytes": 919,
       "violation": false
     },
     {
@@ -771,7 +780,7 @@
       "path": "docs/design/ATX-DESIGN-006-Performance-Philosophy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 788,
+      "size_bytes": 938,
       "violation": false
     },
     {
@@ -780,7 +789,7 @@
       "path": "docs/design/ATX-DESIGN-007-Security-Philosophy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 810,
+      "size_bytes": 960,
       "violation": false
     },
     {
@@ -789,7 +798,7 @@
       "path": "docs/design-rationale-history-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 11662,
+      "size_bytes": 11812,
       "violation": false
     },
     {
@@ -798,7 +807,7 @@
       "path": "docs/design.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2930,
+      "size_bytes": 3080,
       "violation": false
     },
     {
@@ -807,7 +816,7 @@
       "path": "docs/development-philosophy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1776,
+      "size_bytes": 1926,
       "violation": false
     },
     {
@@ -816,7 +825,7 @@
       "path": "docs/diagnostic-access-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5509,
+      "size_bytes": 5659,
       "violation": false
     },
     {
@@ -825,7 +834,7 @@
       "path": "docs/discovery-rom-and-slot-architecture-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2905,
+      "size_bytes": 3055,
       "violation": false
     },
     {
@@ -834,7 +843,7 @@
       "path": "docs/discovery-rom-format-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 9219,
+      "size_bytes": 9369,
       "violation": false
     },
     {
@@ -843,7 +852,7 @@
       "path": "docs/discovery-rom-format.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6844,
+      "size_bytes": 6994,
       "violation": false
     },
     {
@@ -852,7 +861,7 @@
       "path": "docs/dma-engine-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 8317,
+      "size_bytes": 8467,
       "violation": false
     },
     {
@@ -861,7 +870,7 @@
       "path": "docs/doctrine/ARC-REVIEW.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1638,
+      "size_bytes": 1788,
       "violation": false
     },
     {
@@ -870,7 +879,7 @@
       "path": "docs/doctrine/ARC-SEC.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1651,
+      "size_bytes": 1801,
       "violation": false
     },
     {
@@ -888,7 +897,7 @@
       "path": "docs/engineering/ATARIX-DEV-001-development-principles.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5975,
+      "size_bytes": 6125,
       "violation": false
     },
     {
@@ -897,7 +906,7 @@
       "path": "docs/engineering/Documentation-Taxonomy-and-Style-Guide.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1359,
+      "size_bytes": 1509,
       "violation": false
     },
     {
@@ -906,7 +915,7 @@
       "path": "docs/engineering/Engineering-Gate.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2753,
+      "size_bytes": 2903,
       "violation": false
     },
     {
@@ -924,7 +933,7 @@
       "path": "docs/engineering/closure-development-cycle.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 10280,
+      "size_bytes": 10430,
       "violation": false
     },
     {
@@ -933,7 +942,7 @@
       "path": "docs/engineering/fitment-branch-retention.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4686,
+      "size_bytes": 4836,
       "violation": false
     },
     {
@@ -960,7 +969,7 @@
       "path": "docs/fabric-controller-architecture-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3772,
+      "size_bytes": 3922,
       "violation": false
     },
     {
@@ -969,7 +978,7 @@
       "path": "docs/fabric-service-model-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3247,
+      "size_bytes": 3397,
       "violation": false
     },
     {
@@ -978,7 +987,7 @@
       "path": "docs/fpga-fabric.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1846,
+      "size_bytes": 1996,
       "violation": false
     },
     {
@@ -987,7 +996,7 @@
       "path": "docs/fpga-instrumentation-testbench-services-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5418,
+      "size_bytes": 5568,
       "violation": false
     },
     {
@@ -996,7 +1005,7 @@
       "path": "docs/github-project-organization-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3707,
+      "size_bytes": 3857,
       "violation": false
     },
     {
@@ -1005,7 +1014,7 @@
       "path": "docs/gnu-dev-tools-setup.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 4249,
+      "size_bytes": 4399,
       "violation": false
     },
     {
@@ -1014,7 +1023,7 @@
       "path": "docs/hardware/bench-validation-plan-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 7511,
+      "size_bytes": 7661,
       "violation": false
     },
     {
@@ -1023,7 +1032,7 @@
       "path": "docs/hardware.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1686,
+      "size_bytes": 1836,
       "violation": false
     },
     {
@@ -1032,7 +1041,7 @@
       "path": "docs/identity-eeprom-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 14009,
+      "size_bytes": 14159,
       "violation": false
     },
     {
@@ -1041,7 +1050,7 @@
       "path": "docs/interrupt-architecture-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6047,
+      "size_bytes": 6197,
       "violation": false
     },
     {
@@ -1050,7 +1059,7 @@
       "path": "docs/mailbox-protocol-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3587,
+      "size_bytes": 3737,
       "violation": false
     },
     {
@@ -1059,7 +1068,7 @@
       "path": "docs/management-anomaly-detection-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 7023,
+      "size_bytes": 7173,
       "violation": false
     },
     {
@@ -1068,7 +1077,7 @@
       "path": "docs/memory-map.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3461,
+      "size_bytes": 3611,
       "violation": false
     },
     {
@@ -1077,7 +1086,7 @@
       "path": "docs/netboot-ntp-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5190,
+      "size_bytes": 5340,
       "violation": false
     },
     {
@@ -1086,7 +1095,7 @@
       "path": "docs/nubus-upa-influences-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3666,
+      "size_bytes": 3816,
       "violation": false
     },
     {
@@ -1095,7 +1104,7 @@
       "path": "docs/operation-id-registry-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2438,
+      "size_bytes": 2588,
       "violation": false
     },
     {
@@ -1104,7 +1113,7 @@
       "path": "docs/os-architecture.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1392,
+      "size_bytes": 1542,
       "violation": false
     },
     {
@@ -1113,7 +1122,7 @@
       "path": "docs/register-map-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3125,
+      "size_bytes": 3275,
       "violation": false
     },
     {
@@ -1140,7 +1149,7 @@
       "path": "docs/resource-type-registry-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3856,
+      "size_bytes": 4006,
       "violation": false
     },
     {
@@ -1149,7 +1158,7 @@
       "path": "docs/rev-a-hardware-baseline.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 7105,
+      "size_bytes": 7255,
       "violation": false
     },
     {
@@ -1212,7 +1221,7 @@
       "path": "docs/ring-security-test-plan.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6837,
+      "size_bytes": 6987,
       "violation": false
     },
     {
@@ -1221,7 +1230,7 @@
       "path": "docs/roadmap/atarix-project-zero-inventory.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2687,
+      "size_bytes": 2837,
       "violation": false
     },
     {
@@ -1230,7 +1239,7 @@
       "path": "docs/roadmap/document-authority-migration-audit.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6211,
+      "size_bytes": 6361,
       "violation": false
     },
     {
@@ -1239,7 +1248,7 @@
       "path": "docs/roadmap/repository-extraction-plan.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2907,
+      "size_bytes": 3057,
       "violation": false
     },
     {
@@ -1248,7 +1257,7 @@
       "path": "docs/roadmap.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 934,
+      "size_bytes": 1084,
       "violation": false
     },
     {
@@ -1257,7 +1266,7 @@
       "path": "docs/routing-design-notes.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5285,
+      "size_bytes": 5435,
       "violation": false
     },
     {
@@ -1266,7 +1275,7 @@
       "path": "docs/security.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 8904,
+      "size_bytes": 9054,
       "violation": false
     },
     {
@@ -1275,7 +1284,7 @@
       "path": "docs/service-directory-format-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3080,
+      "size_bytes": 3230,
       "violation": false
     },
     {
@@ -1284,7 +1293,7 @@
       "path": "docs/service-id-registry-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3973,
+      "size_bytes": 4123,
       "violation": false
     },
     {
@@ -1293,7 +1302,7 @@
       "path": "docs/service-model.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3500,
+      "size_bytes": 3650,
       "violation": false
     },
     {
@@ -1302,7 +1311,7 @@
       "path": "docs/software.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 964,
+      "size_bytes": 1114,
       "violation": false
     },
     {
@@ -1311,7 +1320,7 @@
       "path": "docs/specification-roadmap.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3277,
+      "size_bytes": 3427,
       "violation": false
     },
     {
@@ -1320,7 +1329,7 @@
       "path": "docs/supervisor-card-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 8354,
+      "size_bytes": 8504,
       "violation": false
     },
     {
@@ -1329,7 +1338,7 @@
       "path": "docs/supervisor-observability-contract-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 7647,
+      "size_bytes": 7797,
       "violation": false
     },
     {
@@ -1338,7 +1347,7 @@
       "path": "docs/system-spec-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 2950,
+      "size_bytes": 3100,
       "violation": false
     },
     {
@@ -1356,7 +1365,7 @@
       "path": "docs/testing-strategy.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 7232,
+      "size_bytes": 7382,
       "violation": false
     },
     {
@@ -1365,7 +1374,7 @@
       "path": "docs/timing-observability-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 7703,
+      "size_bytes": 7853,
       "violation": false
     },
     {
@@ -1374,7 +1383,7 @@
       "path": "docs/toolchain-and-build-strategy-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 6358,
+      "size_bytes": 6508,
       "violation": false
     },
     {
@@ -1383,7 +1392,7 @@
       "path": "docs/toolchain.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 852,
+      "size_bytes": 1002,
       "violation": false
     },
     {
@@ -1392,7 +1401,7 @@
       "path": "docs/trust-model-v1.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3562,
+      "size_bytes": 3712,
       "violation": false
     },
     {
@@ -1401,7 +1410,7 @@
       "path": "docs/ulx3s-backplane-controller.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 3277,
+      "size_bytes": 3427,
       "violation": false
     },
     {
@@ -1410,7 +1419,7 @@
       "path": "docs/vega816-analysis.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 5308,
+      "size_bytes": 5458,
       "violation": false
     },
     {
@@ -1419,7 +1428,7 @@
       "path": "docs/verification/ATX-SPEC-020-rtl-ci.md",
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
-      "size_bytes": 1958,
+      "size_bytes": 2108,
       "violation": false
     },
     {
@@ -1428,7 +1437,7 @@
       "path": "include/atarix/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 441,
+      "size_bytes": 591,
       "violation": false
     },
     {
@@ -1446,7 +1455,7 @@
       "path": "project-zero/inventory/current/atarix-doc-candidates.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 7702,
+      "size_bytes": 7726,
       "violation": false
     },
     {
@@ -1464,7 +1473,7 @@
       "path": "project-zero/inventory/current/atarix-full-tree.txt",
       "placement": "colocated",
       "reason": "Generated operational evidence retained beside its workflow output.",
-      "size_bytes": 11954,
+      "size_bytes": 12018,
       "violation": false
     },
     {
@@ -1473,7 +1482,7 @@
       "path": "rtl/atarix/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 4024,
+      "size_bytes": 4174,
       "violation": false
     },
     {
@@ -1482,7 +1491,7 @@
       "path": "sim/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 2441,
+      "size_bytes": 2591,
       "violation": false
     },
     {
@@ -1491,7 +1500,7 @@
       "path": "sim/common/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 302,
+      "size_bytes": 452,
       "violation": false
     },
     {
@@ -1500,7 +1509,7 @@
       "path": "sim/fabric/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 411,
+      "size_bytes": 561,
       "violation": false
     },
     {
@@ -1509,7 +1518,7 @@
       "path": "sim/mailbox/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 322,
+      "size_bytes": 472,
       "violation": false
     },
     {
@@ -1518,7 +1527,7 @@
       "path": "sim/supervisor/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 284,
+      "size_bytes": 434,
       "violation": false
     },
     {
@@ -1527,7 +1536,7 @@
       "path": "sim/tests/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 268,
+      "size_bytes": 418,
       "violation": false
     },
     {
@@ -1536,7 +1545,7 @@
       "path": "src/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 527,
+      "size_bytes": 677,
       "violation": false
     },
     {
@@ -1545,7 +1554,7 @@
       "path": "src/emulator/discovery/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 369,
+      "size_bytes": 519,
       "violation": false
     },
     {
@@ -1554,7 +1563,7 @@
       "path": "src/emulator/fabric/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 391,
+      "size_bytes": 541,
       "violation": false
     },
     {
@@ -1563,7 +1572,7 @@
       "path": "src/emulator/mailbox/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 319,
+      "size_bytes": 469,
       "violation": false
     },
     {
@@ -1572,7 +1581,7 @@
       "path": "src/firmware/monitor/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 395,
+      "size_bytes": 545,
       "violation": false
     },
     {
@@ -1581,7 +1590,7 @@
       "path": "tests/cpu/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 800,
+      "size_bytes": 950,
       "violation": false
     },
     {
@@ -1590,7 +1599,7 @@
       "path": "tests/reference/README.md",
       "placement": "colocated",
       "reason": "Component-local README retained beside the implementation it explains.",
-      "size_bytes": 962,
+      "size_bytes": 1112,
       "violation": false
     }
   ],
@@ -1598,9 +1607,10 @@
   "root": "/home/runner/work/atarix/atarix",
   "schema": "catalyst.atarix.document-authority-census.v2",
   "summary": {
-    "document_count": 177,
+    "document_count": 178,
     "locations": {
       ".github": 1,
+      "LICENSES": 1,
       "docs": 155,
       "include": 1,
       "project-zero": 4,
@@ -1611,7 +1621,7 @@
       "tests": 2
     },
     "placements": {
-      "canonical": 158,
+      "canonical": 159,
       "colocated": 19
     },
     "strict_passed": true,
