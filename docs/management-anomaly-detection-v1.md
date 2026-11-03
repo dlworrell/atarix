@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8ccc1b0a-ed9f-4266-8681-7455dd06f09b
+-->
+
 # ATARIX Management Anomaly Detection v1
 
 ## Status

@@ -16,6 +16,12 @@ implements:
 verified_by:
   - engineering-gate.yml
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:b72ca1c2-0489-41ec-8ea3-c3f83bac74c3
+-->
+
 
 # Chapter 20: AEMS and Engineering Gates
 

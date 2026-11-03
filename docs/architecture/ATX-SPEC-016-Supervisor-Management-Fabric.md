@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8643d075-edfb-4ceb-93f4-cbd6c5a07576
+-->
+
 # ATX-SPEC-016 Supervisor Management Fabric
 
 ## Status

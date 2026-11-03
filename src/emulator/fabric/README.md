@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:31ff3acc-8821-439b-b02d-af8f64447b49
+-->
+
 # ATARIX Fabric Emulator
 
 This directory will contain the emulator-side model of the Fabric Northbridge.

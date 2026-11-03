@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:59bfa871-c78b-4c22-8f0b-5667b0b728d4
+-->
+
 # ATARIX Routing and Message Transport Design Notes
 
 Status: Design Notes

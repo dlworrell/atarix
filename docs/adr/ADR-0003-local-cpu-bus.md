@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:82ed3ef4-4217-488f-b827-9ec7cb330a22
+-->
+
 # ADR-0003: Local CPU Bus
 
 Status: Accepted

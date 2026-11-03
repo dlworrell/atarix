@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c8199925-9c8a-4d0c-aeba-cbf4d48033b0
+-->
+
 # ATARIX Card Identity EEPROM
 
 ## Status

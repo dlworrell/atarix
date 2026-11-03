@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8e50caf3-351e-4b21-8f29-40b090dfcd19
+-->
+
 # ATX-SPEC-002 Authority Model
 
 ## Status

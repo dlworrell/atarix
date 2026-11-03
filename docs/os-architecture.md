@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:623c5ab7-9ba6-463f-aaa1-915a71028c50
+-->
+
 # ATARIX Operating System Architecture
 
 ## Goals

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:ab2b6e6f-7275-4445-9954-425dce431980
+-->
+
 # ATX-SPEC-019 Service Model
 
 ## Status

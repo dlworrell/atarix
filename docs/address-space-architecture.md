@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:f988bd64-ee04-4199-81f6-820e57c8a344
+-->
+
 # ATARIX Address Space Architecture
 
 ## Status

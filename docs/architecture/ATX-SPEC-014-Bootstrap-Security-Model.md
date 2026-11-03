@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8b6c60ad-7151-40a9-9009-804a9643b66c
+-->
+
 # ATX-SPEC-014 Bootstrap Security Model
 
 ## Status

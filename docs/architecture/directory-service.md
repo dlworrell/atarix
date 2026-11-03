@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:96135e77-79f7-417e-b355-54d62e8b65e3
+-->
+
 # Atarix Directory Service Architecture
 
 ## Purpose

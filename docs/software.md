@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8bc4ac15-b3b0-4b77-b66d-dd15e7f55f4d
+-->
+
 # ATARIX Software Architecture
 
 ## Philosophy

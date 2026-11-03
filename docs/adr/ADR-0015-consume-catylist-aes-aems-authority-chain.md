@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:cdb83230-4ab7-423f-876b-b4f192bb0ced
+-->
+
 # ADR-0015: Consume the Catylist, AES, and AEMS Authority Chain
 
 Status: Accepted

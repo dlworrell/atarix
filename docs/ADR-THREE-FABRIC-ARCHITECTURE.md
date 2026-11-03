@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:57fba463-8736-461d-8044-2bb820cf6903
+-->
+
 # ADR: Three Fabric Architecture
 
 Status: Accepted

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d24b06e0-423c-4a5e-9e0c-a46df558f0d8
+-->
+
 # ADR: Ring Security Model
 
 Status: Accepted

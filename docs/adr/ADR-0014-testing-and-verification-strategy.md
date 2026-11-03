@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:74b4235a-2729-4e6a-bbe0-9f7be18be17c
+-->
+
 # ADR-0014: Testing and Verification Strategy
 
 Status: Accepted

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1913f61f-9ad6-4381-a514-682b24fb6d33
+-->
+
 # ATARIX Capability Model
 
 ## Status

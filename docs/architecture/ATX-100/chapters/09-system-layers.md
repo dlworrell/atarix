@@ -13,6 +13,12 @@ related:
   - ATX-SPEC-005
   - ATX-SPEC-015
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c77623f6-9a62-47b2-9b72-3ec53321414b
+-->
+
 
 # Chapter 9: System Layers
 

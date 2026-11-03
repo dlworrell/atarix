@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:d7e0d630-2b65-4871-901a-fb685611eb86
+-->
+
 # ATARIX Bus Architecture
 
 ## Status

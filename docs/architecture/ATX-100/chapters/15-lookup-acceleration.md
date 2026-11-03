@@ -15,6 +15,12 @@ verified_by:
   - atx_spec_020_accelerator_ci_tb
   - atx_spec_020_modules_tb
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:e1324045-8d2d-483b-a739-dc83aba1eb31
+-->
+
 
 # Chapter 15: Lookup Acceleration
 

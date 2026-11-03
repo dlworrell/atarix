@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:b8427170-f4d8-4277-bdb0-a5e947774da6
+-->
+
 # Atarix RTL Scaffolds
 
 ## ATX-SPEC-020 Lookup Accelerator

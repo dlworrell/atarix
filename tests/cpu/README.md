@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c25868de-29fe-45ba-8e3e-e96b600faa10
+-->
+
 # ATARIX CPU Validation Tests
 
 This directory will contain CPU validation tests and harnesses.

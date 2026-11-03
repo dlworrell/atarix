@@ -19,6 +19,12 @@ implements:
 verified_by:
   - memory/test_memory_descriptor
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:cff1fe5c-e294-42c4-98cc-ad0c8c36aeda
+-->
+
 
 # ATX-SPEC-021 Memory and Data Movement Model
 

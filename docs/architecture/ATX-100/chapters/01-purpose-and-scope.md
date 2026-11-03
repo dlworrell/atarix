@@ -10,6 +10,12 @@ related:
   - ATX-DESIGN-001
   - ATX-DESIGN-002
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c420f7e7-e7d3-4579-85b6-5587e5c0a0bf
+-->
+
 
 # Chapter 1: Purpose and Scope
 

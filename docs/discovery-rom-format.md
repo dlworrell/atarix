@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:fa0ae5c7-daa9-4bcc-a6ef-6745fdfe5ac6
+-->
+
 # ATARIX Discovery ROM Format
 
 ## Status

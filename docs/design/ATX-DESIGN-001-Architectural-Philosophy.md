@@ -7,6 +7,12 @@ lifecycle: Draft
 version: 0.1
 canonical_owner: ATX-100
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:e90e9add-6127-4dd0-bfca-a2a00a5a0679
+-->
+
 
 # ATX-DESIGN-001: Architectural Philosophy
 

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:75013b8e-ad78-4443-979c-6c043634966f
+-->
+
 # ATARIX Public Headers
 
 This directory will contain public C headers generated from or aligned with the ATARIX architecture specifications.

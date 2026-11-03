@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:83700076-419c-4d60-8125-ecd0a960cc00
+-->
+
 # CPU Test Suite Integration v1
 
 ## Purpose

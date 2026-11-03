@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7e9a4193-95ea-4f01-a02b-1aec2a52c54c
+-->
+
 # Architecture Decision Records
 
 ADR documents capture significant architectural decisions.

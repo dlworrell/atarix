@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:6751966f-ae6c-413e-ae84-d64713ba69b0
+-->
+
 # ATX-SPEC-001 Security Model
 
 ## Status

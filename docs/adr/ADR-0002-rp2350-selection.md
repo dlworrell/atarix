@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:50e01bac-df69-4067-aaf6-a1a7876b707b
+-->
+
 # ADR-0002: RP2350 Supervisor Selection
 
 Status: Accepted

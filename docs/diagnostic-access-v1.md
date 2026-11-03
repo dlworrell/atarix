@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:73285b38-60d3-4c99-ae8f-5ad7ef08a272
+-->
+
 # ATARIX Diagnostic Access v1
 
 ## Status

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:fc1080a0-60c4-4775-b23a-deb48dc24d47
+-->
+
 # Discovery ROM and Slot Architecture v1
 
 ## Purpose

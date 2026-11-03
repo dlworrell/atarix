@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:636863ef-370c-4e19-9af9-0aeaf06ae414
+-->
+
 # ATARIX-DEV-001: Development Principles
 
 Status: Draft

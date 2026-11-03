@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:07a674ea-b3c9-4b9e-b75f-770d6a5de3b6
+-->
+
 # ADR-0012: Abstraction and Compatibility
 
 Status: Accepted

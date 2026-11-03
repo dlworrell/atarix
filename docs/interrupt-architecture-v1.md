@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7134e3d9-f9c1-47fe-b174-7c3cb861c90c
+-->
+
 # ATARIX Interrupt Architecture v1
 
 ## Status

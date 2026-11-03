@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1bd7c2ec-1186-4326-8690-de57fdeb36f3
+-->
+
 # Atarix Architecture Review Checklist
 
 ## Purpose

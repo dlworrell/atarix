@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2952d22f-c708-4c1a-aea4-68b99ddd4c4e
+-->
+
 # ATX-SPEC-020 Hardware Mailbox Integration Notes
 
 ## Status

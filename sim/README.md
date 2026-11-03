@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:82cf550d-37d7-4e15-9c1a-bd1000c435f9
+-->
+
 # ATARIX Simulator Framework
 
 Status: Skeleton
