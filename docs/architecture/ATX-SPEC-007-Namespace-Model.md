@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7d048fce-cbef-4b66-8636-8797e1817d2c
+-->
+
 # ATX-SPEC-007 Namespace Model
 
 ## Status

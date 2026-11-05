@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:dc0a0147-e56a-4425-9d1f-03dc1063eed0
+-->
+
 # ATARIX Development Philosophy
 
 Status: Superseded as a general engineering standard

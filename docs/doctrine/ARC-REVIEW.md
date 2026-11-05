@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:056c42d8-b7ff-4376-93a2-f0c576aa6f2b
+-->
+
 # Atarix Architecture Review Doctrine
 
 ## Purpose

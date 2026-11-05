@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2a6de41c-6c8a-4839-b64c-d6e8036c244a
+-->
+
 # Engineering Gate
 
 ## Status

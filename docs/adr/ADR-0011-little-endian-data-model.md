@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:fb0d6dba-b9b6-4f98-8710-5a0726b09fc5
+-->
+
 # ADR-0011: Little-Endian Data Model
 
 Status: Accepted

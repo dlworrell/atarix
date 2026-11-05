@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:4e69582e-a20b-4a91-a20d-3ef2c00390f6
+-->
+
 # ATARIX CPU Card Specification
 
 ## Purpose

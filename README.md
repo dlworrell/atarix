@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:1f572402-6c9c-4632-bd3f-6ae409a63639
+-->
+
 # ATARIX
 
 ATARIX is a modular experimental workstation and operating-system research architecture built around interchangeable CPU cards, a Fabric Northbridge implemented in an ECP5 FPGA, a supervisor management plane, capability-mediated resource access, explicit security doctrine, and a Sun/NuBus/UPA-inspired modular backplane.

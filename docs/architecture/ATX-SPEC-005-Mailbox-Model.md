@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:e336cd07-760b-4a0a-bce2-06343144e904
+-->
+
 # ATX-SPEC-005 Mailbox Model
 
 ## Status

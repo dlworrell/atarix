@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:42eff243-8770-4868-84af-bd16b2e0e0b7
+-->
+
 # ADR-0009: Observability First
 
 Status: Accepted

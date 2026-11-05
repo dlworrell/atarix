@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:3a29f9e9-5cf2-482d-bbc2-629ead88ecbe
+-->
+
 # NuBus and UPA Architectural Influences
 
 ## Purpose

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:ecbc02a1-f879-4071-a923-6686f293d3f1
+-->
+
 # ADR: Discoverable, Observable, Testable, Instrumentable, Recoverable
 
 Status: Accepted

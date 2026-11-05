@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:073d4b4f-d70f-446a-baf8-091a8a455029
+-->
+
 # ADR: Identity, Trust, and Capability Separation
 
 Status: Accepted

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:c6781610-944d-431c-bcb6-c7c2d06caeb4
+-->
+
 # ADR-0013: Resource-Oriented Architecture
 
 Status: Accepted

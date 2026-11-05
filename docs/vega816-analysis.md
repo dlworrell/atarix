@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:3d7fa2c3-aa94-489b-b01a-18d66816e2c4
+-->
+
 # Vega816 Hardware Migration Analysis
 
 ## Source

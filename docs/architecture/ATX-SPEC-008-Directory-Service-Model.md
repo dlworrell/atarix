@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:b6252c1c-bd4f-4995-82c8-a6473f1171c1
+-->
+
 # ATX-SPEC-008 Directory Service Model
 
 ## Status

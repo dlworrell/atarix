@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:05a6d53e-e7be-4b2f-bff5-5082a9edc230
+-->
+
 # ATARIX Timing and Observability Architecture v1
 
 ## Status

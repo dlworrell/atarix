@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8e1100c9-bd85-4a86-a190-05c35469d3c4
+-->
+
 # ATARIX Register Map v1
 
 ## Status

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:0f4dbcb1-dcfd-4a5a-bb58-b4f7d3c1ed36
+-->
+
 # Service ID Registry v1
 
 Status: Draft v1

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:73b514b0-3dec-439d-af54-3860970e90b0
+-->
+
 # Capability Record Format v1
 
 Status: Draft v1

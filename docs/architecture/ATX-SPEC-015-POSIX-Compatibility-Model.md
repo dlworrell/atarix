@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8573d9fc-3853-4034-8d22-cba45383d43c
+-->
+
 # ATX-SPEC-015 POSIX Compatibility Model
 
 ## Status

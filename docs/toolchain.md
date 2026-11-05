@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:bbb62ca0-9b80-4fe5-88eb-665799facf8b
+-->
+
 # ATARIX Toolchain Strategy
 
 ## Goals

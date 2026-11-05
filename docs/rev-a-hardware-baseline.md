@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:15bb94b0-ed80-47b7-a5b2-c9921d711398
+-->
+
 # ATARIX Rev A Hardware Baseline
 
 ## Status

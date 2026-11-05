@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:7e78ebec-ce3b-4496-b777-d3e116bacbd8
+-->
+
 # Identity EEPROM v1
 
 ## Purpose

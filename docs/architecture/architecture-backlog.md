@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8f4ae663-cf08-4626-b8fe-b8b51728baa4
+-->
+
 # Atarix Architecture Backlog
 
 ## Status

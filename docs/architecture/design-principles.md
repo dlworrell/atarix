@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:8f875602-1243-4386-b41f-2d14dba821f6
+-->
+
 # Atarix Design Principles
 
 ## Purpose

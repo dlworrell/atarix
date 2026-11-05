@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:2fa74b89-2c63-4ef1-8474-db7471befbaf
+-->
+
 # ATARIX Document Authority Migration Audit
 
 Date: 2026-07-12

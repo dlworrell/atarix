@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:6559db89-a549-4632-9817-841610d244e6
+-->
+
 # ADR-0010: Evidence-Based Engineering
 
 Status: Accepted
