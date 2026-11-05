@@ -14,6 +14,12 @@ verified_by:
 implements:
   - .github/workflows/create-engineering-tag.yml
 ---
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:130043b2-8ba5-48eb-87bb-2bcb05641838
+-->
+
 
 # ATX-SPEC-092: Engineering Release and Configuration Management
 

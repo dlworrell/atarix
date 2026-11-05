@@ -2,7 +2,7 @@
 
 - Schema: `catalyst.atarix.document-authority-census.v2`
 - Repository: `dlworrell/atarix`
-- Documents found: `177`
+- Documents found: `178`
 - Placement violations: `0`
 - Strict authority check passed: `True`
 
@@ -12,6 +12,7 @@
 |---|---|---|---:|---|---|
 | `.github/pull_request_template.md` | `.github` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `CODE_OF_CONDUCT.md` | `repository-root` | `canonical` | `False` | `Atarix` | Approved repository-root project document. |
+| `LICENSES/Apache-2.0.txt` | `LICENSES` | `canonical` | `False` | `Atarix` | REUSE license text, one file per SPDX identifier under LICENSES/. |
 | `README.md` | `repository-root` | `canonical` | `False` | `Atarix` | Approved repository-root project document. |
 | `docs/ADR-DISCOVERABLE-OBSERVABLE-TESTABLE-INSTRUMENTABLE-RECOVERABLE.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/ADR-IDENTITY-TRUST-CAPABILITY-SEPARATION.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
