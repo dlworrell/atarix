@@ -146,6 +146,27 @@ else
     warn 'iverilog/vvp not found; skipping RTL simulations'
 fi
 
+phase 'Engineering Gate: CPU card software test bench'
+missing_sim_tools=''
+for tool in g++ ca65 ld65 iverilog vvp python3; do
+    command -v "${tool}" >/dev/null 2>&1 || missing_sim_tools="${missing_sim_tools} ${tool}"
+done
+if [ -n "${missing_sim_tools}" ]; then
+    # Skipping is a local convenience only; in CI a missing tool is a failure.
+    if [ -n "${CI:-}" ]; then
+        fail "CPU card test bench tools missing in CI:${missing_sim_tools}"
+    else
+        warn "CPU card test bench skipped; missing:${missing_sim_tools}"
+    fi
+elif bash scripts/sim/run_testbench.sh; then
+    pass 'CPU card boot, mailbox, negative controls and RTL co-simulation passed'
+    mkdir -p "${ARTIFACT_DIR}/sim"
+    cp build/sim/summary.txt build/sim/cpu-card-report.json "${ARTIFACT_DIR}/sim/"
+    cp build/sim/rtl-cosim/bus_shim_cosim_report.json "${ARTIFACT_DIR}/sim/"
+else
+    fail 'CPU card software test bench failed'
+fi
+
 phase 'Engineering Gate: summary'
 {
     printf '%s\n' 'Engineering Gate Summary'
