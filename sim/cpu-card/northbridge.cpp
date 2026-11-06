@@ -135,6 +135,7 @@ bool Northbridge::write(uint32_t address, uint8_t value, uint64_t cycle) {
 				submit(cycle);
 			} else if(value == ControlAckRx) {
 				rx_ready_ = false;
+				if(interrupts_) interrupts_->set_source(IrqMailbox, false);
 			} else {
 				fault(cycle, address, true, "unknown mailbox CONTROL command");
 			}
@@ -242,6 +243,7 @@ void Northbridge::deliver_reply(uint16_t source, uint16_t type, uint32_t sequenc
 	rx_type_ = type;
 	rx_length_ = length;
 	rx_ready_ = true;
+	if(interrupts_) interrupts_->set_source(IrqMailbox, true);
 }
 
 }  // namespace atarix::sim

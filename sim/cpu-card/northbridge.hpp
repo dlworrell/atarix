@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "interrupts.hpp"
+
 extern "C" {
 #include "atarix/capability_engine.h"
 #include "atarix/mailbox.h"
@@ -97,6 +99,9 @@ public:
 
 	void inject(Injection injection) { injection_ = injection; }
 
+	// RX-ready drives interrupt source 3 (Mailbox), level-triggered.
+	void set_interrupts(InterruptController *interrupts) { interrupts_ = interrupts; }
+
 	void add_endpoint(const Endpoint &endpoint);
 	void grant(const atarix_capability_record_v1_t &capability);
 
@@ -119,6 +124,7 @@ private:
 	std::vector<atarix_capability_record_v1_t> capabilities_;
 	atarix_mailbox_sequence_window_t rx_window_{};
 	Injection injection_ = Injection::None;
+	InterruptController *interrupts_ = nullptr;
 
 	std::array<uint8_t, WindowSize> tx_{};
 	std::array<uint8_t, WindowSize> rx_{};

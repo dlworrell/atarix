@@ -25,8 +25,10 @@ bool is_ram(uint32_t address) {
 
 }  // namespace
 
-CpuCard::CpuCard(std::vector<uint8_t> rom, Northbridge &northbridge, BoardIdentity identity)
-	: rom_(std::move(rom)), ram_(RamTop, 0), northbridge_(northbridge), identity_(identity) {
+CpuCard::CpuCard(std::vector<uint8_t> rom, Northbridge &northbridge, InterruptController &interrupts,
+	SupervisorMailbox &supervisor, BoardIdentity identity)
+	: rom_(std::move(rom)), ram_(RamTop, 0), northbridge_(northbridge), interrupts_(interrupts),
+	  supervisor_(supervisor), identity_(identity) {
 	if(rom_.size() != RomSize) {
 		throw std::runtime_error("CPU card ROM image must be exactly 8192 bytes");
 	}
@@ -52,6 +54,8 @@ uint8_t CpuCard::read(uint32_t address) {
 
 	uint8_t value = 0;
 	if(northbridge_.read(address, value, cycle_)) return value;
+	if(interrupts_.read(address, value)) return value;
+	if(supervisor_.read(address, value)) return value;
 
 	switch(address) {
 		case UartData: return 0;              // no receive path in this test bench
@@ -80,6 +84,12 @@ void CpuCard::write(uint32_t address, uint8_t value) {
 		return;
 	}
 	if(northbridge_.write(address, value, cycle_)) return;
+	if(supervisor_.write(address, value, cycle_)) return;
+	std::string interrupt_fault;
+	if(interrupts_.write(address, value, interrupt_fault)) {
+		if(!interrupt_fault.empty()) faults_.push_back({cycle_, address, true, interrupt_fault});
+		return;
+	}
 	if(address == UartData) {
 		uart_.push_back(char(value));
 		return;
@@ -109,10 +119,15 @@ Cycles CpuCard::perform_bus_operation(CPU::MOS6502Esque::BusOperation operation,
 	using CPU::MOS6502Esque::BusOperation;
 	address &= 0xFFFFFF;
 	switch(operation) {
+		case BusOperation::ReadVector: {
+			// VPB active: the Vector Pull Rewrite shim may alter the fetch address.
+			const bool emulation = cpu_->get_extended_bus_output() & CPU::WDC65816::ExtendedBusOutput::Emulation;
+			address = interrupts_.vector_pull(address, emulation, cycle_);
+			*value = read(address);
+		} break;
 		case BusOperation::ReadOpcode:
 		case BusOperation::Read:
 		case BusOperation::ReadProgram:
-		case BusOperation::ReadVector:
 			*value = read(address);
 		break;
 		case BusOperation::Write:
@@ -130,6 +145,7 @@ Cycles CpuCard::perform_bus_operation(CPU::MOS6502Esque::BusOperation operation,
 		break;
 	}
 	trace(operation, address, value ? *value : 0);
+	cpu_->set_irq_line(interrupts_.irq_line());
 	++cycle_;
 	return Cycles(1);
 }

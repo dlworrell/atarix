@@ -33,6 +33,27 @@ MB_DST_HI   = MB + $07
 MB_SRC_HI   = MB + $08
 MB_TYPE_HI  = MB + $09
 TX          = $D280
+
+; Interrupt controller (docs/interrupt-architecture-v1.md "preferred v1" layout)
+INT         = $D100
+INT_PEND_LO = INT + $00
+INT_PEND_HI = INT + $01
+INT_MASK_LO = INT + $02
+INT_MASK_HI = INT + $03
+INT_PRIO    = INT + $04
+INT_ACK     = INT + $05
+INT_ROUTE   = INT + $06
+INT_STATUS  = INT + $07
+SRC_SUPER   = 1
+SRC_MAILBOX = 3
+
+; Supervisor mailbox (docs/register-map-v1.md)
+SUP         = $C200
+SUP_CMD     = SUP + $00
+SUP_STATUS  = SUP + $01
+SUP_ARG     = SUP + $02
+SUP_READ_ID = $03
+SUP_RESET   = $01
 RX          = $D2C0
 HDR         = 16
 
@@ -73,6 +94,9 @@ seqv        = $0C
 corruptv    = $0E
 tmp         = $10
 test_no     = $12
+irq_count   = $14                   ; interrupts taken (16-bit)
+irq_log     = $0300                 ; dispatch level of each interrupt taken
+sup_args    = $0310                 ; supervisor ARG0-3 captured by the level-0 handler
 
 ; Long conditional branches (8-bit relative branches cannot reach far labels).
 .macro JNE target
@@ -186,6 +210,30 @@ reset:
     ldx #msg_crlf
     jsr puts
 
+    ; I1: interrupt controller boot defaults (all masked, nothing pending).
+    lda #$0021
+    sta test_no
+    sep #$20
+    .a8
+    lda INT_PEND_LO
+    ora INT_PEND_HI
+    JNE fail8
+    lda INT_MASK_LO
+    and INT_MASK_HI
+    cmp #$FF
+    JNE fail8
+    lda INT_STATUS
+    and #$01
+    JNE fail8
+    lda INT_PRIO
+    cmp #$FF
+    JNE fail8
+    lda #$01
+    sta INT_ROUTE                   ; deliver to the primary CPU
+    rep #$20
+    .a16
+    jsr report_ok
+
 ; ---------------------------------------------------------------------------
 ; Mailbox cases. Each: destination, type, sequence, corrupt-CRC flag, expected
 ; Northbridge status. Order and values must match the host's expected audit.
@@ -239,9 +287,217 @@ reset:
     jsr check_no_reply
     jsr report_ok
 
+; ---------------------------------------------------------------------------
+; Interrupt tests: Vega816 Vector Pull Rewrite through the fabric controller.
+; ---------------------------------------------------------------------------
+    ; I2: a mailbox reply while masked: pending, but no IRQ asserted.
+    lda #$0000
+    sta irq_count
+    lda #$0022
+    sta test_no
+    sep #$20
+    .a8
+    lda #SRC_MAILBOX
+    sta INT_ACK                     ; clear the latch left by T11/T16 (RX already acknowledged)
+    lda INT_PEND_LO
+    JNE fail8
+    rep #$20
+    .a16
+    MBCASE $22, N_ECHO, T_PING, 7, 0, S_OK
+    sep #$20
+    .a8
+    lda MB_STATUS
+    and #ST_RX_READY
+    JEQ fail8
+    lda INT_PEND_LO
+    cmp #(1 << SRC_MAILBOX)
+    JNE fail8
+    lda INT_PRIO
+    cmp #$FF
+    JNE fail8
+    lda INT_STATUS
+    and #$01
+    JNE fail8
+    rep #$20
+    .a16
+    jsr report_ok
+
+    ; I3: supervisor completes Read Board ID and raises its source.
+    lda #$0023
+    sta test_no
+    sep #$20
+    .a8
+    lda #SUP_READ_ID
+    sta SUP_CMD
+    lda INT_PEND_LO
+    cmp #((1 << SRC_SUPER) | (1 << SRC_MAILBOX))
+    JNE fail8
+    rep #$20
+    .a16
+    jsr report_ok
+
+    ; I4: unmask both. Supervisor (level 0, $FFEE) must be taken before the
+    ; mailbox (level 2, rewritten to $FFF2), each in its own handler.
+    lda #$0024
+    sta test_no
+    sep #$20
+    .a8
+    lda #<~((1 << SRC_SUPER) | (1 << SRC_MAILBOX))
+    sta INT_MASK_LO
+    lda INT_PRIO
+    JNE fail8                       ; level 0 selected
+    lda INT_STATUS
+    and #$01
+    JEQ fail8
+    rep #$30
+    .a16
+    .i16
+    ldx #$2000
+    cli
+@wait:
+    lda irq_count
+    cmp #$0002
+    beq @taken
+    dex
+    bne @wait
+    sei
+    jmp fail
+@taken:
+    sei
+    sep #$20
+    .a8
+    lda irq_log
+    JNE fail8                       ; first: level 0 (supervisor)
+    lda irq_log + 1
+    cmp #$02
+    JNE fail8                       ; second: level 2 (mailbox)
+    lda sup_args
+    cmp #$A1
+    JNE fail8
+    lda sup_args + 1
+    cmp #$A7
+    JNE fail8
+    lda sup_args + 2
+    cmp #$16
+    JNE fail8
+    lda sup_args + 3
+    cmp #$08
+    JNE fail8
+    lda INT_PEND_LO
+    JNE fail8
+    lda MB_STATUS
+    and #ST_RX_READY
+    JNE fail8
+    rep #$20
+    .a16
+    jsr report_ok
+
+    ; I5: mask everything again; IRQ must deassert.
+    lda #$0025
+    sta test_no
+    sep #$20
+    .a8
+    lda #$FF
+    sta INT_MASK_LO
+    lda INT_STATUS
+    and #$01
+    JNE fail8
+    rep #$20
+    .a16
+    jsr report_ok
+
+    ; I6: the CPU may not reset the system through the supervisor register path.
+    lda #$0026
+    sta test_no
+    sep #$20
+    .a8
+    lda #SUP_RESET
+    sta SUP_CMD
+    lda SUP_STATUS
+    cmp #$80
+    JNE fail8
+    lda INT_PEND_LO
+    and #(1 << SRC_SUPER)
+    JNE fail8
+    rep #$20
+    .a16
+    jsr report_ok
+
     ldx #msg_pass
     jsr puts
     stp
+
+fail8:                              ; failure path reachable from 8-bit code
+    rep #$30
+    .a16
+    .i16
+    jmp fail
+
+; ---------------------------------------------------------------------------
+; Native IRQ handlers, one per Vector Pull Rewrite level.
+; ---------------------------------------------------------------------------
+irq_level0:                         ; supervisor
+    rep #$30
+    .a16
+    .i16
+    pha
+    phx
+    sep #$20
+    .a8
+    lda SUP_STATUS                  ; consumes the completion, deasserts the source
+    and #$02
+    JEQ fail8
+    lda SUP_ARG
+    sta sup_args
+    lda SUP_ARG + 1
+    sta sup_args + 1
+    lda SUP_ARG + 2
+    sta sup_args + 2
+    lda SUP_ARG + 3
+    sta sup_args + 3
+    lda #SRC_SUPER
+    sta INT_ACK
+    lda #$00
+    jsr log_irq
+    rep #$30
+    .a16
+    .i16
+    plx
+    pla
+    rti
+
+irq_level2:                         ; mailbox
+    rep #$30
+    .a16
+    .i16
+    pha
+    phx
+    sep #$20
+    .a8
+    lda MB_STATUS
+    and #ST_RX_READY
+    JEQ fail8
+    lda #CTL_ACK
+    sta MB_CONTROL                  ; consume the reply: source deasserts
+    lda #SRC_MAILBOX
+    sta INT_ACK
+    lda #$02
+    jsr log_irq
+    rep #$30
+    .a16
+    .i16
+    plx
+    pla
+    rti
+
+log_irq:                            ; A (8-bit) = level; X 16-bit free
+    .a8
+    .i16
+    ldx irq_count
+    sta irq_log,x
+    inx
+    stx irq_count
+    rts
 
 ; ---------------------------------------------------------------------------
 ; send: build and submit one frame. In: dstv, typv, seqv, corruptv.
@@ -547,11 +803,15 @@ unexpected:
     .word unexpected                ; $FFE8 ABORT (native)
     .word unexpected                ; $FFEA NMI (native)
     .word $FFFF                     ; $FFEC reserved
-    .word unexpected                ; $FFEE IRQ (native)
-    .word $FFFF, $FFFF              ; $FFF0 reserved
-    .word unexpected                ; $FFF4 COP (emulation)
-    .word $FFFF                     ; $FFF6 reserved
-    .word unexpected                ; $FFF8 ABORT (emulation)
-    .word unexpected                ; $FFFA NMI (emulation)
+; With Vector Pull Rewrite, native IRQ level n fetches $FFEE + 2n. Levels 3-6
+; reuse the emulation-mode COP/reserved/ABORT/NMI slots (as on Vega816), so
+; those vectors serve native IRQ levels once the CPU is in native mode.
+    .word irq_level0                ; $FFEE IRQ level 0 (native)
+    .word unexpected                ; $FFF0 IRQ level 1
+    .word irq_level2                ; $FFF2 IRQ level 2
+    .word unexpected                ; $FFF4 IRQ level 3 / COP (emulation)
+    .word unexpected                ; $FFF6 IRQ level 4
+    .word unexpected                ; $FFF8 IRQ level 5 / ABORT (emulation)
+    .word unexpected                ; $FFFA IRQ level 6 / NMI (emulation)
     .word reset                     ; $FFFC RESET
     .word unexpected                ; $FFFE IRQ/BRK (emulation)

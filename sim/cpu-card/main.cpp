@@ -63,6 +63,30 @@ const Expected ExpectedAudit[] = {
 	{UnknownNode, ATARIX_MAILBOX_MESSAGE_PING, 6, ATARIX_MAILBOX_STATUS_POLICY_DENIED, "unknown endpoint denied by default"},
 	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 8, ATARIX_MAILBOX_STATUS_SEQUENCE_ERROR, "sequence gap rejected"},
 	{EchoNode, 0x0099, 7, ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE, "unknown message type rejected"},
+	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 7, ATARIX_MAILBOX_STATUS_OK, "PING whose reply raises the mailbox interrupt (I2)"},
+};
+
+// Every vector fetch (VPB active) and its address after Vector Pull Rewrite:
+// the reset vector at boot, then the supervisor IRQ at level 0 and the
+// mailbox IRQ rewritten to level 2.
+struct ExpectedPull {
+	uint32_t original;
+	uint32_t rewritten;
+};
+const ExpectedPull ExpectedPulls[] = {
+	{0x00FFFC, 0x00FFFC}, {0x00FFFD, 0x00FFFD},
+	{0x00FFEE, 0x00FFEE}, {0x00FFEF, 0x00FFEF},
+	{0x00FFEE, 0x00FFF2}, {0x00FFEF, 0x00FFF3},
+};
+
+// Supervisor register-path commands: Read Board ID accepted, Reset rejected.
+struct ExpectedCommand {
+	uint8_t command;
+	bool accepted;
+};
+const ExpectedCommand ExpectedCommands[] = {
+	{0x03, true},
+	{0x01, false},
 };
 
 // Faults the firmware provokes deliberately (ROM write-protect check).
@@ -100,7 +124,8 @@ std::string json_escape(std::string_view s) {
 int usage() {
 	std::fprintf(stderr,
 		"usage: atarix-cpu-card --rom FILE [--trace FILE] [--report FILE] [--max-cycles N]\n"
-		"                       [--inject skip-capability|skip-ring|accept-bad-crc|corrupt-pong]\n");
+		"                       [--inject skip-capability|skip-ring|accept-bad-crc|corrupt-pong|\n"
+		"                                 no-vector-rewrite|ignore-mask|mailbox-level7|supervisor-accepts-reset]\n");
 	return 2;
 }
 
@@ -110,6 +135,7 @@ int main(int argc, char **argv) {
 	std::string rom_path, trace_path, report_path;
 	uint64_t max_cycles = 20'000'000;
 	atarix::sim::Injection injection = atarix::sim::Injection::None;
+	atarix::sim::InterruptInjection interrupt_injection = atarix::sim::InterruptInjection::None;
 	for(int i = 1; i < argc; ++i) {
 		const std::string_view arg(argv[i]);
 		if(i + 1 >= argc) return usage();
@@ -125,6 +151,10 @@ int main(int argc, char **argv) {
 			else if(which == "skip-ring") injection = Injection::SkipRing;
 			else if(which == "accept-bad-crc") injection = Injection::AcceptBadCrc;
 			else if(which == "corrupt-pong") injection = Injection::CorruptPong;
+			else if(which == "no-vector-rewrite") interrupt_injection = atarix::sim::InterruptInjection::NoVectorRewrite;
+			else if(which == "ignore-mask") interrupt_injection = atarix::sim::InterruptInjection::IgnoreMask;
+			else if(which == "mailbox-level7") interrupt_injection = atarix::sim::InterruptInjection::MailboxLevel7;
+			else if(which == "supervisor-accepts-reset") interrupt_injection = atarix::sim::InterruptInjection::SupervisorAcceptsReset;
 			else return usage();
 		}
 		else return usage();
@@ -142,7 +172,14 @@ int main(int argc, char **argv) {
 	// control endpoints, and one test echo service in the test node range.
 	Northbridge northbridge(CpuNode, ATARIX_RING_KERNEL, ATARIX_TRUST_IDENTIFIED);
 	northbridge.inject(injection);
-	if(injection != atarix::sim::Injection::None) {
+	atarix::sim::InterruptController interrupts;
+	interrupts.inject(interrupt_injection);
+	northbridge.set_interrupts(&interrupts);
+	const atarix::sim::BoardIdentity identity{};
+	atarix::sim::SupervisorMailbox supervisor(interrupts, {
+		uint8_t(identity.vendor), uint8_t(identity.vendor >> 8), uint8_t(identity.board), uint8_t(identity.board >> 8)});
+	supervisor.inject(interrupt_injection);
+	if(injection != atarix::sim::Injection::None || interrupt_injection != atarix::sim::InterruptInjection::None) {
 		std::printf("NEGATIVE CONTROL: deliberate Northbridge defect injected\n");
 	}
 	northbridge.add_endpoint({ATARIX_SIM_NODE_SUPERVISOR, ATARIX_RING_SUPERVISOR, ATARIX_SERVICE_RECOVERY, false, "supervisor"});
@@ -175,7 +212,7 @@ int main(int argc, char **argv) {
 	std::string uart;
 	std::vector<BusFault> faults;
 	try {
-		CpuCard card(std::move(rom), northbridge, {});
+		CpuCard card(std::move(rom), northbridge, interrupts, supervisor, identity);
 		card.set_trace(trace);
 		cycles = card.run(max_cycles);
 		uart = card.uart();
@@ -212,6 +249,38 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	// 5. Vector pulls: exact sequence, and never the RESET vector via rewrite.
+	const auto &pulls = interrupts.vector_pulls();
+	const size_t expected_pulls = sizeof ExpectedPulls / sizeof ExpectedPulls[0];
+	if(pulls.size() != expected_pulls) {
+		failures.push_back(std::to_string(pulls.size()) + " vector pulls, expected " + std::to_string(expected_pulls));
+	}
+	for(size_t i = 0; i < pulls.size(); ++i) {
+		if(pulls[i].level >= 0 && pulls[i].rewritten >= 0x00FFFC) {
+			failures.push_back("Vector Pull Rewrite redirected an IRQ to the RESET vector");
+		}
+		if(i < expected_pulls &&
+			(pulls[i].original != ExpectedPulls[i].original || pulls[i].rewritten != ExpectedPulls[i].rewritten)) {
+			std::ostringstream s;
+			s << "vector pull " << i << ": " << std::hex << pulls[i].original << "->" << pulls[i].rewritten
+				<< ", want " << ExpectedPulls[i].original << "->" << ExpectedPulls[i].rewritten;
+			failures.push_back(s.str());
+		}
+	}
+
+	// 6. Supervisor register path: only Read Board ID may succeed.
+	const auto &commands = supervisor.commands();
+	const size_t expected_commands = sizeof ExpectedCommands / sizeof ExpectedCommands[0];
+	if(commands.size() != expected_commands) {
+		failures.push_back(std::to_string(commands.size()) + " supervisor commands, expected " + std::to_string(expected_commands));
+	}
+	for(size_t i = 0; i < commands.size() && i < expected_commands; ++i) {
+		if(commands[i].command != ExpectedCommands[i].command || commands[i].accepted != ExpectedCommands[i].accepted) {
+			failures.push_back("supervisor command " + std::to_string(i) + " decided unexpectedly");
+		}
+	}
+	if(supervisor.reset_requested()) failures.push_back("CPU reset the system through the supervisor register path");
+
 	// 4. Faults: exactly the provoked ones, from both the card and the Northbridge.
 	std::vector<BusFault> all_faults = faults;
 	all_faults.insert(all_faults.end(), northbridge.faults().begin(), northbridge.faults().end());
@@ -240,6 +309,19 @@ int main(int argc, char **argv) {
 			out << "    {\"cycle\": " << a.cycle << ", \"source\": " << a.source << ", \"destination\": " << a.destination
 				<< ", \"type\": " << a.type << ", \"sequence\": " << a.sequence << ", \"status\": " << a.status
 				<< ", \"stage\": \"" << a.stage << "\"}" << (i + 1 < audit.size() ? ",\n" : "\n");
+		}
+		out << "  ],\n  \"vector_pulls\": [\n";
+		for(size_t i = 0; i < pulls.size(); ++i) {
+			const auto &v = pulls[i];
+			out << "    {\"cycle\": " << v.cycle << ", \"original\": " << v.original << ", \"rewritten\": " << v.rewritten
+				<< ", \"level\": " << v.level << ", \"emulation\": " << (v.emulation ? "true" : "false") << "}"
+				<< (i + 1 < pulls.size() ? ",\n" : "\n");
+		}
+		out << "  ],\n  \"supervisor_commands\": [\n";
+		for(size_t i = 0; i < commands.size(); ++i) {
+			out << "    {\"cycle\": " << commands[i].cycle << ", \"command\": " << unsigned(commands[i].command)
+				<< ", \"accepted\": " << (commands[i].accepted ? "true" : "false") << "}"
+				<< (i + 1 < commands.size() ? ",\n" : "\n");
 		}
 		out << "  ],\n  \"faults\": [\n";
 		for(size_t i = 0; i < all_faults.size(); ++i) {

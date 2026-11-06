@@ -38,5 +38,9 @@ expect_fail "Northbridge skips the ring check" "${card}" --rom "${rom}" --inject
 expect_fail "Northbridge accepts a bad CRC" "${card}" --rom "${rom}" --inject accept-bad-crc
 expect_fail "Northbridge corrupts the PONG payload" "${card}" --rom "${rom}" --inject corrupt-pong
 expect_fail "firmware claims PASS without running the tests" "${card}" --rom "${liar}"
+expect_fail "Vector Pull Rewrite does not rewrite" "${card}" --rom "${rom}" --inject no-vector-rewrite
+expect_fail "interrupt mask is ignored" "${card}" --rom "${rom}" --inject ignore-mask
+expect_fail "mailbox IRQ dispatched at level 7 (pulls RESET)" "${card}" --rom "${rom}" --inject mailbox-level7
+expect_fail "supervisor executes a CPU reset request" "${card}" --rom "${rom}" --inject supervisor-accepts-reset
 set -e
-echo "negative controls passed: all five defects were detected"
+echo "negative controls passed: all nine defects were detected"

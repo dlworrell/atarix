@@ -55,7 +55,7 @@ $(BUILD)/obj/sim/%.o: $(ROOT)/sim/%.cpp $(wildcard $(ROOT)/sim/cpu/*.hpp $(ROOT)
 $(VECTORS): $(BUILD)/obj/sim/cpu/vector_runner.o $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o \
+$(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o $(BUILD)/obj/sim/cpu-card/interrupts.o \
          $(BUILD)/obj/sim/cpu-card/main.o $(LIB_OBJS) $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 

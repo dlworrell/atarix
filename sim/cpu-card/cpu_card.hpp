@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Processors/65816/65816.hpp"
+#include "interrupts.hpp"
 #include "northbridge.hpp"
 
 namespace atarix::sim {
@@ -38,7 +39,8 @@ struct BoardIdentity {
 
 class CpuCard: public CPU::MOS6502Esque::BusHandler<uint32_t> {
 public:
-	CpuCard(std::vector<uint8_t> rom, Northbridge &northbridge, BoardIdentity identity);
+	CpuCard(std::vector<uint8_t> rom, Northbridge &northbridge, InterruptController &interrupts,
+		SupervisorMailbox &supervisor, BoardIdentity identity);
 
 	// Power on and run until STP, or until max_cycles. Returns cycles run.
 	uint64_t run(uint64_t max_cycles);
@@ -57,6 +59,8 @@ private:
 	std::vector<uint8_t> rom_;
 	std::vector<uint8_t> ram_;
 	Northbridge &northbridge_;
+	InterruptController &interrupts_;
+	SupervisorMailbox &supervisor_;
 	BoardIdentity identity_;
 	std::unique_ptr<Processor> cpu_;
 	std::string uart_;
