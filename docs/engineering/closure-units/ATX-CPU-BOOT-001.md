@@ -62,4 +62,5 @@ one fault, the ROM write at `$00E000`.
 - The memory map is "first-pass" in `memory-map.md`; the expansion window and
   banks above `$7F` are modeled as unmapped.
 - The board identity values are simulator values, not registered identifiers.
-- No interrupt, ABORT or watchdog path is exercised yet.
+- IRQ delivery is exercised under ATX-IRQ-VPR-001; NMI, ABORT and watchdog
+  paths are not exercised yet.

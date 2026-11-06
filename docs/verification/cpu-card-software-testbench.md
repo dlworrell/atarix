@@ -35,10 +35,12 @@ mailbox validator, failures are observable, and denial is the default.
 bash scripts/sim/run_testbench.sh            # offline: build, card test, negative controls, RTL co-sim
 bash scripts/sim/run_cpu_vectors.sh          # pinned CPU vector sample (downloads ~220 MB)
 bash scripts/sim/run_cpu_vectors.sh --full   # every opcode file (several GB)
-bash scripts/engineering/run_gate.sh         # includes the offline test bench as a gate phase
+bash scripts/rtl/run_ecp5_fit.sh             # ULX3S LFE5U-85F fit and timing (yosys + nextpnr-ecp5)
+bash scripts/engineering/run_gate.sh         # includes the offline test bench and the ECP5 fit as gate phases
 ```
 
-Tools: a C11 and C++20 compiler, `cc65` (ca65/ld65), Icarus Verilog, Python 3.
+Tools: a C11 and C++20 compiler, `cc65` (ca65/ld65), Icarus Verilog, Python 3,
+and for the fit check yosys and nextpnr-ecp5.
 
 ## Components
 
@@ -50,6 +52,8 @@ Tools: a C11 and C++20 compiler, `cc65` (ca65/ld65), Icarus Verilog, Python 3.
 | `sim/cpu/known-deviations/` | Recorded, explained differences; never silent. |
 | `sim/cpu-card/cpu_card.cpp` | Rev A CPU card: memory map, UART, board identity, faults, bus trace. |
 | `sim/cpu-card/northbridge.cpp` | Mailbox Engine register block calling libatarix. |
+| `sim/cpu-card/interrupts.cpp` | Interrupt controller, Vega816 Vector Pull Rewrite, supervisor register mailbox. |
+| `scripts/rtl/run_ecp5_fit.sh` | Synthesis and place-and-route on the ULX3S ECP5-85F. |
 | `sim/cpu-card/firmware/test_rom.s` | 65816 test ROM: boot, self-checks, mailbox cases, CRC32 in firmware. |
 | `sim/rtl-cosim/` | Replays the CPU bus trace into the bus shim RTL. |
 | `scripts/sim/` | Fetch, run and re-vendor scripts. |
@@ -62,8 +66,10 @@ From [`memory-map.md`](../memory-map.md) and [`register-map-v1.md`](../register-
 $000000-$007FFF  RAM
 $008000-$00BFFF  expansion window: unmapped (fault)
 $00C000-$00C003  UART: +00 DATA, +01 STATUS (bit1 TX ready)
+$00C200-$00C205  Supervisor mailbox (register path)
 $00C300-$00C305  Board identity (read-only)
 $00D000-$00D001  Fabric control: version, status
+$00D100-$00D107  Interrupt controller
 $00D200-$00D2FF  Mailbox Engine
 $00E000-$00FFFF  ROM, vectors at top of bank; writes are ignored and faulted
 $010000-$7FFFFF  RAM (banks $01-$7F)
@@ -103,6 +109,36 @@ Validation order (protocol order, production code):
 header (magic, type, length, CRC) -> sequence -> endpoint -> ring -> capability -> dispatch
 ```
 
+## Interrupts and Vector Pull Rewrite
+
+Vega816's Vector Pull Rewrite is the idea `vega816-analysis.md` says to keep
+and integrate with `interrupt-architecture-v1.md`. The simulator models it on
+the CPU card bus. The emulated W65C816 drives VPB on every vector fetch.
+
+- **Controller** (`$00D100`): the "preferred v1" layout of
+  `interrupt-architecture-v1.md`: `+00/+01` pending, `+02/+03` mask (a set bit
+  masks), `+04` dispatch level (`$FF` none), `+05` acknowledge (source number),
+  `+06` route target (only `$01` primary CPU), `+07` status. At boot everything
+  is masked and nothing is pending. Sources are level-triggered: acknowledging
+  clears a pending bit only after the source has deasserted.
+- **Rewrite rule** (Vega816 README): VPB active and A1–A3 all high (only the
+  IRQ vector matches) → the dispatch level is added to A1–A4, A0 is kept and
+  the carry out of A4 is dropped. Native IRQ level *n* fetches `$FFEE + 2n`.
+- **ATARIX profile** (proposed): rewrite in native mode only, and never level
+  7 in native mode, because that would fetch the RESET vector.
+- **Levels** (proposed): the priority order in `interrupt-architecture-v1.md`
+  folded onto seven vectors: supervisor and fabric fault 0, DMA 1, mailbox 2,
+  timer 3, UART 4, network and accelerator 5, external slot and debug 6.
+
+## Supervisor register path
+
+`register-map-v1.md` gives the CPU a raw supervisor command register at
+`$00C200` (Reset Request, Recovery Mode, Read Board ID, Read Fault Log, FPGA
+Reload). This path does not go through mailbox v1 ring or capability checks.
+The simulator accepts only `$03` Read Board ID from the CPU (it completes and
+raises the Supervisor interrupt) and rejects every other command with STATUS
+`$80`. See finding 6.
+
 ## Test topology
 
 | Node | Ring | Role |
@@ -132,6 +168,22 @@ audit log independently of what the firmware reports.
 | T19 | PING, seq 8 | SEQUENCE_ERROR | gap detection |
 | T1A | unknown type `0x0099`, seq 7 | UNKNOWN_TYPE | unknown types never reach dispatch |
 
+Interrupt cases:
+
+| # | Check |
+|---|---|
+| T21 | Boot defaults: everything masked, nothing pending, no IRQ |
+| T22 | A mailbox reply while masked: source 3 pending, no IRQ, no dispatch level |
+| T23 | Supervisor Read Board ID completes and raises source 1 |
+| T24 | Unmask both: the supervisor IRQ is taken first at `$FFEE` (level 0), then the mailbox IRQ rewritten to `$FFF2` (level 2), each in its own handler; board ID delivered; nothing left pending |
+| T25 | Mask everything: IRQ deasserts |
+| T26 | A CPU Reset Request through the supervisor register path is rejected |
+
+The host independently checks the exact vector-fetch sequence: reset
+`$FFFC/D`, then `$FFEE/F` unchanged, then `$FFEE/F` → `$FFF2/3`. It also checks
+that no IRQ is ever redirected to RESET, and that the supervisor accepted only
+Read Board ID.
+
 The run also checks:
 
 - boot through the reset vector into native mode;
@@ -152,6 +204,11 @@ does:
 | Northbridge accepts a bad CRC | T15 |
 | Northbridge corrupts the PONG payload | T11 |
 | Firmware prints PASS without running the tests | empty audit log |
+| Vector Pull Rewrite does not rewrite | T24; host vector-fetch check |
+| Interrupt mask ignored | T22 |
+| Mailbox dispatched at level 7 | the CPU jumps to the RESET vector mid-run; host flags the redirect |
+| Supervisor executes a CPU reset request | T26; host command check |
+| ECP5 fit asked for an unreachable 1000 MHz | rejected |
 | Vector runner given corrupted register, RAM, cycle and bus-line expectations | each reported |
 | RTL never sees one mailbox byte | byte-stream mismatch |
 
@@ -173,10 +230,26 @@ For all 6502-family (8-bit) sets, the runner ignores the P register's B bit
 Values of B pushed to the stack are still compared exactly through RAM and
 bus cycles. The 65816 comparison uses all bits.
 
-CPU card: PASS in 31,000 CPU cycles; 10 of 10 audit decisions as expected; 1
-expected fault.
+CPU card: PASS in 35,000 CPU cycles; 11 of 11 audit decisions as expected; 6
+vector fetches exactly as expected; 1 expected fault.
 
-RTL co-simulation: 220 of 220 mailbox bytes captured by the shim, in order.
+RTL co-simulation, functional timing: 242 of 242 mailbox bytes captured by the
+shim, in order.
+
+RTL co-simulation, datasheet timing (25 MHz system clock, 4 MHz PHI2, 10 ns
+write-data hold): the shim captures 118 of 242 writes, and only 15 bytes are
+correct. See finding 4.
+
+ECP5 fit on the LFE5U-85F-6BG381C (the ULX3S part, ADR-0001), placed and
+routed out of context, with a 25 MHz target (the ULX3S oscillator):
+
+| Top | Fmax | LUT4 | FF | DSP |
+|---|---|---|---|---|
+| `atx_northbridge_bus_shim` | 432 MHz | 17 / 83,640 | 12 / 83,640 | 0 |
+| `atx_spec_020_system_wrapper` | 76.7 MHz | 726 / 83,640 | 188 / 83,640 | 1 MULT18X18D / 156 |
+
+Out of context means no I/O pins: no pinout is decided, and the ATX-SPEC-020
+wrapper has more ports than the ULX3S has GPIO.
 
 ## Findings
 
@@ -195,6 +268,38 @@ RTL co-simulation: 220 of 220 mailbox bytes captured by the shim, in order.
 3. **`atarix_ring_to_wire()` maps an invalid ring to APPLICATION** rather than
    failing closed (`include/atarix/rings.h`). Not exercised by this bench;
    recorded for review.
+4. **Bus shim timing (RTL, hardware-blocking).** The shim detects the PHI2
+   falling edge by sampling PHI2 in the system-clock domain. It then captures
+   data and checks chip select on that later clock edge, up to one clock (40 ns
+   at 25 MHz) after the fall. The W65C816 holds write data and the address
+   (hence chip select) for only about 10 ns after PHI2 falls. At datasheet
+   timing the shim misses about half the writes and corrupts almost all of the
+   rest. PHI2, CS and R/W also enter the clock domain with no synchronizer.
+   Candidate fixes:
+   - latch data and CS in I/O registers clocked by PHI2;
+   - or sample during the PHI2-high phase from a synchronized,
+     oversampling clock (an ECP5 PLL from the 25 MHz oscillator).
+
+   The co-simulation reports this. `--expect-datasheet-timing` makes it
+   gating once fixed.
+5. **Interrupt controller layout conflict.** `register-map-v1.md` defines
+   `+00 Pending, +01 Mask, +02 Priority, +03 Acknowledge`.
+   `interrupt-architecture-v1.md` calls that a "compatibility subset" of its
+   preferred `+00 Pending Low, +01 Pending High, +02 Mask Low, ...`, but the
+   offsets disagree, so it is not a subset. The simulator uses the preferred
+   layout.
+6. **Supervisor register path bypasses mailbox authority.** The documented
+   `$00C200` commands include Reset Request, Recovery Mode and FPGA Reload as
+   plain register writes, with no ring or capability check. That conflicts with
+   "kernel ring cannot request the supervisor ring" on the mailbox path. The
+   simulator rejects everything except Read Board ID.
+7. **Emulation vectors overlap native IRQ levels.** With Vector Pull Rewrite,
+   native IRQ levels 3–6 fetch `$FFF4`–`$FFFA`, which are the emulation-mode
+   COP, ABORT and NMI vectors. This is the same as Vega816. An NMI or ABORT
+   taken before the switch to native mode would run an IRQ-level handler.
+8. **Audit log window is built from registers, not block RAM.** yosys reports
+   `storage_matrix` in `atx_audit_log_window.v` mapped to registers. That is
+   fine at its current size; it will not scale to a large audit window.
 
 ## Open decisions for review
 
@@ -206,6 +311,22 @@ RTL co-simulation: 220 of 220 mailbox bytes captured by the shim, in order.
   "no such endpoint" value).
 - The CPU card's ring (kernel) and the test echo service's ring (service).
 - Whether to fork `SingleStepTests/65816` into `dlworrell/` for durability.
+- The interrupt level mapping, native-only rewrite, and the ban on level 7 in native mode.
+- Which interrupt controller layout is authoritative (finding 5).
+- Which supervisor commands, if any, the CPU may issue by register (finding 6).
+- The shim's capture scheme and framing rule (findings 1 and 4).
+- The board pinout for the Northbridge on the ULX3S GPIO.
+
+## Related hardware projects
+
+| Repository | Role in this bench |
+|---|---|
+| `dlworrell/CLK` | Vendored W65C816 core (`third_party/clk`) |
+| `dlworrell/65x02` | Pinned 6502/65C02 vectors (harness self-check) |
+| `dlworrell/Vega816` | Source of the Vector Pull Rewrite rule and IRQ-level layout modeled here |
+| `dlworrell/ulx3s` (`14cac31`) | Target FPGA (LFE5U-85F, CABGA381) and 25 MHz clock for the fit check |
+| `dlworrell/BB816-MATX-PCIE` | Not modeled. Its connector is the BB816 bus that `vega816-analysis.md` says not to keep as the ATARIX interface. Its bank-zero board (per-CPU bank-zero isolation) is the next candidate, with DMA. |
+| `dlworrell/cglm` | Not used. A C graphics-math library with no current ATARIX consumer. It could become a reference model for a future math accelerator. |
 
 ## Closure units
 
