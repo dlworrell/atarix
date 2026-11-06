@@ -155,6 +155,7 @@ docs/rev-a-hardware-baseline.md
 docs/reviews/ATX-SPEC-015-Reconciliation-Review.md
 docs/reviews/Architecture-Review-002.md
 docs/reviews/Architecture-Review-003.md
+docs/reviews/Architecture-Review-004.md
 docs/reviews/architecture-review-001.md
 docs/reviews/architecture-review-template.md
 docs/reviews/capability-sprint-1-review.md
