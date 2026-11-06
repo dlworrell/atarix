@@ -199,3 +199,23 @@ Result: PASS.
 - Policy is positioned correctly as a separate decision from capability possession.
 - Recovery, bootstrap, and supervisor authority are each scoped and cannot silently become runtime authority.
 - The accelerator RTL performs ring, capability, and policy checks before any probe is issued, matching the ATX-SPEC-020 pipeline rule that membership probing must not precede authorization.
+
+## Amendment 1 (2026-11-06)
+
+Corrections from the owner's remediation review of this document. The findings above are kept as originally merged; this section corrects them.
+
+### Finding 001 correction
+
+The summary chain quoted for ADR-00X is its context summary. ADR-00X also has a detailed "Evaluation Order" (request structure, caller identity, issuer trust, owner trust, revocation, expiration, caller ring, capability ownership, delegation chain, resource scope, operation). The statement that ADR-00X has no expiration step is wrong; it does.
+
+ATX-SPEC-001 and ATX-SPEC-008 include ring, ownership or authority, and resource policy. The open question is how they integrate the separate decision defined by ATX-SPEC-013, not whether policy is absent.
+
+The four chains also have different scopes: a general runtime access decision (ATX-SPEC-001), a directory resolution path (ATX-SPEC-008), the capability evaluator (ADR-00X), and the authorized accelerator pipeline (ATX-SPEC-020). The recommendation is refined accordingly: define one canonical contract with explicit stage scope, and have the specialised pipelines reference it, rather than forcing a single undifferentiated sequence.
+
+### Finding 002 correction
+
+ATX-SPEC-016 says Atarix recognizes "at least two fabric classes", so two classes and three fabric roles are not necessarily in conflict. The missing piece is the stated relationship between the classes (Operational, Supervisor Management) and the roles (Management, Enumeration, Transport), including whether Management Fabric and Supervisor Management Fabric are the same thing.
+
+### Finding 007 status
+
+Addressed by the documentation correction that accompanies this amendment: the integration notes now point to `include/atarix/index.h`, the RTL and its CI, and ATX-100 chapter 15 no longer claims full validation. Finding 006 remains open.

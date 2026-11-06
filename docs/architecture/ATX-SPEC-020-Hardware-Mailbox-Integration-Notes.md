@@ -163,73 +163,37 @@ ATARIX_MAILBOX_MESSAGE_INDEX_STATUS
 
 Legacy or lower-level probe-specific messages may exist inside the service boundary, but should not be the public compatibility interface unless explicitly approved by architecture review.
 
-## Corrected Payload Sketch
+## Current Mailbox Payloads
 
-The following C sketch is not yet committed to `include/atarix/index.h` because that path was not found in the current repository search results.
+The public ABI scaffold is maintained in [`include/atarix/index.h`](../../include/atarix/index.h).
+Use that header rather than the earlier payload sketch in this note.
 
-It records the corrected direction for a future implementation issue.
+The v1 query and reply payloads are each 16 bytes. The reply includes a
+reserved 32-bit field, and the header checks both payload sizes with static
+assertions. The query carries `expected_generation`; carrying that field
+does not establish that the RTL enforces it.
 
-```c
-#ifndef ATARIX_INDEX_H
-#define ATARIX_INDEX_H
-
-#include <stdint.h>
-#include "atarix/mailbox.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define ATARIX_MAILBOX_MESSAGE_INDEX_QUERY   0x0020u
-#define ATARIX_MAILBOX_MESSAGE_INDEX_MUTATE  0x0021u
-#define ATARIX_MAILBOX_MESSAGE_INDEX_RECOVER 0x0022u
-#define ATARIX_MAILBOX_MESSAGE_INDEX_STATUS  0x0023u
-
-typedef uint32_t atarix_index_registry_id_t;
-typedef uint32_t atarix_index_generation_t;
-
-typedef enum atarix_index_query_type {
-    ATARIX_INDEX_QUERY_EXACT      = 0x00u,
-    ATARIX_INDEX_QUERY_RANGE      = 0x01u,
-    ATARIX_INDEX_QUERY_FILTER     = 0x02u,
-    ATARIX_INDEX_QUERY_BITMAP     = 0x03u,
-    ATARIX_INDEX_QUERY_ORDERED    = 0x04u
-} atarix_index_query_type_t;
-
-#pragma pack(push, 1)
-
-typedef struct atarix_payload_index_query {
-    uint32_t registry_id;
-    uint32_t key_hash;
-    uint32_t expected_generation;
-    uint8_t  query_type;
-    uint8_t  probe_limit;
-    uint8_t  projection_flags;
-    uint8_t  reserved;
-} atarix_payload_index_query_t;
-
-typedef struct atarix_payload_index_reply {
-    uint32_t resolved_id;
-    uint32_t resolved_generation;
-    uint8_t  status;
-    uint8_t  match_offset;
-    uint16_t audit_window_id;
-} atarix_payload_index_reply_t;
-
-#pragma pack(pop)
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* ATARIX_INDEX_H */
-```
+The payload names a registry or table. It does not grant authority. The
+receiving service must validate native mailbox, capability, policy,
+lifecycle, and recovery state before use.
 
 ## RTL Correction Notes
 
-The RTL sketches discussed so far are not yet a verified implementation.
+The repository contains an [accelerator implementation](../../rtl/atarix/atx_spec_020_accelerator.v),
+a [CI testbench](../../rtl/atarix/atx_spec_020_accelerator_ci_tb.v), and a
+[simulation workflow](../../.github/workflows/rtl-atx-spec-020.yml). These are
+implementation and test artifacts, not evidence that every architectural
+requirement is satisfied.
 
-Known corrections before implementation:
+[Architecture Review 004, Finding 006](https://github.com/dlworrell/atarix/pull/125)
+identifies an open defect: `req_expected_generation` is accepted but is not
+compared with `table_generation`. The current RTL does not enforce a caller's expected generation. Existing
+simulation coverage does not close this gap. Resolving the status semantics,
+implementing the check, and adding mismatch tests are separate engineering work.
+
+The earlier RTL correction checklist is retained below for traceability.
+Each item needs implementation and test evidence before it can be marked
+complete; this list is not a statement that every item remains absent:
 
 ```text
 1. Replace any typo such as landmark_offset with resolved_lane_offset.
