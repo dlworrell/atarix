@@ -78,7 +78,16 @@ ATX-SPEC-020 defines an initial RTL-backed lookup acceleration path.
 
 The implementation includes SIMD-style control byte probing, scalar comparison reference behavior, Krapivin-style stepping, Elias-Fano-style decoding, and hardware audit-window support.
 
-The RTL simulations validate both correctness and a scalar-vs-SIMD gain proxy.
+The RTL simulation suites exercise selected behavior and a scalar-vs-SIMD
+gain proxy. They do not establish full ATX-SPEC-020 conformance or physical
+hardware performance.
+
+[Architecture Review 004, Finding 006](https://github.com/dlworrell/atarix/pull/125)
+records an implementation gap: the accelerator accepts an expected
+generation without checking it against the table generation. Generation
+mismatch handling remains open. See the
+[hardware mailbox integration notes](../../ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.md)
+for the implementation references and retained review checklist.
 
 ## Relationship To ATX-SPEC-020
 
