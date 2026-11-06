@@ -4,9 +4,9 @@ Workflow: Project Zero Inventory
 
 ## Counts
 
-- Full tracked file count: 327
-- Documentation candidate count: 198
-- docs/ tracked file count: 158
+- Full tracked file count: 328
+- Documentation candidate count: 199
+- docs/ tracked file count: 159
 
 ## Outputs
 
