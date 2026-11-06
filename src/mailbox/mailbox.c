@@ -45,6 +45,8 @@ int atarix_mailbox_message_type_known(uint16_t type) {
     case ATARIX_MAILBOX_MESSAGE_FAULT_REPORT:
     case ATARIX_MAILBOX_MESSAGE_DISCOVERY_RECORD_PUSH:
     case ATARIX_MAILBOX_MESSAGE_CAPABILITY_EVALUATE:
+    case ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST:
+    case ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REPLY:
         return 1;
     default:
         return 0;

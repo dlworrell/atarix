@@ -56,7 +56,15 @@ typedef enum atarix_mailbox_message_type {
     ATARIX_MAILBOX_MESSAGE_INDEX_QUERY = 0x0020,
     ATARIX_MAILBOX_MESSAGE_INDEX_MUTATE = 0x0021,
     ATARIX_MAILBOX_MESSAGE_INDEX_RECOVER = 0x0022,
-    ATARIX_MAILBOX_MESSAGE_INDEX_STATUS = 0x0023
+    ATARIX_MAILBOX_MESSAGE_INDEX_STATUS = 0x0023,
+
+    /*
+     * SERVICE_GPU_COMPUTE (0x6000) messages. Proposed in the CPU card software
+     * test bench (docs/verification/cpu-card-software-testbench.md); payload
+     * layout documented there.
+     */
+    ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST = 0x0040,
+    ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REPLY = 0x0041
 } atarix_mailbox_message_type_t;
 
 #pragma pack(push, 1)

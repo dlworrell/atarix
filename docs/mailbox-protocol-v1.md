@@ -54,7 +54,12 @@ RESET_REQUEST
 FAULT_REPORT
 DISCOVERY_RECORD_PUSH
 CAPABILITY_EVALUATE
+GPU_TRANSFORM_REQUEST   0x0040  (proposed; SERVICE_GPU_COMPUTE)
+GPU_TRANSFORM_REPLY     0x0041  (proposed; SERVICE_GPU_COMPUTE)
 ```
+
+The GPU transform messages and their payload layout are defined in
+[`verification/cpu-card-software-testbench.md`](verification/cpu-card-software-testbench.md).
 
 Unknown or invalid message types are rejected.
 
