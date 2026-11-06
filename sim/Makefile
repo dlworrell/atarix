@@ -50,18 +50,24 @@ $(BUILD)/obj/src/%.o: $(ROOT)/src/%.c
 
 $(BUILD)/obj/sim/%.o: $(ROOT)/sim/%.cpp $(wildcard $(ROOT)/sim/cpu/*.hpp $(ROOT)/sim/cpu-card/*.hpp)
 	@mkdir -p $(dir $@)
-	$(CXX) $(WARN_CXX) $(CPPFLAGS) -isystem $(CLK) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(WARN_CXX) $(CPPFLAGS) -isystem $(CLK) -isystem $(ROOT)/third_party/cglm $(CXXFLAGS) -c $< -o $@
 
 $(VECTORS): $(BUILD)/obj/sim/cpu/vector_runner.o $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o $(BUILD)/obj/sim/cpu-card/interrupts.o \
+$(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o $(BUILD)/obj/sim/cpu-card/interrupts.o $(BUILD)/obj/sim/cpu-card/gpu_service.o \
          $(BUILD)/obj/sim/cpu-card/main.o $(LIB_OBJS) $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(ROM): $(ROOT)/sim/cpu-card/firmware/test_rom.s $(ROOT)/sim/cpu-card/firmware/rom.cfg
+GPU_VECTORS := $(BUILD)/obj/firmware/gpu_vectors.inc
+
+$(GPU_VECTORS): $(ROOT)/sim/cpu-card/firmware/gen_gpu_vectors.py
+	@mkdir -p $(dir $@)
+	python3 -I $< $@
+
+$(ROM): $(ROOT)/sim/cpu-card/firmware/test_rom.s $(ROOT)/sim/cpu-card/firmware/rom.cfg $(GPU_VECTORS)
 	@mkdir -p $(BUILD)/obj/firmware
-	$(CA65) --cpu 65816 -o $(BUILD)/obj/firmware/test_rom.o -l $(BUILD)/obj/firmware/test_rom.lst $<
+	$(CA65) --cpu 65816 -I $(BUILD)/obj/firmware -o $(BUILD)/obj/firmware/test_rom.o -l $(BUILD)/obj/firmware/test_rom.lst $<
 	$(LD65) -C $(ROOT)/sim/cpu-card/firmware/rom.cfg -o $@ $(BUILD)/obj/firmware/test_rom.o
 
 $(LIAR): $(ROOT)/sim/cpu-card/firmware/liar_rom.s $(ROOT)/sim/cpu-card/firmware/rom.cfg

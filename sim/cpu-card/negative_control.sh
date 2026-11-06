@@ -42,5 +42,7 @@ expect_fail "Vector Pull Rewrite does not rewrite" "${card}" --rom "${rom}" --in
 expect_fail "interrupt mask is ignored" "${card}" --rom "${rom}" --inject ignore-mask
 expect_fail "mailbox IRQ dispatched at level 7 (pulls RESET)" "${card}" --rom "${rom}" --inject mailbox-level7
 expect_fail "supervisor executes a CPU reset request" "${card}" --rom "${rom}" --inject supervisor-accepts-reset
+expect_fail "GPU service rotates the wrong way" "${card}" --rom "${rom}" --inject gpu-wrong-math
+expect_fail "GPU result 3 LSB off (outside tolerance)" "${card}" --rom "${rom}" --inject gpu-off-by-3
 set -e
-echo "negative controls passed: all nine defects were detected"
+echo "negative controls passed: all eleven defects were detected"

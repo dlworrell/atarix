@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#include "gpu_service.hpp"
+
 extern "C" {
 #include "atarix/operations.h"
 #include "atarix/ring.h"
@@ -57,6 +59,7 @@ uint32_t Northbridge::operation_for(uint16_t message_type) {
 		case ATARIX_MAILBOX_MESSAGE_VERSION_QUERY:
 		case ATARIX_MAILBOX_MESSAGE_STATUS_QUERY:
 		case ATARIX_MAILBOX_MESSAGE_READ_REGISTER:
+		case ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST:  // computes a result, changes no state
 			return ATARIX_OPERATION_READ;
 		case ATARIX_MAILBOX_MESSAGE_WRITE_REGISTER:
 		case ATARIX_MAILBOX_MESSAGE_DISCOVERY_RECORD_PUSH:
@@ -218,6 +221,19 @@ void Northbridge::submit(uint64_t cycle) {
 
 	if(target->echo_service && header.type == ATARIX_MAILBOX_MESSAGE_PING) {
 		deliver_reply(target->node_id, ATARIX_MAILBOX_MESSAGE_PONG, header.sequence, payload, header.length);
+		finish(ATARIX_MAILBOX_STATUS_OK, "dispatch");
+		return;
+	}
+
+	if(target->gpu_compute && header.type == ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST) {
+		// Service-level errors (bad length, operation, axis or range) are
+		// reported in the reply's status; the mailbox decision is dispatch OK.
+		const GpuFault fault = injection_ == Injection::GpuWrongMath ? GpuFault::NegateAngle
+			: injection_ == Injection::GpuOffBy3 ? GpuFault::BiasX3 : GpuFault::None;
+		const GpuReply reply = gpu_transform(payload, header.length, fault);
+		gpu_log_.push_back({cycle, target->node_id, header.sequence, reply.status});
+		deliver_reply(target->node_id, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REPLY, header.sequence,
+			reply.payload.data(), GpuReplyLength);
 		finish(ATARIX_MAILBOX_STATUS_OK, "dispatch");
 		return;
 	}

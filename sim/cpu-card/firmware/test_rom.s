@@ -68,6 +68,8 @@ T_PING      = $0001
 T_PONG      = $0002
 T_WRITE_REG = $0008
 T_UNKNOWN   = $0099
+T_GPU_REQ   = $0040                 ; GPU_TRANSFORM_REQUEST (SERVICE_GPU_COMPUTE)
+T_GPU_REP   = $0041                 ; GPU_TRANSFORM_REPLY
 S_OK        = 0
 S_CRC       = 4
 S_SEQ       = 5
@@ -82,6 +84,8 @@ N_SUPER     = $0000
 N_FABRIC    = $0001
 N_ECHO      = $FF00
 N_NONE      = $0404
+N_GPU       = $0300                 ; display card: GPU compute service (granted READ)
+N_GPU2      = $0301                 ; second GPU service: no capability granted
 
 ; Direct-page variables
 crc_lo      = $00
@@ -95,6 +99,7 @@ corruptv    = $0E
 tmp         = $10
 test_no     = $12
 irq_count   = $14                   ; interrupts taken (16-bit)
+expp        = $16                   ; pointer to the expected GPU reply
 irq_log     = $0300                 ; dispatch level of each interrupt taken
 sup_args    = $0310                 ; supervisor ARG0-3 captured by the level-0 handler
 
@@ -106,6 +111,16 @@ sup_args    = $0310                 ; supervisor ARG0-3 captured by the level-0 
 .endmacro
 .macro JEQ target
     bne :+
+    jmp target
+:
+.endmacro
+.macro JCC target
+    bcs :+
+    jmp target
+:
+.endmacro
+.macro JCS target
+    bcc :+
     jmp target
 :
 .endmacro
@@ -126,6 +141,7 @@ msg_irq:    .byte "FAIL unexpected interrupt", $0D, $0A, 0
 hexdigits:  .byte "0123456789ABCDEF"
 payload:    .byte "ATARIX"
 PAYLOAD_LEN = 6
+.include "gpu_vectors.inc"          ; generated: requests and independently computed results
 
 .segment "CODE"
 
@@ -249,6 +265,10 @@ reset:
     sta seqv
     lda #corrupt
     sta corruptv
+    lda #payload
+    sta ptr
+    lda #PAYLOAD_LEN
+    sta len
     jsr send
     cmp #expect
     beq :+
@@ -423,9 +443,155 @@ reset:
     .a16
     jsr report_ok
 
+; ---------------------------------------------------------------------------
+; GPU compute service (cglm-backed display card), 16.16 fixed point.
+; ---------------------------------------------------------------------------
+.macro GPUCASE num, dst, seq, req, reqlen, expect_status, exp
+    lda #num
+    sta test_no
+    lda #dst
+    sta dstv
+    lda #T_GPU_REQ
+    sta typv
+    lda #seq
+    sta seqv
+    lda #0
+    sta corruptv
+    lda #req
+    sta ptr
+    lda #reqlen
+    sta len
+    jsr send
+    cmp #expect_status
+    JNE fail
+    lda #exp
+    sta expp
+.endmacro
+
+    GPUCASE $31, N_GPU, 8, gpu_req_g1, GPU_REQ_LEN, S_OK, gpu_exp_g1
+    jsr check_gpu_reply                 ; rotate 90 deg about Z, translate -> (2,4,4)
+    jsr report_ok
+    GPUCASE $32, N_GPU, 9, gpu_req_g2, GPU_REQ_LEN, S_OK, gpu_exp_g2
+    jsr check_gpu_reply                 ; general rotation, unnormalized axis
+    jsr report_ok
+    GPUCASE $33, N_GPU, 10, gpu_req_badop, GPU_REQ_LEN, S_OK, gpu_exp_badop
+    jsr check_gpu_reply                 ; service rejects operation 7 (status 2)
+    jsr report_ok
+    GPUCASE $34, N_GPU, 11, gpu_req_g1, GPU_REQ_SHORT_LEN, S_OK, gpu_exp_badlen
+    jsr check_gpu_reply                 ; service rejects a 40-byte request (status 1)
+    jsr report_ok
+    GPUCASE $35, N_GPU2, 12, gpu_req_g1, GPU_REQ_LEN, S_CAP, gpu_exp_g1
+    jsr check_no_reply                  ; no capability for the second GPU
+    jsr report_ok
+
     ldx #msg_pass
     jsr puts
     stp
+
+; ---------------------------------------------------------------------------
+; check_gpu_reply: the reply must be a GPU_TRANSFORM_REPLY from dstv with the
+; request's sequence, a CRC this firmware recomputes, the expected status, and
+; x, y, z within +/-2 LSB (16.16) of the expected values at (expp).
+; ---------------------------------------------------------------------------
+check_gpu_reply:
+    .a16
+    .i16
+    sep #$20
+    .a8
+    lda MB_STATUS
+    and #ST_RX_READY
+    JEQ gpu_bad
+    lda MB_TYPE
+    cmp #<T_GPU_REP
+    JNE gpu_bad
+    lda MB_TYPE_HI
+    cmp #>T_GPU_REP
+    JNE gpu_bad
+    lda MB_SRC
+    cmp dstv
+    JNE gpu_bad
+    lda MB_SRC_HI
+    cmp dstv + 1
+    JNE gpu_bad
+    lda MB_LEN
+    cmp #16
+    JNE gpu_bad
+    rep #$20
+    .a16
+    lda RX + 0
+    cmp #MAGIC_LO
+    JNE gpu_bad
+    lda RX + 4
+    cmp #T_GPU_REP
+    JNE gpu_bad
+    lda RX + 6
+    cmp #16
+    JNE gpu_bad
+    lda RX + 8
+    cmp seqv
+    JNE gpu_bad
+    lda #RX + HDR
+    sta ptr
+    lda #16
+    sta len
+    jsr crc32
+    lda RX + 12
+    cmp crc_lo
+    JNE gpu_bad
+    lda RX + 14
+    cmp crc_hi
+    JNE gpu_bad
+
+    ; status: exact
+    ldy #0
+    lda RX + HDR
+    cmp (expp),y
+    JNE gpu_bad
+    ldy #2
+    lda RX + HDR + 2
+    cmp (expp),y
+    JNE gpu_bad
+
+    ; x, y, z: |got - expected| <= 2 (32-bit, two's complement)
+    ldy #4
+@coord:
+    lda RX + HDR,y
+    sec
+    sbc (expp),y
+    sta tmp
+    iny
+    iny
+    lda RX + HDR,y
+    sbc (expp),y
+    beq @hi_zero
+    cmp #$FFFF
+    JNE gpu_bad
+    lda tmp
+    cmp #$FFFE
+    JCC gpu_bad
+    bra @next
+@hi_zero:
+    lda tmp
+    cmp #3
+    JCS gpu_bad
+@next:
+    iny
+    iny
+    cpy #16
+    bne @coord
+
+    sep #$20
+    .a8
+    lda #CTL_ACK
+    sta MB_CONTROL
+    rep #$20
+    .a16
+    rts
+gpu_bad:
+    rep #$30
+    .a16
+    .i16
+    jmp fail
 
 fail8:                              ; failure path reachable from 8-bit code
     rep #$30
@@ -503,13 +669,9 @@ log_irq:                            ; A (8-bit) = level; X 16-bit free
 ; send: build and submit one frame. In: dstv, typv, seqv, corruptv.
 ; Payload is always "ATARIX". Out: A = Northbridge result (16-bit, high 0).
 ; ---------------------------------------------------------------------------
-send:
+send:                               ; payload at (ptr), length len, set by the caller
     .a16
     .i16
-    lda #payload
-    sta ptr
-    lda #PAYLOAD_LEN
-    sta len
     jsr crc32
     lda corruptv
     beq :+

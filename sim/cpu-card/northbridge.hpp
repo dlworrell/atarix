@@ -64,6 +64,14 @@ struct Endpoint {
 	uint16_t service_type;
 	bool echo_service;   // replies PONG to PING with the same sequence and payload
 	std::string name;
+	bool gpu_compute = false;  // SERVICE_GPU_COMPUTE: answers GPU_TRANSFORM_REQUEST (gpu_service.hpp)
+};
+
+struct GpuServiceRecord {
+	uint64_t cycle;
+	uint16_t node;
+	uint32_t sequence;
+	uint32_t status;     // GpuStatus returned in the reply
 };
 
 struct AuditRecord {
@@ -91,6 +99,8 @@ enum class Injection {
 	SkipRing,
 	AcceptBadCrc,
 	CorruptPong,
+	GpuWrongMath,        // GPU service rotates the wrong way
+	GpuOffBy3,           // GPU result 3 LSB off (outside the +/-2 tolerance)
 };
 
 class Northbridge {
@@ -112,6 +122,7 @@ public:
 
 	const std::vector<AuditRecord> &audit() const { return audit_; }
 	const std::vector<BusFault> &faults() const { return faults_; }
+	const std::vector<GpuServiceRecord> &gpu_log() const { return gpu_log_; }
 
 	static atarix_discovery_handle_t handle_for(const Endpoint &endpoint);
 	static uint32_t operation_for(uint16_t message_type);
@@ -138,6 +149,7 @@ private:
 
 	std::vector<AuditRecord> audit_;
 	std::vector<BusFault> faults_;
+	std::vector<GpuServiceRecord> gpu_log_;
 
 	void submit(uint64_t cycle);
 	void deliver_reply(uint16_t source, uint16_t type, uint32_t sequence, const uint8_t *payload, uint16_t length);

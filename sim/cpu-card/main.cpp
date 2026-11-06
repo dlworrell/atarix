@@ -41,6 +41,8 @@ using atarix::sim::Northbridge;
 constexpr uint16_t CpuNode = ATARIX_SIM_NODE_CPU_BASE;          // 0x0100, slot 0
 constexpr uint16_t EchoNode = ATARIX_SIM_NODE_TEST_BASE;        // 0xFF00, test range
 constexpr uint16_t UnknownNode = 0x0404;                        // no endpoint
+constexpr uint16_t GpuNode = ATARIX_SIM_NODE_DISPLAY_BASE;      // 0x0300, display card: GPU compute
+constexpr uint16_t GpuNode2 = ATARIX_SIM_NODE_DISPLAY_BASE + 1; // 0x0301, second GPU: no capability
 constexpr const char *PassLine = "ATARIX CPU CARD TEST: PASS";
 
 struct Expected {
@@ -64,7 +66,15 @@ const Expected ExpectedAudit[] = {
 	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 8, ATARIX_MAILBOX_STATUS_SEQUENCE_ERROR, "sequence gap rejected"},
 	{EchoNode, 0x0099, 7, ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE, "unknown message type rejected"},
 	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 7, ATARIX_MAILBOX_STATUS_OK, "PING whose reply raises the mailbox interrupt (I2)"},
+	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 8, ATARIX_MAILBOX_STATUS_OK, "GPU transform G1"},
+	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 9, ATARIX_MAILBOX_STATUS_OK, "GPU transform G2"},
+	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 10, ATARIX_MAILBOX_STATUS_OK, "GPU bad operation (service-level error)"},
+	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 11, ATARIX_MAILBOX_STATUS_OK, "GPU bad length (service-level error)"},
+	{GpuNode2, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 12, ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, "no capability for the second GPU"},
 };
+
+// GPU service decisions (reply status) for the requests it received.
+const uint32_t ExpectedGpuStatuses[] = {0, 0, 2, 1};
 
 // Every vector fetch (VPB active) and its address after Vector Pull Rewrite:
 // the reset vector at boot, then the supervisor IRQ at level 0 and the
@@ -125,7 +135,8 @@ int usage() {
 	std::fprintf(stderr,
 		"usage: atarix-cpu-card --rom FILE [--trace FILE] [--report FILE] [--max-cycles N]\n"
 		"                       [--inject skip-capability|skip-ring|accept-bad-crc|corrupt-pong|\n"
-		"                                 no-vector-rewrite|ignore-mask|mailbox-level7|supervisor-accepts-reset]\n");
+		"                                 no-vector-rewrite|ignore-mask|mailbox-level7|supervisor-accepts-reset|\n"
+		"                                 gpu-wrong-math|gpu-off-by-3]\n");
 	return 2;
 }
 
@@ -151,6 +162,8 @@ int main(int argc, char **argv) {
 			else if(which == "skip-ring") injection = Injection::SkipRing;
 			else if(which == "accept-bad-crc") injection = Injection::AcceptBadCrc;
 			else if(which == "corrupt-pong") injection = Injection::CorruptPong;
+			else if(which == "gpu-wrong-math") injection = Injection::GpuWrongMath;
+			else if(which == "gpu-off-by-3") injection = Injection::GpuOffBy3;
 			else if(which == "no-vector-rewrite") interrupt_injection = atarix::sim::InterruptInjection::NoVectorRewrite;
 			else if(which == "ignore-mask") interrupt_injection = atarix::sim::InterruptInjection::IgnoreMask;
 			else if(which == "mailbox-level7") interrupt_injection = atarix::sim::InterruptInjection::MailboxLevel7;
@@ -187,7 +200,12 @@ int main(int argc, char **argv) {
 	const Endpoint echo{EchoNode, ATARIX_RING_SERVICE, ATARIX_SERVICE_VALIDATION, true, "test-echo"};
 	northbridge.add_endpoint(echo);
 
-	// The CPU card's only capability: READ on the echo service.
+	// Display cards offering SERVICE_GPU_COMPUTE (cglm-backed, gpu_service.hpp).
+	const Endpoint gpu{GpuNode, ATARIX_RING_SERVICE, ATARIX_SERVICE_GPU_COMPUTE, false, "gpu-compute", true};
+	northbridge.add_endpoint(gpu);
+	northbridge.add_endpoint({GpuNode2, ATARIX_RING_SERVICE, ATARIX_SERVICE_GPU_COMPUTE, false, "gpu-compute-2", true});
+
+	// The CPU card's capabilities: READ on the echo service and on the first GPU.
 	atarix_capability_record_v1_t read_echo{};
 	read_echo.capability_id = 1;
 	read_echo.operation_id = ATARIX_OPERATION_READ;
@@ -197,6 +215,10 @@ int main(int argc, char **argv) {
 	read_echo.trust_requirement = ATARIX_TRUST_IDENTIFIED;
 	read_echo.issuer_handle = atarix_discovery_make_handle(ATARIX_SIM_NODE_SUPERVISOR, ATARIX_SERVICE_PROVISIONING, 0);
 	northbridge.grant(read_echo);
+	atarix_capability_record_v1_t read_gpu = read_echo;
+	read_gpu.capability_id = 2;
+	read_gpu.target_handle = Northbridge::handle_for(gpu);
+	northbridge.grant(read_gpu);
 
 	FILE *trace = nullptr;
 	if(!trace_path.empty()) {
@@ -246,6 +268,18 @@ int main(int argc, char **argv) {
 				<< ", want dst=" << want.destination << " type=" << want.type << " seq=" << want.sequence
 				<< " status=" << want.status;
 			failures.push_back(s.str());
+		}
+	}
+
+	// 7. GPU service: exactly the expected requests reached it, with these statuses.
+	const auto &gpu_log = northbridge.gpu_log();
+	const size_t expected_gpu = sizeof ExpectedGpuStatuses / sizeof ExpectedGpuStatuses[0];
+	if(gpu_log.size() != expected_gpu) {
+		failures.push_back(std::to_string(gpu_log.size()) + " GPU requests served, expected " + std::to_string(expected_gpu));
+	}
+	for(size_t i = 0; i < gpu_log.size() && i < expected_gpu; ++i) {
+		if(gpu_log[i].status != ExpectedGpuStatuses[i] || gpu_log[i].node != GpuNode) {
+			failures.push_back("GPU request " + std::to_string(i) + " returned status " + std::to_string(gpu_log[i].status));
 		}
 	}
 
