@@ -107,6 +107,16 @@ static inline int atarix_identity_magic_is_valid(uint32_t magic) {
     return magic == ATARIX_IDENTITY_MAGIC_ATIX;
 }
 
+/* CRC32 of the mandatory block with the CRC field taken as zero. */
+uint32_t atarix_identity_crc32_v1(const atarix_identity_eeprom_v1_t *identity);
+
+/*
+ * Structural validation: returns ATARIX_ID_STATUS_* flags up to
+ * IDENTITY_VALID, with ERROR set at the first failing step. Never sets
+ * POLICY_ACCEPTED or VALID: those are supervisor policy decisions.
+ */
+uint32_t atarix_identity_validate_v1(const atarix_identity_eeprom_v1_t *identity);
+
 #ifdef __cplusplus
 }
 #endif

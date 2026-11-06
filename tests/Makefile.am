@@ -40,6 +40,9 @@ TESTS = \
     ring/test_ring_downward_allowed \
     ring/test_ring_quarantine_denied \
     ring/test_ring_supervisor_override \
+    ring/test_ring_wire_fail_closed \
+    mailbox/test_mailbox_endpoint_lifecycle \
+    identity/test_identity_validate \
     memory/test_memory_descriptor \
     bib/test_bib_vectors \
     bib/test_bib_builder \
@@ -99,6 +102,9 @@ ring_test_ring_self_access_SOURCES = ring/test_ring_self_access.c
 ring_test_ring_upward_denied_SOURCES = ring/test_ring_upward_denied.c
 ring_test_ring_downward_allowed_SOURCES = ring/test_ring_downward_allowed.c
 ring_test_ring_quarantine_denied_SOURCES = ring/test_ring_quarantine_denied.c
+ring_test_ring_wire_fail_closed_SOURCES = ring/test_ring_wire_fail_closed.c
+mailbox_test_mailbox_endpoint_lifecycle_SOURCES = mailbox/test_mailbox_endpoint_lifecycle.c
+identity_test_identity_validate_SOURCES = identity/test_identity_validate.c
 ring_test_ring_supervisor_override_SOURCES = ring/test_ring_supervisor_override.c
 
 memory_test_memory_descriptor_SOURCES = memory/test_memory_descriptor.c

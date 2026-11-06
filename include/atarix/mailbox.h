@@ -33,9 +33,26 @@ typedef enum atarix_mailbox_status {
     ATARIX_MAILBOX_STATUS_POLICY_DENIED = 10,
     ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED = 11,
     ATARIX_MAILBOX_STATUS_QUARANTINED = 12,
-    ATARIX_MAILBOX_STATUS_BUSY = 13,
-    ATARIX_MAILBOX_STATUS_TIMEOUT = 14
+    ATARIX_MAILBOX_STATUS_BUSY = 13,          /* resource unavailable: no reply slot / queue exhausted */
+    ATARIX_MAILBOX_STATUS_TIMEOUT = 14,
+    ATARIX_MAILBOX_STATUS_TARGET_UNAVAILABLE = 15 /* target endpoint exists but is not ACTIVE */
 } atarix_mailbox_status_t;
+
+/*
+ * Endpoint lifecycle states (ATX-SPEC-005, "Endpoint Lifecycle"). Only an
+ * ACTIVE endpoint accepts messages. Lifecycle is checked after ring and
+ * capability: a lifecycle state is never authority.
+ */
+typedef enum atarix_mailbox_endpoint_state {
+    ATARIX_MAILBOX_ENDPOINT_CREATED = 0,
+    ATARIX_MAILBOX_ENDPOINT_ACTIVE = 1,
+    ATARIX_MAILBOX_ENDPOINT_SUSPENDED = 2,
+    ATARIX_MAILBOX_ENDPOINT_DRAINING = 3,
+    ATARIX_MAILBOX_ENDPOINT_CLOSING = 4,
+    ATARIX_MAILBOX_ENDPOINT_CLOSED = 5,
+    ATARIX_MAILBOX_ENDPOINT_QUARANTINED = 6,
+    ATARIX_MAILBOX_ENDPOINT_FAILED = 7
+} atarix_mailbox_endpoint_state_t;
 
 typedef enum atarix_mailbox_message_type {
     ATARIX_MAILBOX_MESSAGE_INVALID = 0x0000,
@@ -111,6 +128,14 @@ atarix_mailbox_status_t atarix_mailbox_ring_authorize(
     uint16_t message_type);
 
 int atarix_mailbox_message_type_known(uint16_t type);
+
+/*
+ * Lifecycle admission for a message to an endpoint in the given state:
+ * ACTIVE -> OK; QUARANTINED -> QUARANTINED; every other state, including an
+ * out-of-range value, -> TARGET_UNAVAILABLE (fail closed).
+ */
+atarix_mailbox_status_t atarix_mailbox_endpoint_admit(
+    atarix_mailbox_endpoint_state_t state);
 
 #ifdef __cplusplus
 }

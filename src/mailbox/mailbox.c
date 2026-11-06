@@ -158,3 +158,15 @@ atarix_mailbox_status_t atarix_mailbox_ring_authorize(
 
     return ATARIX_MAILBOX_STATUS_OK;
 }
+
+atarix_mailbox_status_t atarix_mailbox_endpoint_admit(
+    atarix_mailbox_endpoint_state_t state) {
+    switch (state) {
+    case ATARIX_MAILBOX_ENDPOINT_ACTIVE:
+        return ATARIX_MAILBOX_STATUS_OK;
+    case ATARIX_MAILBOX_ENDPOINT_QUARANTINED:
+        return ATARIX_MAILBOX_STATUS_QUARANTINED;
+    default:
+        return ATARIX_MAILBOX_STATUS_TARGET_UNAVAILABLE;
+    }
+}

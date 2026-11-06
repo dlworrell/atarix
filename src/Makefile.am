@@ -8,6 +8,7 @@ libatarix_a_SOURCES = \
     capability/capability_evaluator.c \
     capability/capability_policy.c \
     mailbox/mailbox.c \
+    identity/identity_validate.c \
     sim/sim_node.c \
     sim/sim_mailbox.c \
     sim/sim_fabric.c \

@@ -25,6 +25,10 @@ static int capability_ring_range_valid(const atarix_capability_record_v1_t *capa
 static int ring_in_capability_range(atarix_ring_t caller_ring, const atarix_capability_record_v1_t *capability) {
     uint16_t caller = ring_to_wire(caller_ring);
 
+    if (caller == ATARIX_RING_WIRE_INVALID || caller == ATARIX_RING_WIRE_QUARANTINE) {
+        return 0;
+    }
+
     if (capability->minimum_ring == ATARIX_RING_WIRE_SUPERVISOR) {
         return caller == ATARIX_RING_WIRE_SUPERVISOR;
     }

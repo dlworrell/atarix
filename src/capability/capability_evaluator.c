@@ -3,6 +3,12 @@
 static int ring_allows(uint16_t minimum_ring_wire, uint16_t maximum_ring_wire, atarix_ring_t requester_ring) {
     uint16_t requester = atarix_ring_to_wire(requester_ring);
 
+    /* Fail closed: an unknown or quarantined requester holds no authority,
+     * whatever range the capability names. */
+    if (requester == ATARIX_RING_WIRE_INVALID || requester == ATARIX_RING_WIRE_QUARANTINE) {
+        return 0;
+    }
+
     if (minimum_ring_wire == ATARIX_RING_WIRE_SUPERVISOR) {
         return requester == ATARIX_RING_WIRE_SUPERVISOR;
     }
