@@ -34,8 +34,9 @@ module bus_shim_cosim_tb;
     integer k;
     integer out;
     integer captured;
-    reg [1023:0] stimulus_path;
-    reg [1023:0] output_path;
+    // Paths are packed strings: 8 bits per character, up to 1024 characters.
+    reg [8*1024-1:0] stimulus_path;
+    reg [8*1024-1:0] output_path;
 
     atx_northbridge_bus_shim dut (
         .clk(clk),

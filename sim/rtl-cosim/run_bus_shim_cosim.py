@@ -97,8 +97,11 @@ def main(argv):
          f"+cycles={len(stimulus)}"],
         capture_output=True, text=True, timeout=600)
     print(run.stdout.strip())
-    if run.returncode != 0 or "FAIL" in run.stdout:
+    # vvp reports file errors as "ERROR:" lines yet still exits 0; treat them,
+    # a testbench FAIL, or a missing capture file as a setup failure.
+    if run.returncode != 0 or "FAIL" in run.stdout or "ERROR" in run.stdout or not capture_file.exists():
         print(run.stderr, file=sys.stderr)
+        print("co-simulation did not run to completion", file=sys.stderr)
         return 2
 
     captured = []
