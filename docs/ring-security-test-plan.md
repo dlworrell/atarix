@@ -6,7 +6,8 @@ Catalyst-File-ID: urn:uuid:c0915fda-5ec8-403f-a333-e82b70a3701b
 
 # ATARIX Ring Security Test Plan
 
-Status: Planned
+Status: Implemented (the tests below exist and run in `make check`). Ring
+numbers updated 2026-11-06 to the canonical model.
 
 ## Purpose
 
@@ -46,17 +47,28 @@ Failure at any step denies the operation.
 
 ## Baseline Ring Model
 
-Initial rings:
+Rings are defined by [ADR-RING-SECURITY-MODEL](ADR-RING-SECURITY-MODEL.md)
+and `include/atarix/rings.h`:
 
 ```text
-Ring 0: Supervisor / Root Authority
-Ring 1: Fabric Management / Trusted System Services
-Ring 2: Device Services / Card Firmware
-Ring 3: Applications / User Workloads
-Ring 4: Untrusted or Quarantined Nodes
+Ring -2: Supervisor            Ring 1: Drivers and hardware-facing services
+Ring -1: Fabric / platform     Ring 2: User services
+Ring  0: Kernel / executive    Ring 3: Applications
+Ring  4: Quarantine (containment state)
 ```
 
-The exact ring set may evolve by ADR. The existence of ring boundaries is mandatory.
+This plan was first written against the seed numbering. The expected
+behaviors below are translated to the canonical rings:
+
+| Earlier seed number | Earlier name | Canonical ring (ADR) |
+|---|---|---|
+| Ring 0 | Supervisor / Root Authority | Ring −2 Supervisor |
+| Ring 1 | Fabric Management / Trusted System Services | Ring −1 Fabric (system services move to Ring 0–2 by role) |
+| Ring 2 | Device Services / Card Firmware | Ring 1 Driver |
+| Ring 3 | Applications / User Workloads | Ring 3 Application |
+| Ring 4 | Untrusted or Quarantined Nodes | Ring 4 Quarantine (containment state) |
+
+The existence of ring boundaries is mandatory.
 
 ## Current Tests That Remain Valid
 
@@ -100,9 +112,9 @@ Proves lower-trust rings cannot directly command, inspect, mutate, bypass, or im
 Expected behavior:
 
 ```text
-Ring 3 -> Ring 0: denied
-Ring 2 -> Ring 0: denied unless explicitly modeled as a supervised request path
-Ring 4 -> any trusted ring: denied
+Ring 3 -> Ring -2: denied
+Ring 1 -> Ring -2: denied unless through the Supervisor Request Gateway (ATX-SPEC-016)
+Ring 4 -> any ring: denied
 ```
 
 ### test_ring_downward_allowed
@@ -112,9 +124,9 @@ Proves higher-trust rings may supervise, constrain, or revoke authority from low
 Expected behavior:
 
 ```text
-Ring 0 -> Ring 1: allowed for Supervisor operations
-Ring 0 -> Ring 2: allowed for Supervisor operations
-Ring 1 -> Ring 2: allowed for Fabric-management operations
+Ring -2 -> Ring -1: allowed for Supervisor operations
+Ring -2 -> Ring  1: allowed for Supervisor operations
+Ring -1 -> Ring  1: allowed for Fabric-management operations
 ```
 
 ### test_ring_quarantine_denied
@@ -124,10 +136,10 @@ Proves quarantined nodes cannot reach trusted services or other normal nodes.
 Expected behavior:
 
 ```text
-Ring 4 -> Ring 0: denied
-Ring 4 -> Ring 1: denied
-Ring 4 -> Ring 2: denied
-Ring 4 -> Ring 3: denied unless explicit quarantine-service policy allows it
+Ring 4 -> Ring -2: denied
+Ring 4 -> Ring -1: denied
+Ring 4 -> Ring  1: denied
+Ring 4 -> Ring  3: denied (the code has no quarantine-service exception)
 ```
 
 ### test_ring_supervisor_override
@@ -137,10 +149,10 @@ Proves Ring 0 can perform recovery, revocation, and quarantine actions that lowe
 Expected behavior:
 
 ```text
-Ring 0 may quarantine lower rings.
-Ring 0 may revoke lower-ring authority.
-Ring 0 may inspect Supervisor-owned tables.
-Lower rings may not override Ring 0 policy.
+Ring -2 may quarantine less privileged rings.
+Ring -2 may revoke less privileged authority.
+Ring -2 may inspect Supervisor-owned tables.
+Less privileged rings may not override Ring -2 policy.
 ```
 
 ## Capability/Ring Interaction Tests
@@ -160,7 +172,7 @@ Proves a syntactically valid capability is still denied if ring policy forbids t
 Example:
 
 ```text
-Ring 3 application holds a valid-looking capability for a Ring 0 endpoint.
+Ring 3 application holds a valid-looking capability for a Ring -2 (supervisor) endpoint.
 Ring policy denies before resource access.
 ```
 
@@ -171,9 +183,9 @@ Proves delegation cannot increase authority across a prohibited ring boundary.
 Example:
 
 ```text
-Ring 2 device service delegates to Ring 3 application.
+Ring 1 device service delegates to Ring 3 application.
 Delegated capability may only reduce authority.
-Delegation cannot grant Ring 3 direct access to Ring 1 or Ring 0 internals.
+Delegation cannot grant Ring 3 direct access to Ring -1 or Ring -2 internals.
 ```
 
 ### test_revoked_capability_still_denied_after_ring_check
@@ -183,7 +195,12 @@ Proves revocation remains effective even when ring policy would otherwise allow 
 Example:
 
 ```text
-Ring 3 -> Ring 2 permitted by ring policy.
+Ring 1 -> Ring 3 permitted by ring policy (the test uses driver -> application).
+
+Note: the plan originally said "Ring 3 -> Ring 2 permitted by ring policy".
+The code denies every request from a less privileged ring to a more
+privileged one, so an application cannot request a user service by ring
+policy at all. This is open gap G-RING-3 in Architecture Review 004.
 Capability exists but is revoked.
 Operation is denied.
 ```
@@ -236,7 +253,7 @@ Proves the Supervisor can quarantine a node and the fabric prevents normal traff
 
 ### test_fabric_supervisor_visibility
 
-Proves Ring 0 can observe fabric topology while lower rings see only what service policy exposes.
+Proves Ring -2 can observe fabric topology while less privileged rings see only what service policy exposes.
 
 ## Suggested Test Count Milestones
 

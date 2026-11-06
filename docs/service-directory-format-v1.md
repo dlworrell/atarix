@@ -181,8 +181,17 @@ Ring -1
 Ring 0
     Kernel-authorized services
 
+Ring 1
+    Services delegated to drivers
+
+Ring 2
+    Services delegated to user services
+
 Ring 3
     Application-safe services only
+
+Ring 4 (quarantine)
+    No view
 ```
 
 ## Recovery Rule

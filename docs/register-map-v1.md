@@ -89,6 +89,14 @@ Example commands:
 05 FPGA Reload
 ```
 
+These are supervisor *requests*, not commands (ATX-SPEC-016): the supervisor
+decides each one by policy and reports a result. The CPU card test bench
+implements this block as a Supervisor Request Gateway with a RESULT register
+at `+06`, read/write arguments, and a proposed command `06` Report Fault. See
+the [test bench](verification/cpu-card-software-testbench.md#supervisor-request-gateway)
+and gaps G-SUP-1 to G-SUP-7 in
+[Architecture Review 004](reviews/Architecture-Review-004.md).
+
 ---
 
 ## Board Identity Block
@@ -261,6 +269,13 @@ Registers:
 ```
 
 Inspired by NuBus-style discovery concepts.
+
+These registers cannot express binding a service by type. The CPU card test
+bench uses a proposed extension (`+06` capability id, `+07` to `+0D` ring,
+service type, node, lifecycle state and instance). See the
+[test bench](verification/cpu-card-software-testbench.md#discovery-services-and-service-binding)
+and gaps G-BOOT-1 and G-BOOT-2 in
+[Architecture Review 004](reviews/Architecture-Review-004.md).
 
 ---
 

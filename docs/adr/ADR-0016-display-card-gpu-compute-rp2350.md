@@ -32,9 +32,10 @@ RP2350.
 Each display card carries its **own** RP2350. It runs the GPU compute firmware
 on its **Cortex-M33** cores, using their single-precision FPU (FPv5-SP).
 
-1. This is not the supervisor RP2350 of ADR-0002. The display card's RP2350
-   runs at service ring and has no supervisor authority. The supervisor keeps
-   its minimal, always-available role.
+1. This is not the supervisor RP2350 of ADR-0002. The display card's GPU
+   service runs in Ring 1 (driver: a hardware-facing service, per
+   ADR-RING-SECURITY-MODEL) and has no supervisor authority. The supervisor
+   keeps its minimal, always-available role.
 2. The firmware runs on the Cortex-M33 cores, not the RP2350's Hazard3 RISC-V
    cores, which have no FPU.
 3. The service core is portable C11, single-precision only

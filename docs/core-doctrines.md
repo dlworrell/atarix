@@ -136,19 +136,32 @@ Deny by default
 
 Failure at any step denies the operation.
 
-## Suggested Ring Model
+## Ring Model
 
-The initial ATARIX ring model is:
+The existence of ring boundaries is mandatory. The rings themselves are
+defined by [ADR-RING-SECURITY-MODEL](ADR-RING-SECURITY-MODEL.md), which
+supersedes the seed model this doctrine first suggested:
 
 ```text
-Ring 0: Supervisor / Root Authority
-Ring 1: Fabric Management / Trusted System Services
-Ring 2: Device Services / Card Firmware
-Ring 3: Applications / User Workloads
-Ring 4: Untrusted or Quarantined Nodes
+Ring -2: Supervisor (platform)
+Ring -1: Fabric / platform firmware (platform)
+Ring  0: Kernel / executive
+Ring  1: Drivers and hardware-facing services
+Ring  2: User services
+Ring  3: Applications
+Ring  4: Quarantine (containment state, not an execution ring)
 ```
 
-The exact ring count and names may evolve by ADR, but the existence of ring boundaries is mandatory.
+The seed model numbered the rings differently. Read older documents with
+this mapping:
+
+| Earlier seed number | Earlier name | Canonical ring (ADR) |
+|---|---|---|
+| Ring 0 | Supervisor / Root Authority | Ring −2 Supervisor |
+| Ring 1 | Fabric Management / Trusted System Services | Ring −1 Fabric (system services move to Ring 0–2 by role) |
+| Ring 2 | Device Services / Card Firmware | Ring 1 Driver |
+| Ring 3 | Applications / User Workloads | Ring 3 Application |
+| Ring 4 | Untrusted or Quarantined Nodes | Ring 4 Quarantine (containment state) |
 
 ## Review Rule
 

@@ -490,8 +490,10 @@ Doctrine and review process:
 
 ### Verification and Simulation
 
-- [CPU Card Software Test Bench](docs/verification/cpu-card-software-testbench.md): W65C816 (vendored CLK) on the emulated Rev A CPU card, mailbox path through libatarix, negative controls, and RTL co-simulation. Run `bash scripts/sim/run_testbench.sh`.
+- [CPU Card Software Test Bench](docs/verification/cpu-card-software-testbench.md): supervisor boot authority chain, W65C816 (vendored CLK) on the emulated Rev A CPU card binding services through Discovery Services, the mailbox path and Supervisor Request Gateway through libatarix, negative controls, and RTL co-simulation. Run `bash scripts/sim/run_testbench.sh`.
 - [Closure Units: CPU Card Software Test Bench](docs/engineering/closure-units/ATX-SIM-CLOSURE-INDEX.md)
+- [Architecture Review 004: Specification Gaps Found by the Test Bench](docs/reviews/Architecture-Review-004.md): every place a specification was silent, contradictory or not encoded, what the bench does, and the decision each needs.
+- [Ring Security Model](docs/ADR-RING-SECURITY-MODEL.md): canonical definition of every ring and its domain.
 - [ATX-SPEC-020 RTL CI](docs/verification/ATX-SPEC-020-rtl-ci.md)
 
 ## Project Governance

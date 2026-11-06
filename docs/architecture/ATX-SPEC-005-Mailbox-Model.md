@@ -183,6 +183,13 @@ Unknown versions must fail closed for authority-bearing operations unless explic
 - Define policy interaction in ATX-SPEC-013.
 - Define supervisor mailbox restrictions in ATX-SPEC-016.
 
+Open items found by implementing this model in the CPU card test bench are
+recorded in [Architecture Review 004](../reviews/Architecture-Review-004.md):
+G-MBX-1 to G-MBX-8 (target-unavailable status, validation order, sequence
+consumption on rejection, unknown endpoints, lifecycle encoding, version
+errors, operation mapping, resource accounting) and G-RING-3 (requests toward
+more privileged rings).
+
 ## Summary
 
 Mailboxes provide communication, not trust.

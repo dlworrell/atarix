@@ -78,11 +78,21 @@ Length valid
 Length matches payload buffer
 CRC valid
 Sequence accepted
+Target endpoint known (unknown: denied by default)
+Ring allowed
 Capability valid if required
+Target endpoint lifecycle state is ACTIVE
+Resources available (reply slot or queue space)
 Dispatch
 ```
 
 Invalid traffic must not reach service dispatch.
+
+The last steps follow the ATX-SPEC-005 order: authority (ring, capability)
+first, then lifecycle state and resource availability. Neither a lifecycle
+state nor a free queue is authority, so neither is checked before authority
+is established. A frame rejected after "Sequence accepted" has consumed its
+sequence number (open question G-MBX-3 in Architecture Review 004).
 
 ## CRC Rules
 
@@ -164,8 +174,16 @@ Sequence error
 Duplicate packet
 Out-of-order packet
 Unknown message type
-Capability failure
+Ring denial                      RING_DENIED (9)
+Unknown target (default deny)    POLICY_DENIED (10)
+Capability failure               CAPABILITY_DENIED (11)
+Target quarantined               QUARANTINED (12)
+Resources unavailable            BUSY (13)
+Target unavailable (not ACTIVE)  TARGET_UNAVAILABLE (15, added 2026-11-06)
 ```
+
+Numeric values are the `atarix_mailbox_status_t` ABI in
+`include/atarix/mailbox.h`.
 
 Silent failure is not acceptable.
 

@@ -158,6 +158,18 @@ Ring  2 = 0x0002
 Ring  3 = 0x0003
 ```
 
+Values that are not rings:
+
+```text
+0x0004  Quarantine (ATARIX_RING_WIRE_QUARANTINE): a containment state.
+        A capability must never name it.
+0x8000  Invalid (ATARIX_RING_WIRE_INVALID): returned for an out-of-range
+        ring so that no capability range can match. Never stored.
+```
+
+Names, domains and the quarantine state are defined in
+[ADR-RING-SECURITY-MODEL](ADR-RING-SECURITY-MODEL.md).
+
 ## Flags
 
 Initial flags:

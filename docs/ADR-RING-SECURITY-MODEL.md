@@ -45,18 +45,49 @@ A discovered service is not automatically usable.
 
 A valid capability is not automatically usable from every privilege level.
 
-## Proposed Rings
+## Rings
 
-```text
-Ring -2  Hardware Safety / Supervisor Authority
-Ring -1  Fabric / Platform Firmware Authority
-Ring  0  Kernel / Executive Authority
-Ring  1  Driver / Service Authority
-Ring  2  User Service Authority
-Ring  3  Application Authority
-```
+This ADR is the canonical definition of the ATARIX rings. Code
+(`include/atarix/rings.h`), wire formats (`capability-record-format-v1.md`)
+and every other document must use these numbers, names and domains.
 
-Negative rings are platform authority rings outside the normal CPU operating-system privilege model.
+ATARIX has two kinds of ring and one containment state:
+
+- **Platform rings (−2, −1)** hold platform authority outside the CPU
+  operating system. No software on a CPU card runs in them or can reach them.
+- **Operating-system rings (0–3)** are the four CPU execution rings.
+- **Quarantine (4)** is not an execution ring. It marks a contained subject
+  that may not request anything.
+
+Lower numbers are more privileged. A ring check only constrains authority; it
+never grants it. A capability is always required as well.
+
+| Ring | Code name | Wire | Domain | Holders | Must never |
+|---|---|---|---|---|---|
+| −2 | `ATARIX_RING_SUPERVISOR` | `0xFFFE` | Hardware safety and supervisor authority: reset, power, watchdog, identity validation, quarantine, recovery, supervisor audit | RP2350 supervisor | depend on a CPU, the OS, transport or directory services to recover |
+| −1 | `ATARIX_RING_FABRIC` | `0xFFFF` | Fabric and platform firmware: enumeration, fabric configuration, transport setup, service binding support | ECP5 fabric controller, backplane BIOS, platform firmware | grant authority by enumerating something |
+| 0 | `ATARIX_RING_KERNEL` | `0x0000` | Kernel / executive: memory, scheduling, driver loading, capability enforcement, transport use | Operating-system kernel on a CPU card | supersede supervisor safety authority |
+| 1 | `ATARIX_RING_DRIVER` | `0x0001` | Drivers and hardware-facing privileged services, with narrow, delegated device capabilities | Device drivers, accelerator and display services (for example `SERVICE_GPU_COMPUTE`), kernel-adjacent daemons | hold broad authority by default |
+| 2 | `ATARIX_RING_USER_SERVICE` | `0x0002` | User services: filesystem, network, desktop and session services with explicit service capabilities | User-space service processes | touch hardware directly |
+| 3 | `ATARIX_RING_APPLICATION` | `0x0003` | Applications, scripts and user tools | Ordinary programs | use hardware except through a lower ring |
+| 4 | `ATARIX_RING_QUARANTINE` | `0x0004` | Containment state, not an execution ring | Any subject the supervisor has contained | request anything; only ring −2 may act on it |
+
+Wire value `0x8000` (`ATARIX_RING_WIRE_INVALID`) is not a ring. Code returns
+it for an out-of-range ring so that no capability range can match (fail
+closed). No capability may name ring 4 or `0x8000`.
+
+### Choosing between ring 1 and ring 2
+
+Put a service in ring 1 when it operates hardware or holds device, DMA or
+interrupt capabilities. Put it in ring 2 when it only uses other services.
+The display card's GPU compute service is ring 1; a filesystem service that
+reaches storage only through the storage driver is ring 2.
+
+### Amendment record
+
+| Date | Change |
+|---|---|
+| 2026-11-06 | Added the ring table, the code names and wire values, and ring 4 (quarantine), which code already used but this ADR did not define. Named ring 2 "user service" in code (`ATARIX_RING_USER_SERVICE`; `ATARIX_RING_SERVICE` kept as a deprecated alias). Resolved the conflicting ring 1/2 definitions in `security.md` and `capability-model.md` in favor of this ADR. See Architecture Review 004. |
 
 ## Ring -2: Hardware Safety / Supervisor Authority
 
@@ -128,9 +159,11 @@ Responsibilities:
 - device drivers
 - privileged runtime services
 - kernel-adjacent daemons
-- hardware-facing software services
+- hardware-facing software services, including accelerator and display
+  services such as `SERVICE_GPU_COMPUTE`
 
-Ring 1 components may receive delegated capabilities.
+Ring 1 components may receive delegated capabilities. Those capabilities
+should be narrow: tied to specific devices, buffers, mailboxes and interrupts.
 
 ## Ring 2: User Service Authority
 
@@ -153,6 +186,21 @@ Responsibilities:
 - user tools
 
 Ring 3 has no direct hardware authority unless explicitly mediated by higher rings.
+
+## Ring 4: Quarantine (Containment State)
+
+Ring 4 is not an execution ring. Code uses it to mark a subject the
+supervisor has contained.
+
+Rules:
+
+- A quarantined subject may not request anything, from any ring.
+- Only Ring -2 may act on a quarantined subject (inspect, recover, release).
+- No capability may name Ring 4.
+
+An endpoint can also be quarantined through its mailbox lifecycle state
+(ATX-SPEC-005), without changing its ring. The CPU card test bench does this
+when the supervisor quarantines a reported device.
 
 ## Relationship to Identity
 
@@ -224,6 +272,10 @@ Homebrew supervisor authority: denied
 ```
 
 ## Boot-Time Authority Chain
+
+The CPU card software test bench runs this chain before releasing the CPU
+from reset, and checks each step's supervisor audit event
+(`docs/verification/cpu-card-software-testbench.md`).
 
 Recommended boot authority flow:
 

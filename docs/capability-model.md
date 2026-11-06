@@ -447,7 +447,7 @@ Ring 1 service + valid storage capability
 Ring 3 program + no capability
     -> denied
 
-Ring 2 driver + expired DMA capability
+Ring 1 driver + expired DMA capability
     -> denied
 ```
 

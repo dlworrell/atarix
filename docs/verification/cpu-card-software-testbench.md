@@ -16,11 +16,14 @@ mailbox path, and the bus shim RTL, before physical hardware exists.
 Run the ATARIX hardware/software contract as a test in software first:
 
 ```text
+Supervisor boot authority chain (CPU held in reset):
+    identity -> enumeration -> capability policy -> binding -> activation
+    -> reset released
 65816 test ROM (ca65)
     -> W65C816 core (vendored CLK, cycle-accurate)
     -> emulated Rev A CPU card bus (memory map, UART, identity)
-    -> Fabric Northbridge Mailbox Engine model
-    -> libatarix mailbox, ring and capability code (production C)
+    -> Discovery Services, Mailbox Engine and Supervisor Request Gateway models
+    -> libatarix mailbox, ring, capability and identity code (production C)
     -> recorded bus trace
     -> atx_northbridge_bus_shim.v under Icarus Verilog
 ```
@@ -53,8 +56,10 @@ and for the fit check yosys and nextpnr-ecp5.
 | `sim/cpu/sample-opcodes.txt` | Opcodes run on every pull request. |
 | `sim/cpu/known-deviations/` | Recorded, explained differences; never silent. |
 | `sim/cpu-card/cpu_card.cpp` | Rev A CPU card: memory map, UART, board identity, faults, bus trace. |
-| `sim/cpu-card/northbridge.cpp` | Mailbox Engine register block calling libatarix. |
-| `sim/cpu-card/interrupts.cpp` | Interrupt controller, Vega816 Vector Pull Rewrite, supervisor register mailbox. |
+| `sim/cpu-card/supervisor.cpp` | Supervisor (ring −2): boot authority chain, capability policy, Supervisor Request Gateway, supervisor audit. |
+| `sim/cpu-card/northbridge.cpp` | Fabric Northbridge (ring −1): endpoints, Discovery Services directory, Mailbox Engine calling libatarix. |
+| `sim/cpu-card/interrupts.cpp` | Interrupt controller and Vega816 Vector Pull Rewrite. |
+| `src/identity/identity_validate.c` | Identity EEPROM v1 validation (production C), used by the supervisor model. |
 | `src/firmware/display-card/gpu_core.c` | Display card GPU core (C11, single precision, cglm), shared by the simulator and the RP2350 firmware. |
 | `src/firmware/display-card/m33/` | Cortex-M33 startup, linker script and test for QEMU `mps2-an505`. |
 | `sim/cpu-card/gpu_service.cpp` | Simulator wrapper around the GPU core (adds negative-control faults outside it). |
@@ -75,11 +80,12 @@ From [`memory-map.md`](../memory-map.md) and [`register-map-v1.md`](../register-
 $000000-$007FFF  RAM
 $008000-$00BFFF  expansion window: unmapped (fault)
 $00C000-$00C003  UART: +00 DATA, +01 STATUS (bit1 TX ready)
-$00C200-$00C205  Supervisor mailbox (register path)
+$00C200-$00C206  Supervisor Request Gateway
 $00C300-$00C305  Board identity (read-only)
 $00D000-$00D001  Fabric control: version, status
 $00D100-$00D107  Interrupt controller
 $00D200-$00D2FF  Mailbox Engine
+$00D500-$00D50D  Discovery Services (ring-filtered service directory)
 $00E000-$00FFFF  ROM, vectors at top of bank; writes are ignored and faulted
 $010000-$7FFFFF  RAM (banks $01-$7F)
 other            unmapped: reads return $FF; every access is a recorded fault
@@ -112,11 +118,24 @@ little-endian ([ADR-0011](../adr/ADR-0011-little-endian-data-model.md)). The
 source node is attached by the Northbridge from the CPU card's slot. The CPU
 cannot state or forge it.
 
-Validation order (protocol order, production code):
+Validation order (ATX-SPEC-005 and `mailbox-protocol-v1.md`, production code):
 
 ```text
-header (magic, type, length, CRC) -> sequence -> endpoint -> ring -> capability -> dispatch
+header (magic, type, length, CRC) -> sequence -> endpoint -> ring -> capability
+    -> lifecycle state -> resources -> dispatch
 ```
+
+Lifecycle and resources come after authority: a free queue or an ACTIVE
+endpoint is not authority. An endpoint that is not ACTIVE gives
+`TARGET_UNAVAILABLE` (15), a quarantined one `QUARANTINED` (12), and an
+occupied reply slot `BUSY` (13).
+
+Every decision is an audit record with the ATX-SPEC-010 fields the bench can
+supply: actor node and ring (assigned by the fabric), target node and ring,
+operation, authority used (capability id, 0 when none), policy result,
+result, reason, cycle and the deciding stage. The host checks the authority
+of every decision. Record ID, record version and identity labels are not
+defined yet (gap G-AUD-1).
 
 ## Interrupts and Vector Pull Rewrite
 
@@ -139,28 +158,101 @@ the CPU card bus. The emulated W65C816 drives VPB on every vector fetch.
   folded onto seven vectors: supervisor and fabric fault 0, DMA 1, mailbox 2,
   timer 3, UART 4, network and accelerator 5, external slot and debug 6.
 
-## Supervisor register path
-
-`register-map-v1.md` gives the CPU a raw supervisor command register at
-`$00C200` (Reset Request, Recovery Mode, Read Board ID, Read Fault Log, FPGA
-Reload). This path does not go through mailbox v1 ring or capability checks.
-The simulator accepts only `$03` Read Board ID from the CPU (it completes and
-raises the Supervisor interrupt) and rejects every other command with STATUS
-`$80`. See finding 6.
-
 ## Test topology
 
-| Node | Ring | Role |
-|---|---|---|
-| `0x0100` CPU card, slot 0 | kernel | requester (trust: identified) |
-| `0x0000` supervisor | supervisor | must be unreachable from the kernel ring |
-| `0x0001` fabric control | fabric | must be unreachable from the kernel ring |
-| `0xFF00` test echo service | service | replies PONG to PING with the request's sequence and payload |
-| `0x0300` display card, `SERVICE_GPU_COMPUTE` | service | GPU compute service (cglm) |
-| `0x0301` second display card, `SERVICE_GPU_COMPUTE` | service | identical service with no capability granted |
+The CPU card runs the kernel (ring 0) in slot 0, with node `0x0100` and trust
+*identified*. Its identity and ring come from its slot, never from the CPU.
 
-The CPU card holds exactly two capabilities: `READ` on the echo service and
-`READ` on the GPU at `0x0300`.
+| Node | Card or endpoint | Ring | Identity | Result of the boot chain |
+|---|---|---|---|---|
+| `0x0000` | supervisor | −2 | platform | ACTIVE; not in the kernel's directory |
+| `0x0001` | fabric control | −1 | platform | ACTIVE; not in the kernel's directory |
+| `0x0300` | display card, `SERVICE_GPU_COMPUTE` | 1 driver | factory | validated; capability 1 (READ); ACTIVE |
+| `0x0301` | homebrew display card, `SERVICE_GPU_COMPUTE` | 1 driver | homebrew | identified; capability withheld (GPU compute needs validated); ACTIVE |
+| `0x0200` | storage card, `SERVICE_BLOCK_STORAGE` | 1 driver | corrupted (one bit, stale CRC) | identity failed; QUARANTINED; no capability |
+| `0xFF00` | test card, echo `SERVICE_VALIDATION` | 2 user service | development | validated; capability 2; ACTIVE |
+| `0xFF01` | test card, echo `SERVICE_VALIDATION`, firmware not ready | 2 user service | development | validated; capability 3; SUSPENDED |
+
+The echo service replies PONG to PING with the request's sequence and
+payload.
+
+## Boot authority chain
+
+The supervisor model (`supervisor.cpp`, ring −2) runs the chain from
+ADR-RING-SECURITY-MODEL and ADR-THREE-FABRIC-ARCHITECTURE before the CPU card
+leaves reset. Nothing in the bench grants a capability by hand.
+
+| Step | What happens | Audit event |
+|---|---|---|
+| Power-on | The CPU card is held in reset. | `power-on` |
+| Identity validation | Each card's Identity EEPROM v1 is checked with `atarix_identity_validate_v1()`: magic, version, lengths, CRC, vendor, device, classes. A failing card is quarantined. A homebrew vendor or a homebrew or unknown trust class gives *identified*; otherwise *validated*. | `identity-validated` / `identity-failed` |
+| Enumeration | The fabric creates one endpoint per declared service, in state CREATED (QUARANTINED for a failed card). Enumeration describes; it grants nothing. | `enumeration-complete` |
+| Capability evaluation | Supervisor policy grants the kernel READ on a service only if the service type is in the policy and the provider's trust meets it: VALIDATION needs *identified*, GPU compute needs *validated*. | `capability-granted` / `capability-withheld` |
+| Service binding | The kernel's ring-filtered directory is published at Discovery Services. | `service-binding` |
+| Transport activation | Endpoints become ACTIVE, or SUSPENDED when the card's service firmware is not ready. | `transport-activated` |
+| Reset release | The CPU card starts. | `reset-released` |
+
+## Discovery Services and service binding
+
+The firmware binds every service by service type and instance number through
+`$00D500`, and checks each entry's lifecycle state and capability. No service
+node id is compiled into the ROM. The only fixed node ids are three probes it
+addresses on purpose although the directory does not list them: the
+supervisor, fabric control, and an empty node. They show that an unlisted
+node is still checked, not merely hidden.
+
+`register-map-v1.md` defines `+00` to `+06`. The rest is a proposed profile
+(gaps G-BOOT-1 and G-BOOT-2):
+
+```text
+$00D500 +00 COUNT         R   entries in the caller's ring-filtered view
+$00D501 +01 SELECT        R/W entry index (the only writable register)
+$00D502 +02/+03 VENDOR    R   provider vendor id, low 16 bits
+$00D504 +04/+05 DEVICE    R   provider device id, low 16 bits
+$00D506 +06 CAPABILITY    R   capability id granted to the caller for this entry, 0 = none
+$00D507 +07 RING          R   provider ring, wire value low byte
+$00D508 +08/+09 SERVICE   R   service type
+$00D50A +0A/+0B NODE      R   node id: a transport address, not identity or authority
+$00D50C +0C STATE         R   endpoint lifecycle state (ATX-SPEC-005, 0-7)
+$00D50D +0D INSTANCE      R   service instance
+```
+
+Ring filtering: the view lists only endpoints in the caller's ring or less
+privileged rings, so the kernel never sees the supervisor or fabric
+endpoints.
+
+## Supervisor Request Gateway
+
+`register-map-v1.md` lists supervisor commands at `$00C200` as plain register
+writes. ATX-SPEC-016 says the operational fabric may only *request*
+supervisor actions, through a gateway and a policy check. The bench
+implements the gateway (closure unit ATX-SUP-REG-001):
+
+```text
+$00C200 +00 COMMAND   W   writing submits the request with ARG0-ARG3
+$00C201 +01 STATUS    R   bit1 done, bit7 not executed; reading clears done
+                          and deasserts interrupt source 1 (Supervisor)
+$00C202 +02..+05 ARG  R/W request arguments in, results out
+$00C206 +06 RESULT    R   ATX-SPEC-016 result of the last request
+```
+
+Results (proposed values): 0 EXECUTED, 1 DENIED, 2 DEFERRED,
+3 REQUIRES_APPROVAL, 4 QUARANTINED, 5 UNSUPPORTED, 6 UNKNOWN, 7 FAILED.
+Every completion raises the Supervisor interrupt and adds a
+`request-received` event and a result event to the supervisor audit. The
+caller and its ring come from the slot.
+
+Command policy for a kernel caller (proposed; gaps G-SUP-2 to G-SUP-5):
+
+| Command | Result | Why |
+|---|---|---|
+| `01` Reset Request | REQUIRES_APPROVAL | a system reset from the operational fabric needs an operator; nothing is reset |
+| `02` Recovery Mode | DENIED | recovery is not available to the operational fabric |
+| `03` Read Board ID | EXECUTED | observation; board id returned in ARG0–ARG3 |
+| `04` Read Fault Log | UNSUPPORTED | the record format is not specified |
+| `05` FPGA Reload | DENIED | firmware and bitstream state are supervisor-only |
+| `06` Report Fault (proposed; ARG0/ARG1 = node) | EXECUTED or DENIED | the supervisor quarantines a less privileged endpoint; a supervisor, fabric or kernel endpoint cannot be reported |
+| anything else | UNKNOWN | not in the command table |
 
 ## GPU compute service
 
@@ -210,8 +302,15 @@ QEMU is not an RP2350 (no RP2350 peripherals, boot ROM or timing).
 
 ## What is checked
 
-The firmware runs ten mailbox cases. The host then checks the Northbridge
-audit log independently of what the firmware reports.
+The firmware first binds its services (T20), then runs the cases below. The
+host then checks the Northbridge audit log, the supervisor audit and the
+gateway results independently of what the firmware reports.
+
+| # | Check |
+|---|---|
+| T20 | Discovery Services lists exactly the five chassis services, none in a platform ring. Echo instance 0 is ACTIVE with a capability; echo instance 1 is SUSPENDED with a capability; GPU instance 0 is ACTIVE with a capability; the homebrew GPU is ACTIVE without one; the storage card is QUARANTINED without one. Node ids for later cases come from here. |
+
+Mailbox cases (the echo node is the one bound in T20):
 
 | # | Request | Expected decision | Why |
 |---|---|---|---|
@@ -235,7 +334,7 @@ Interrupt cases:
 | T23 | Supervisor Read Board ID completes and raises source 1 |
 | T24 | Unmask both: the supervisor IRQ is taken first at `$FFEE` (level 0), then the mailbox IRQ rewritten to `$FFF2` (level 2), each in its own handler; board ID delivered; nothing left pending |
 | T25 | Mask everything: IRQ deasserts |
-| T26 | A CPU Reset Request through the supervisor register path is rejected |
+| T26 | A Reset Request through the gateway gets REQUIRES_APPROVAL; STATUS bit 7 set; nothing is reset |
 
 GPU cases (sequence numbers 8–12):
 
@@ -245,16 +344,44 @@ GPU cases (sequence numbers 8–12):
 | T32 | Rotate (1,2,3) 30° about the unnormalized axis (1,1,0), translate (0.5,0,−1) | (2.627661, 0.872339, 1.951624) within ±2 LSB |
 | T33 | Unsupported operation 7 | reply status 2 |
 | T34 | 40-byte request | reply status 1 |
-| T35 | Request to the second GPU | `CAPABILITY_DENIED`, no reply |
+| T35 | Request to the homebrew GPU | `CAPABILITY_DENIED`, no reply: policy withheld the capability |
+
+Lifecycle and resource cases (ATX-SPEC-005), sequence numbers 13–16:
+
+| # | Request | Expected decision | Why |
+|---|---|---|---|
+| T36 | PING → storage card | CAPABILITY_DENIED | listed in the directory but quarantined at boot: lookup is not access |
+| T37 | PING → echo instance 1 | TARGET_UNAVAILABLE | capability held, endpoint SUSPENDED |
+| T38 | PING → echo (seq 15), then PING (seq 16) without acknowledging the reply | OK, then BUSY | one reply slot; the firmware then checks the slot still holds the reply to 15 |
+
+Supervisor Request Gateway cases. For each, the firmware also checks that
+STATUS shows completion, that bit 7 agrees with RESULT, and that reading
+STATUS cleared the interrupt:
+
+| # | Request | Expected result |
+|---|---|---|
+| T41 | `02` Recovery Mode | DENIED |
+| T42 | `04` Read Fault Log | UNSUPPORTED |
+| T43 | `05` FPGA Reload | DENIED |
+| T44 | `7E` (not a command) | UNKNOWN |
+| T45 | `06` Report Fault, node `0x0000` (supervisor) | DENIED |
+| T46 | `06` Report Fault, the GPU bound in T20 | EXECUTED: the supervisor quarantines it |
+| T47 | Directory shows the GPU QUARANTINED; GPU request (seq 17) | QUARANTINED, although the kernel still holds the capability |
 
 For each reply the firmware checks the reply type, source node, length,
 sequence and recomputed CRC. The host checks the GPU service log independently
 (statuses 0, 0, 2, 1 from `0x0300` only).
 
-The host independently checks the exact vector-fetch sequence: reset
-`$FFFC/D`, then `$FFEE/F` unchanged, then `$FFEE/F` → `$FFF2/3`. It also checks
-that no IRQ is ever redirected to RESET, and that the supervisor accepted only
-Read Board ID.
+The host independently checks:
+
+- all 21 mailbox decisions, in order, including the authority (capability
+  id) each allowed decision used and the actor ring;
+- the 32 supervisor events, in order: the 15 boot-chain events, then each
+  gateway request as received and decided, and the GPU's quarantine;
+- the 8 gateway requests: command, argument, caller, caller ring and result;
+  and that no reset was executed;
+- the exact vector-fetch sequence: reset `$FFFC/D`, then `$FFEE/F` unchanged,
+  then `$FFEE/F` → `$FFF2/3`; and that no IRQ is ever redirected to RESET.
 
 The run also checks:
 
@@ -279,15 +406,21 @@ does:
 | Vector Pull Rewrite does not rewrite | T24; host vector-fetch check |
 | Interrupt mask ignored | T22 |
 | Mailbox dispatched at level 7 | the CPU jumps to the RESET vector mid-run; host flags the redirect |
-| Supervisor executes a CPU reset request | T26; host command check |
+| Supervisor gateway executes a CPU reset request | T26; host gateway and reset checks |
+| Northbridge delivers to endpoints that are not ACTIVE | T37 |
+| Northbridge overwrites an unacknowledged reply | T38 |
+| Directory lists supervisor and fabric endpoints to the kernel | T20 (directory count and ring check) |
+| CPU released from reset before enumeration and binding | T20 (empty directory); host boot-event check |
+| Capabilities granted from discovery instead of policy | T20 (homebrew GPU and storage card hold capabilities); host checks |
+| Cards trusted without identity validation | T20 (storage card not quarantined); host boot-event check |
 | ECP5 fit asked for an unreachable 1000 MHz | rejected |
 | Vector runner given corrupted register, RAM, cycle and bus-line expectations | each reported |
 | RTL never sees one mailbox byte | byte-stream mismatch |
-| 14 MHz PHI2 on the 25 MHz clock (below the proven ratio) | 165/242 bytes correct: rejected |
+| 14 MHz PHI2 on the 25 MHz clock (below the proven ratio) | 589/757 writes correct: rejected |
 | Formal: PHI2 phases of 3 steps (ratio too low) | counterexample |
 | Formal: latency bound of 5 steps | counterexample (6 is tight) |
 | Formal: shim reads the live bus instead of the held capture | counterexample |
-| RTL never sees one SUBMIT | 15 of 16 frames; audit mismatch |
+| RTL never sees one SUBMIT | 20 of 21 frames; audit mismatch |
 | GPU service rotates the wrong way | T31 |
 | GPU result 3 LSB off (just outside the tolerance) | T31 |
 
@@ -309,12 +442,13 @@ For all 6502-family (8-bit) sets, the runner ignores the P register's B bit
 Values of B pushed to the stack are still compared exactly through RAM and
 bus cycles. The 65816 comparison uses all bits.
 
-CPU card: PASS in 125,000 CPU cycles; 16 of 16 audit decisions as expected; 6
-vector fetches exactly as expected; 4 GPU requests served as expected; 1
-expected fault.
+CPU card: PASS in 154,000 CPU cycles; 21 of 21 mailbox decisions as
+expected, with the expected authority; 32 of 32 supervisor events; 8 of 8
+gateway results; 6 vector fetches exactly as expected; 4 GPU requests served
+as expected; 1 expected fault. Negative controls: 17 of 17 detected.
 
-RTL co-simulation (shim + TX frame assembler), functional timing: every
-mailbox-block write (address and data) and all 16 frames match the C model.
+RTL co-simulation (shim + TX frame assembler), functional timing: all 757
+mailbox-block writes (address and data) and all 21 frames match the C model.
 Each RTL frame's message type and sequence number also match the C
 Northbridge audit log, SUBMIT by SUBMIT.
 
@@ -399,9 +533,12 @@ wrapper has more ports than the ULX3S has GPIO.
    header gate compiles them as C++ only with `-D_Static_assert=static_assert`,
    and this bench does the same. Fixing it properly belongs in the headers, as a
    separate change.
-3. **`atarix_ring_to_wire()` maps an invalid ring to APPLICATION** rather than
-   failing closed (`include/atarix/rings.h`). Not exercised by this bench;
-   recorded for review.
+3. **`atarix_ring_to_wire()` mapped an invalid ring to APPLICATION: resolved.**
+   It was exploitable: a capability for kernel..application admitted a
+   requester with ring 5 or −7. Invalid rings now map to `0x8000`, which no
+   range matches, and the capability evaluator and policy refuse invalid and
+   quarantined requesters (`tests/ring/test_ring_wire_fail_closed.c`, which
+   fails against the old code). Gap G-RING-4.
 4. **Bus shim timing (RTL): resolved.** The original shim sampled the PHI2
    edge, chip select and data from the system clock, up to one clock (40 ns at
    25 MHz) after the fall. The W65C816 holds them for only about 10 ns. It
@@ -420,11 +557,12 @@ wrapper has more ports than the ULX3S has GPIO.
    preferred `+00 Pending Low, +01 Pending High, +02 Mask Low, ...`, but the
    offsets disagree, so it is not a subset. The simulator uses the preferred
    layout.
-6. **Supervisor register path bypasses mailbox authority.** The documented
-   `$00C200` commands include Reset Request, Recovery Mode and FPGA Reload as
-   plain register writes, with no ring or capability check. That conflicts with
-   "kernel ring cannot request the supervisor ring" on the mailbox path. The
-   simulator rejects everything except Read Board ID.
+6. **Supervisor register path bypassed mailbox authority: resolved in the
+   bench.** The documented `$00C200` commands included Reset Request, Recovery
+   Mode and FPGA Reload as plain register writes. The block is now a
+   Supervisor Request Gateway per ATX-SPEC-016 (see above).
+   `register-map-v1.md` still needs to adopt the profile (gaps G-SUP-1 to
+   G-SUP-7).
 7. **Emulation vectors overlap native IRQ levels.** With Vector Pull Rewrite,
    native IRQ levels 3–6 fetch `$FFF4`–`$FFFA`, which are the emulation-mode
    COP, ABORT and NMI vectors. This is the same as Vega816. An NMI or ABORT
@@ -437,6 +575,14 @@ wrapper has more ports than the ULX3S has GPIO.
    `atarix_mailbox_message_type_known()` in `src/mailbox/mailbox.c` does not
    list them. Every such message fails with `UNKNOWN_TYPE` before dispatch.
    Not changed here, because whether it is intended is not recorded.
+10. **No ring can request a more privileged ring.** `atarix_ring_can_access()`
+    allows a request only to the requester's own or a less privileged ring,
+    so an application cannot use a user service or a driver. The bench passes
+    only because its requester is the kernel. This needs an architecture
+    decision (gap G-RING-3).
+11. **Specification gaps.** Every place where a specification was silent,
+    contradictory, or not encoded, and the choice this bench made, is
+    recorded in [Architecture Review 004](../reviews/Architecture-Review-004.md).
 
 ## Open decisions for review
 
@@ -444,13 +590,16 @@ wrapper has more ports than the ULX3S has GPIO.
 - The mapping from message type to required operation (`READ` for query
   messages, `WRITE` for state changes, `RESET` for reset requests) in
   `Northbridge::operation_for`.
-- Unknown destination reported as `POLICY_DENIED` (the v1 status set has no
-  "no such endpoint" value).
-- The CPU card's ring (kernel) and the test echo service's ring (service).
+- Unknown destination reported as `POLICY_DENIED` (G-MBX-4).
+- The CPU card's ring (kernel), the echo service's ring (user service) and
+  the GPU service's ring (driver).
+- Requests toward more privileged rings (G-RING-3), the gateway profile and
+  command policy (G-SUP-1 to G-SUP-5), the Discovery Services profile
+  (G-BOOT-1), and the boot capability policy (G-BOOT-5): see
+  Architecture Review 004.
 - Whether to fork `SingleStepTests/65816` into `dlworrell/` for durability.
 - The interrupt level mapping, native-only rewrite, and the ban on level 7 in native mode.
 - Which interrupt controller layout is authoritative (finding 5).
-- Which supervisor commands, if any, the CPU may issue by register (finding 6).
 - The framing rule adopted for the RTL (frame on SUBMIT, as the C model; finding 1).
 - The GPU message types `0x0040`/`0x0041`, their payload layout, the 16.16
   format, and `READ` as the operation a GPU transform needs. (The processor is

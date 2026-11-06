@@ -483,6 +483,14 @@ Supervisor authority does not become runtime authority
 - Define integration with Storage and Persistence Model.
 - Define integration with Recovery and Reconciliation Model.
 
+Open items found by implementing the request gateway in the CPU card test
+bench are recorded in
+[Architecture Review 004](../reviews/Architecture-Review-004.md): G-SUP-1 to
+G-SUP-7 (register interface, result and command encoding, command table,
+recovery and reset callers, fault log format, caller identity), G-BOOT-7
+(boot-chain audit events), and the coverage of this specification's
+required tests.
+
 ## Summary
 
 The Supervisor Management Fabric is the control-isolated management and recovery fabric for Atarix.

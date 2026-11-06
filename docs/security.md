@@ -44,62 +44,70 @@ Both are required for a complete security model.
 
 ## Privilege Ring Model
 
-ATARIX should define four logical privilege rings.
+ATARIX defines four operating-system privilege rings, 0 through 3. The
+canonical definition of every ring, including the platform rings −2 and −1
+and the quarantine state, is
+[ADR-RING-SECURITY-MODEL](ADR-RING-SECURITY-MODEL.md). This section
+summarizes the operating-system rings; if the two ever disagree, the ADR is
+correct and this section is the bug.
 
-These rings are inspired by conventional Ring 0 through Ring 3 operating-system models, but they must be adapted to the W65C816 and FPGA-fabric environment.
-
-The W65C816 does not provide native x86-style hardware rings. Therefore, rings are initially a software and fabric-enforced design discipline, with increasing hardware assistance added over time.
+The rings are inspired by conventional Ring 0 through Ring 3 operating-system
+models, adapted to the W65C816 and FPGA-fabric environment. The W65C816 does
+not provide hardware rings, so rings are initially a software and
+fabric-enforced discipline: the fabric assigns each requester's ring from its
+slot, and every mailbox request is checked against it.
 
 ## Ring 0 - Kernel and Core Authority
 
-Ring 0 is the most privileged normal execution ring.
+Ring 0 is the most privileged operating-system ring.
 
 Responsibilities:
 
 - Kernel execution.
 - Memory-management policy.
-- Capability broker.
+- Capability enforcement and brokering.
 - Device-driver authority assignment.
 - Interrupt-core management.
 - DMA grant creation.
 - Fabric configuration policy.
 
-Ring 0 may request privileged fabric operations, but it should still use explicit capability records rather than relying on implicit trust.
+Ring 0 may request privileged fabric operations, but it still uses explicit
+capability records rather than implicit trust. Ring 0 does not replace the
+supervisor management plane.
 
-Ring 0 does not replace the supervisor management plane.
+## Ring 1 - Drivers and Hardware-Facing Services
 
-## Ring 1 - System Services and Trusted Drivers
+Ring 1 holds device drivers and the privileged services that operate
+hardware.
 
-Ring 1 contains trusted but separable system services.
+Examples:
+
+- Trusted block-device and storage drivers.
+- Specific hardware drivers.
+- Accelerator and display services, such as the display card's GPU compute
+  service.
+- Console and memory-service managers.
+- Debug agents.
+
+Ring 1 components receive narrow capabilities tied to specific devices,
+buffers, mailboxes and interrupts, not unrestricted access. They should be
+restartable where practical, and a Ring 1 failure should not normally crash
+the whole machine.
+
+## Ring 2 - User Services
+
+Ring 2 holds user-space services that use other services but do not operate
+hardware.
 
 Examples:
 
 - Filesystem service.
-- Network service.
-- Storage service.
-- Console service.
-- Trusted block-device drivers.
-- Memory-service manager.
+- Network service and protocol workers.
+- Desktop and user-session services.
+- Application frameworks.
 
-Ring 1 code may receive broad capabilities, but it should not receive unrestricted access by default.
-
-Ring 1 services should be restartable where practical.
-
-## Ring 2 - Device Services and Semi-Trusted Runtime Components
-
-Ring 2 contains semi-trusted services and device-facing components.
-
-Examples:
-
-- Specific hardware drivers.
-- Accelerator runtime services.
-- Protocol workers.
-- Debug agents.
-- User-session support services.
-
-Ring 2 components should receive narrow capabilities tied to specific devices, buffers, mailboxes, and interrupts.
-
-A Ring 2 failure should not normally crash the whole machine.
+Ring 2 components operate with explicit service capabilities and no direct
+hardware authority.
 
 ## Ring 3 - User Programs and Untrusted Code
 
@@ -118,7 +126,9 @@ Ring 3 code must request services through system calls, mailboxes, or mediated s
 
 ## Supervisor Plane - Outside the Ring Model
 
-The supervisor controller is outside the normal Ring 0 through Ring 3 execution model.
+The supervisor controller is outside the normal Ring 0 through Ring 3
+execution model. The platform model numbers it Ring −2, with the fabric at
+Ring −1 (see the ADR).
 
 The supervisor is a management and recovery authority, not an application execution ring.
 
@@ -181,8 +191,8 @@ Ring 0 + valid fabric capability
 Ring 1 + valid device capability
     -> may operate assigned device
 
-Ring 2 + valid mailbox capability
-    -> may submit commands to assigned service
+Ring 2 + valid service capability
+    -> may submit requests to assigned service
 
 Ring 3 + no capability
     -> denied
