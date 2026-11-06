@@ -188,6 +188,21 @@ else
     fail 'RTL does not fit or misses timing on the LFE5U-85F'
 fi
 
+phase 'Engineering Gate: bus shim formal proof'
+if ! command -v yosys >/dev/null 2>&1; then
+    if [ -n "${CI:-}" ]; then
+        fail 'yosys missing in CI'
+    else
+        warn 'yosys not found; skipping bus shim formal proof'
+    fi
+elif bash scripts/rtl/run_shim_formal.sh; then
+    pass 'bus shim proven: no lost, duplicated or corrupted writes at f_clk >= 4 x f_PHI2; controls rejected'
+    mkdir -p "${ARTIFACT_DIR}/formal"
+    cp build/rtl/formal/summary.txt "${ARTIFACT_DIR}/formal/"
+else
+    fail 'bus shim formal proof or its negative controls failed'
+fi
+
 phase 'Engineering Gate: summary'
 {
     printf '%s\n' 'Engineering Gate Summary'
