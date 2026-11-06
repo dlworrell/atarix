@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: Donovan Worrell
+# SPDX-License-Identifier: Apache-2.0
+#
+# ATARIX CPU vector sample run on every pull request (scripts/sim/run_cpu_vectors.sh).
+# Format: <set> <opcode file>. The full sets run with --full (manual workflow).
+# The 65816 sample targets behavior the ATARIX CPU card depends on: reset and
+# mode switching, width changes, stack/direct-page/bank relocation, long
+# addressing, block moves, and the interrupt/trap instructions.
+
+65816 fb.e.json   # XCE: emulation -> native switch (boot path)
+65816 fb.n.json
+65816 c2.e.json   # REP
+65816 c2.n.json
+65816 e2.e.json   # SEP
+65816 e2.n.json
+65816 1b.e.json   # TCS: stack relocation
+65816 1b.n.json
+65816 5b.e.json   # TCD: direct-page relocation
+65816 5b.n.json
+65816 8b.n.json   # PHB
+65816 ab.n.json   # PLB: data-bank register
+65816 22.n.json   # JSL
+65816 6b.n.json   # RTL
+65816 5c.n.json   # JML long
+65816 af.n.json   # LDA long
+65816 8f.n.json   # STA long (mailbox frame writes)
+65816 9f.n.json   # STA long,X
+65816 b7.n.json   # LDA [dp],Y
+65816 a9.n.json   # LDA # (16-bit capable)
+65816 54.n.json   # MVN
+65816 44.n.json   # MVP
+65816 00.e.json   # BRK
+65816 00.n.json
+65816 02.e.json   # COP
+65816 02.n.json
+65816 40.e.json   # RTI
+65816 40.n.json
+65816 cb.n.json   # WAI
+65816 db.n.json   # STP
+
+6502 a9.json      # harness self-check: NMOS core, exact match expected
+6502 6c.json      # JMP (ind) page-wrap bug
+6502 00.json
+6502 7d.json      # ADC abs,X (decimal mode, page crossing)
+
+wdc65c02 a9.json  # 65C02 harness self-check
+wdc65c02 6c.json  # JMP (ind) fixed
+wdc65c02 9e.json  # STZ abs,X: known dummy-cycle deviation (see known-deviations)

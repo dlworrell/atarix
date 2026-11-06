@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: Donovan Worrell
+# SPDX-License-Identifier: Apache-2.0
+#
+# Known CLK vs dlworrell/65x02 (66ea3ef) deviations for the WDC 65C02 set.
+# Measured 2026-11-06 with the full set: 2,540,000 tests, 2,470,179 exact,
+# 69,821 differing ONLY in bus cycles. Every register and RAM comparison in
+# every file matched. cb.json (WAI) and db.json (STP) are empty upstream.
+#
+# Not adjudicated: which side models the real WDC part is unknown without
+# hardware captures. ATARIX uses the W65C816, not the 65C02, so these do not
+# gate the CPU card; they are recorded so the harness evidence is complete.
+#
+# Listed per opcode file:
+5c.json   # undocumented NOP: cycle count/addresses differ (all tests)
+dc.json   # undocumented NOP: cycle count/addresses differ (all tests)
+fc.json   # undocumented NOP: cycle count/addresses differ (all tests)
+7c.json   # JMP (abs,X): dummy-cycle address
+91.json   # STA (zp),Y: page-cross dummy read address
+99.json   # STA abs,Y: page-cross dummy read address
+9d.json   # STA abs,X: page-cross dummy read address
+9e.json   # STZ abs,X: page-cross dummy read address
+de.json   # DEC abs,X: dummy-cycle address
+fe.json   # INC abs,X: dummy-cycle address
+e9.json   # SBC #: decimal-mode extra cycle address

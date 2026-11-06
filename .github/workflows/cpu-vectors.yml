@@ -1,0 +1,70 @@
+name: CPU Instruction Vectors
+
+# Replays pinned single-instruction vectors (SingleStepTests 65816 and
+# dlworrell/65x02) against the vendored CLK CPU cores. Pull requests run the
+# ATARIX sample (sim/cpu/sample-opcodes.txt, about 220 MB of downloads); a
+# manual run with full=true replays every opcode file (several GB).
+
+on:
+  pull_request:
+    paths:
+      - "third_party/clk/**"
+      - "sim/cpu/**"
+      - "sim/Makefile"
+      - "scripts/sim/fetch_cpu_vectors.sh"
+      - "scripts/sim/run_cpu_vectors.sh"
+      - ".github/workflows/cpu-vectors.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "third_party/clk/**"
+      - "sim/cpu/**"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Replay every opcode file instead of the ATARIX sample
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cpu-vectors-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vectors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build vector runner
+        run: make -C sim "$PWD/build/sim/atarix-cpu-vectors"
+
+      - name: Run pinned CPU vectors
+        env:
+          FULL: ${{ inputs.full && 'true' || 'false' }}
+        run: |
+          if [ "${FULL}" = "true" ]; then
+            scripts/sim/run_cpu_vectors.sh --full 65816 6502 wdc65c02
+          else
+            scripts/sim/run_cpu_vectors.sh
+          fi
+
+      - name: Vector runner negative control
+        run: sim/cpu/negative_control.sh build/sim/atarix-cpu-vectors build/vectors/65816/a9.n.json
+
+      - name: Upload vector reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cpu-vector-reports
+          path: build/sim/vectors/**
+          if-no-files-found: warn
