@@ -58,9 +58,15 @@ module bus_shim_cosim_tb;
         .shim_sof(shim_sof)
     );
 
-    integer half_period = 5;      // ns: 100 MHz functional, 20 (25 MHz) in timing mode
+    // Clock and PHI2 half periods in ps. Functional mode: 100 MHz system clock.
+    // Timing mode defaults: 25 MHz system clock, 4 MHz PHI2; override with
+    // +clk_half_ps= and +phi2_half_ps=.
+    integer clk_half_ps = 5000;
+    integer phi2_half_ps = 125000;
+    integer t_hold_ps = 10000;    // tDHW / tAH: data and address hold after PHI2 falls
+    integer t_valid_ps;           // tADS / tMDS: address / write data valid after an edge
     integer timing_mode = 0;
-    always #(half_period) clk = ~clk;
+    always #(clk_half_ps * 0.001) clk = ~clk;
 
     always @(posedge clk) begin
         if (shim_valid) begin
@@ -83,7 +89,11 @@ module bus_shim_cosim_tb;
             $finish;
         end
         if ($value$plusargs("timing=%d", timing_mode) && timing_mode != 0) begin
-            half_period = 20;
+            clk_half_ps = 20000;
+            if ($value$plusargs("clk_half_ps=%d", clk_half_ps)) begin end
+            if ($value$plusargs("phi2_half_ps=%d", phi2_half_ps)) begin end
+            // 30 ns, or 5 ns before the end of a short phase (fast parts).
+            t_valid_ps = (phi2_half_ps - 5000 < 30000) ? phi2_half_ps - 5000 : 30000;
         end
         if (cycle_count > MAX_CYCLES) begin
             $display("FAIL stimulus has %0d cycles, testbench limit is %0d", cycle_count, MAX_CYCLES);
@@ -101,24 +111,27 @@ module bus_shim_cosim_tb;
         if (timing_mode != 0) begin
             #7;                                     // desynchronize PHI2 from the system clock
             for (i = 0; i < cycle_count; i = i + 1) begin
-                // PHI2 falls: previous address and data hold for 10 ns.
+                // PHI2 falls: previous address and data hold for t_hold.
                 phi2 = 1'b0;
-                #10;
+                #(t_hold_ps * 0.001);
                 phi2_d_in = ~phi2_d_in;            // write-data hold time expired
                 cs_n = 1'b1;                        // address hold expired: decode invalid
-                #20;
+                #((t_valid_ps - t_hold_ps) * 0.001);
                 cs_n = stimulus[i][9];              // address valid (tADS)
                 rw = stimulus[i][8];
-                #95;
-                phi2 = 1'b1;                        // PHI2 rises at 125 ns
-                #30;
+                #((phi2_half_ps - t_valid_ps) * 0.001);
+                phi2 = 1'b1;                        // PHI2 rises
+                #(t_valid_ps * 0.001);
                 phi2_d_in = stimulus[i][7:0];       // write data valid (tMDS)
-                #95;                                // PHI2 high until 250 ns
+                #((phi2_half_ps - t_valid_ps) * 0.001);
             end
         end else
         for (i = 0; i < cycle_count; i = i + 1) begin
-            // PHI2 low: address/control phase.
+            // PHI2 low: address/control phase. The bus changes 1 ns after the
+            // falling edge (address/data hold), never in the same instant, so
+            // falling-edge capture does not depend on simulator event order.
             phi2 = 1'b0;
+            #1;
             cs_n = stimulus[i][9];
             rw = stimulus[i][8];
             phi2_d_in = stimulus[i][7:0];

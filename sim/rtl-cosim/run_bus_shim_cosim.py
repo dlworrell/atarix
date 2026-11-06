@@ -14,7 +14,8 @@ rtl/atarix/atx_northbridge_bus_shim.v under Icarus Verilog, and compares:
           until the shim's framing rule is specified (see the test-bench doc).
 
 Usage: run_bus_shim_cosim.py <trace> <work-dir> [--expect-sof-per-frame] [--negative-control]
-       [--datasheet-timing [--expect-datasheet-timing]]
+       [--datasheet-timing [--phi2-mhz=F] [--clk-mhz=F]
+        [--expect-datasheet-timing | --expect-timing-failure]]
        --negative-control hides one TX-window write from the RTL (deasserts its
        chip select) and requires the byte comparison to report a mismatch.
 Exit:  0 bytes match (and frames, if --expect-sof-per-frame), 1 mismatch, 2 setup error.
@@ -41,6 +42,14 @@ def main(argv):
     negative = "--negative-control" in argv[3:]
     timing = "--datasheet-timing" in argv[3:]
     strict_timing = "--expect-datasheet-timing" in argv[3:]
+    expect_timing_fail = "--expect-timing-failure" in argv[3:]
+    phi2_mhz = 4.0
+    clk_mhz = 25.0
+    for arg in argv[3:]:
+        if arg.startswith("--phi2-mhz="):
+            phi2_mhz = float(arg.split("=", 1)[1])
+        elif arg.startswith("--clk-mhz="):
+            clk_mhz = float(arg.split("=", 1)[1])
     hidden = False
     root = pathlib.Path(__file__).resolve().parents[2]
     work.mkdir(parents=True, exist_ok=True)
@@ -97,7 +106,9 @@ def main(argv):
 
     run = subprocess.run(
         ["vvp", "-n", str(binary), f"+stimulus={stim_file}", f"+output={capture_file}",
-         f"+cycles={len(stimulus)}"] + (["+timing=1"] if timing else []),
+         f"+cycles={len(stimulus)}"]
+        + ([f"+timing=1", f"+clk_half_ps={round(500000 / clk_mhz)}",
+            f"+phi2_half_ps={round(500000 / phi2_mhz)}"] if timing else []),
         capture_output=True, text=True, timeout=600)
     print(run.stdout.strip())
     # vvp reports file errors as "ERROR:" lines yet still exits 0; treat them,
@@ -143,9 +154,19 @@ def main(argv):
         good = sum(1 for got, want in zip(captured, expected_bytes) if got == want)
         report["datasheet_bytes_correct"] = good
         (work / "bus_shim_cosim_report.json").write_text(json.dumps(report, indent=2) + "\n")
-        print(f"datasheet timing (25 MHz clock, 4 MHz PHI2, 10 ns data hold): "
+        report["phi2_mhz"] = phi2_mhz
+        report["clk_mhz"] = clk_mhz
+        (work / "bus_shim_cosim_report.json").write_text(json.dumps(report, indent=2) + "\n")
+        print(f"datasheet timing ({clk_mhz:g} MHz clock, {phi2_mhz:g} MHz PHI2, 10 ns data hold): "
               f"{good}/{len(expected_bytes)} bytes captured correctly, {len(captured)} captured -> "
-              f"{'MATCH' if bytes_match else 'MISMATCH (known finding: shim samples after write-data hold)'}")
+              f"{'MATCH' if bytes_match else 'MISMATCH'}")
+        if expect_timing_fail:
+            # Negative control: a clock ratio below the proven minimum must fail.
+            if bytes_match:
+                print("negative control FAILED: an out-of-spec clock ratio was accepted", file=sys.stderr)
+                return 1
+            print("negative control passed: out-of-spec clock ratio detected")
+            return 0
         return 1 if (strict_timing and not bytes_match) else 0
     if negative:
         if bytes_match:

@@ -8,7 +8,9 @@
 #   3. CPU card negative controls (nine injected defects must each fail)
 #   4. RTL co-simulation: CPU bus trace -> atx_northbridge_bus_shim.v (Icarus)
 #   5. co-simulation negative control
-#   6. co-simulation at datasheet bus timing (reported; gating once the shim is fixed)
+#   6. co-simulation at W65C816 datasheet timing, gating: 4 MHz PHI2 on the
+#      25 MHz ULX3S clock and 14 MHz PHI2 on a 62.5 MHz PLL clock must capture
+#      every byte; 14 MHz on 25 MHz (below the proven 4:1 clock ratio) must fail
 # CPU instruction vectors need network access; run scripts/sim/run_cpu_vectors.sh.
 # Artifacts: build/sim/ (report JSON, bus trace, co-sim report, summary.txt).
 
@@ -50,9 +52,19 @@ python3 -I "${root_dir}/sim/rtl-cosim/run_bus_shim_cosim.py" \
     "${build_dir}/cpu-card-bus.trace" "${build_dir}/rtl-cosim-negative" --negative-control \
     | tee -a "${summary}"
 
-step "RTL co-simulation at datasheet timing (reported finding, not yet gating)"
+step "RTL co-simulation at datasheet timing: 4 MHz PHI2, 25 MHz clock"
 python3 -I "${root_dir}/sim/rtl-cosim/run_bus_shim_cosim.py" \
-    "${build_dir}/cpu-card-bus.trace" "${build_dir}/rtl-cosim-timing" --datasheet-timing \
-    | tee -a "${summary}"
+    "${build_dir}/cpu-card-bus.trace" "${build_dir}/rtl-cosim-timing-4mhz" --datasheet-timing \
+    --phi2-mhz=4 --clk-mhz=25 --expect-datasheet-timing | tee -a "${summary}"
+
+step "RTL co-simulation at datasheet timing: 14 MHz PHI2, 62.5 MHz PLL clock"
+python3 -I "${root_dir}/sim/rtl-cosim/run_bus_shim_cosim.py" \
+    "${build_dir}/cpu-card-bus.trace" "${build_dir}/rtl-cosim-timing-14mhz" --datasheet-timing \
+    --phi2-mhz=14 --clk-mhz=62.5 --expect-datasheet-timing | tee -a "${summary}"
+
+step "RTL co-simulation timing negative control: 14 MHz PHI2 on the 25 MHz clock"
+python3 -I "${root_dir}/sim/rtl-cosim/run_bus_shim_cosim.py" \
+    "${build_dir}/cpu-card-bus.trace" "${build_dir}/rtl-cosim-timing-negative" --datasheet-timing \
+    --phi2-mhz=14 --clk-mhz=25 --expect-timing-failure | tee -a "${summary}"
 
 step "software test bench: PASS"
