@@ -41,8 +41,14 @@ expect_fail "firmware claims PASS without running the tests" "${card}" --rom "${
 expect_fail "Vector Pull Rewrite does not rewrite" "${card}" --rom "${rom}" --inject no-vector-rewrite
 expect_fail "interrupt mask is ignored" "${card}" --rom "${rom}" --inject ignore-mask
 expect_fail "mailbox IRQ dispatched at level 7 (pulls RESET)" "${card}" --rom "${rom}" --inject mailbox-level7
-expect_fail "supervisor executes a CPU reset request" "${card}" --rom "${rom}" --inject supervisor-accepts-reset
+expect_fail "supervisor gateway executes a CPU reset request" "${card}" --rom "${rom}" --inject supervisor-accepts-reset
+expect_fail "Northbridge delivers to endpoints that are not ACTIVE" "${card}" --rom "${rom}" --inject skip-lifecycle
+expect_fail "Northbridge overwrites an unacknowledged reply" "${card}" --rom "${rom}" --inject skip-resource
+expect_fail "directory lists supervisor and fabric endpoints to the kernel" "${card}" --rom "${rom}" --inject list-platform-rings
+expect_fail "CPU released from reset before enumeration and binding" "${card}" --rom "${rom}" --inject release-before-enumeration
+expect_fail "capabilities granted from discovery instead of policy" "${card}" --rom "${rom}" --inject grant-by-discovery
+expect_fail "cards trusted without identity validation" "${card}" --rom "${rom}" --inject skip-identity-validation
 expect_fail "GPU service rotates the wrong way" "${card}" --rom "${rom}" --inject gpu-wrong-math
 expect_fail "GPU result 3 LSB off (outside tolerance)" "${card}" --rom "${rom}" --inject gpu-off-by-3
 set -e
-echo "negative controls passed: all eleven defects were detected"
+echo "negative controls passed: all seventeen defects were detected"

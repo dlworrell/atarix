@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Donovan Worrell
 // SPDX-License-Identifier: Apache-2.0
 //
-// Fabric interrupt controller, Vega816-style Vector Pull Rewrite, and the
-// register-level Supervisor Mailbox, as seen by the CPU card.
+// Fabric interrupt controller and Vega816-style Vector Pull Rewrite, as seen
+// by the CPU card. (The supervisor request gateway is in supervisor.hpp.)
 //
 // Interrupt controller at $00D100 uses the "preferred v1" layout of
 // docs/interrupt-architecture-v1.md (which conflicts with the four-register
@@ -47,15 +47,12 @@ enum InterruptSource: int {
 
 constexpr uint32_t InterruptBase = 0x00D100;
 constexpr uint32_t InterruptLimit = 0x00D107;
-constexpr uint32_t SupervisorMailboxBase = 0x00C200;
-constexpr uint32_t SupervisorMailboxLimit = 0x00C205;
 
 enum class InterruptInjection {
 	None,
 	NoVectorRewrite,   // dispatcher offset ignored: every IRQ fetches $FFEE
 	IgnoreMask,        // masked sources still assert IRQ
 	MailboxLevel7,     // mailbox dispatched at level 7 (pulls the RESET vector)
-	SupervisorAcceptsReset,  // supervisor mailbox executes CPU reset requests
 };
 
 struct VectorPull {
@@ -64,12 +61,6 @@ struct VectorPull {
 	uint32_t rewritten;
 	int level;          // -1 when not rewritten
 	bool emulation;
-};
-
-struct SupervisorCommand {
-	uint64_t cycle;
-	uint8_t command;
-	bool accepted;
 };
 
 class InterruptController {
@@ -104,34 +95,6 @@ private:
 	int latched_level_ = -1;
 	InterruptInjection injection_ = InterruptInjection::None;
 	std::vector<VectorPull> pulls_;
-};
-
-// Register-level supervisor mailbox from docs/register-map-v1.md:
-//   +00 COMMAND W   +01 STATUS R (bit1 done, bit7 rejected; reading clears done)
-//   +02..+05 ARG0-ARG3 R
-// Only command $03 (Read Board ID) is accepted from the CPU. Reset, recovery,
-// fault-log and FPGA-reload commands are rejected: this register path does not
-// pass through mailbox ring or capability checks.
-class SupervisorMailbox {
-public:
-	SupervisorMailbox(InterruptController &interrupts, std::array<uint8_t, 4> board_id);
-
-	void inject(InterruptInjection injection) { injection_ = injection; }
-
-	bool read(uint32_t address, uint8_t &value);
-	bool write(uint32_t address, uint8_t value, uint64_t cycle);
-
-	const std::vector<SupervisorCommand> &commands() const { return commands_; }
-	bool reset_requested() const { return reset_requested_; }
-
-private:
-	InterruptController &interrupts_;
-	std::array<uint8_t, 4> board_id_;
-	std::array<uint8_t, 4> args_{};
-	uint8_t status_ = 0;
-	bool reset_requested_ = false;
-	InterruptInjection injection_ = InterruptInjection::None;
-	std::vector<SupervisorCommand> commands_;
 };
 
 }  // namespace atarix::sim

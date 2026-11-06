@@ -121,44 +121,4 @@ uint32_t InterruptController::vector_pull(uint32_t address, bool emulation, uint
 	return rewritten;
 }
 
-SupervisorMailbox::SupervisorMailbox(InterruptController &interrupts, std::array<uint8_t, 4> board_id)
-	: interrupts_(interrupts), board_id_(board_id) {}
-
-bool SupervisorMailbox::read(uint32_t address, uint8_t &value) {
-	if(address < SupervisorMailboxBase || address > SupervisorMailboxLimit) return false;
-	const uint32_t offset = address - SupervisorMailboxBase;
-	if(offset == 0) {
-		value = 0;
-	} else if(offset == 1) {
-		value = status_;
-		// Reading STATUS consumes the completion and deasserts the interrupt.
-		status_ &= uint8_t(~0x02);
-		interrupts_.set_source(IrqSupervisor, false);
-	} else {
-		value = args_[offset - 2];
-	}
-	return true;
-}
-
-bool SupervisorMailbox::write(uint32_t address, uint8_t value, uint64_t cycle) {
-	if(address < SupervisorMailboxBase || address > SupervisorMailboxLimit) return false;
-	if(address != SupervisorMailboxBase) {
-		status_ = 0x80;
-		commands_.push_back({cycle, 0xFF, false});
-		return true;
-	}
-	bool accepted = false;
-	if(value == 0x03) {
-		args_ = board_id_;
-		accepted = true;
-	} else if(value == 0x01 && injection_ == InterruptInjection::SupervisorAcceptsReset) {
-		reset_requested_ = true;
-		accepted = true;
-	}
-	commands_.push_back({cycle, value, accepted});
-	status_ = accepted ? 0x02 : 0x80;
-	if(accepted) interrupts_.set_source(IrqSupervisor, true);
-	return true;
-}
-
 }  // namespace atarix::sim

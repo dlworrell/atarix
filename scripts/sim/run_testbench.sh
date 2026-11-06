@@ -5,7 +5,7 @@
 # ATARIX software test bench (offline). Runs, in order:
 #   1. build: vector runner, CPU card simulator, test ROM, liar ROM
 #   2. CPU card boot + mailbox test (CLK W65C816 + Northbridge model + libatarix)
-#   3. CPU card negative controls (eleven injected defects must each fail)
+#   3. CPU card negative controls (seventeen injected defects must each fail)
 #   4. RTL co-simulation: CPU bus trace -> atx_northbridge_bus_shim.v ->
 #      atx_mailbox_tx_assembler.v (Icarus); every mailbox write, every frame
 #      and the C Northbridge audit (type, sequence per SUBMIT) must match

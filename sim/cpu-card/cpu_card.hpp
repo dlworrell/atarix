@@ -7,9 +7,12 @@
 //   $000000-$007FFF  RAM (direct page, stack, monitor work area)
 //   $008000-$00BFFF  expansion window: unmapped (fault)
 //   $00C000-$00C003  UART: +00 DATA, +01 STATUS (bit1 TX ready)
+//   $00C200-$00C206  Supervisor Request Gateway (supervisor.hpp)
 //   $00C300-$00C305  Board identity (read-only)
 //   $00D000-$00D003  Fabric control (+00 version, +01 status)
+//   $00D100-$00D107  Interrupt controller (interrupts.hpp)
 //   $00D200-$00D2FF  Mailbox engine (Northbridge model)
+//   $00D500-$00D50D  Discovery Services: ring-filtered service directory
 //   $00E000-$00FFFF  ROM, vectors at top of bank (writes fault, contents unchanged)
 //   $010000-$7FFFFF  RAM (CPU-local SRAM target, banks $01-$7F)
 //   everything else  unmapped: reads return $FF and every access is a recorded fault
@@ -27,6 +30,7 @@
 #include "Processors/65816/65816.hpp"
 #include "interrupts.hpp"
 #include "northbridge.hpp"
+#include "supervisor.hpp"
 
 namespace atarix::sim {
 
@@ -40,7 +44,7 @@ struct BoardIdentity {
 class CpuCard: public CPU::MOS6502Esque::BusHandler<uint32_t> {
 public:
 	CpuCard(std::vector<uint8_t> rom, Northbridge &northbridge, InterruptController &interrupts,
-		SupervisorMailbox &supervisor, BoardIdentity identity);
+		Supervisor &supervisor, BoardIdentity identity);
 
 	// Power on and run until STP, or until max_cycles. Returns cycles run.
 	uint64_t run(uint64_t max_cycles);
@@ -60,7 +64,7 @@ private:
 	std::vector<uint8_t> ram_;
 	Northbridge &northbridge_;
 	InterruptController &interrupts_;
-	SupervisorMailbox &supervisor_;
+	Supervisor &supervisor_;
 	BoardIdentity identity_;
 	std::unique_ptr<Processor> cpu_;
 	std::string uart_;

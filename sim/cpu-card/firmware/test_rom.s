@@ -7,10 +7,17 @@
 ;              stack at $01FF, direct page at $0000.
 ; Self-checks: native mode entered, RAM in bank $00 and long RAM in banks
 ;              $01/$7F, ROM write protection, board identity readable.
+; Binding:     finds every service it uses by service type through Discovery
+;              Services ($00D500), the kernel's ring-filtered directory the
+;              supervisor published before releasing reset. No service node
+;              id is compiled in; only the deliberately unlisted probe nodes
+;              (supervisor, fabric, an empty node) are.
 ; Mailbox:     builds Mailbox v1 frames (16-byte little-endian header +
 ;              payload), computes CRC32 (reflected 0xEDB88320) in firmware,
 ;              submits through the Northbridge Mailbox Engine at $00D200 and
 ;              checks the decision for each case, verifying every PONG field.
+; Supervisor:  requests through the Supervisor Request Gateway ($00C200) and
+;              checks each ATX-SPEC-016 result code.
 ; Result:      prints "ATARIX CPU CARD TEST: PASS" or "FAIL Tnn", then STP.
 ;
 ; The host test bench checks the Northbridge audit log independently; this
@@ -47,13 +54,40 @@ INT_STATUS  = INT + $07
 SRC_SUPER   = 1
 SRC_MAILBOX = 3
 
-; Supervisor mailbox (docs/register-map-v1.md)
+; Supervisor Request Gateway (docs/register-map-v1.md block, ATX-SPEC-016 results)
 SUP         = $C200
 SUP_CMD     = SUP + $00
 SUP_STATUS  = SUP + $01
 SUP_ARG     = SUP + $02
-SUP_READ_ID = $03
+SUP_RESULT  = SUP + $06
 SUP_RESET   = $01
+SUP_RECOVER = $02
+SUP_READ_ID = $03
+SUP_FAULTLOG = $04
+SUP_FPGA    = $05
+SUP_REPORT  = $06
+R_EXECUTED  = 0
+R_DENIED    = 1
+R_APPROVAL  = 3
+R_UNSUPP    = 5
+R_UNKNOWN   = 6
+
+; Discovery Services: ring-filtered service directory (simulator profile)
+DISC        = $D500
+DISC_COUNT  = DISC + $00
+DISC_SELECT = DISC + $01
+DISC_CAP    = DISC + $06
+DISC_RING   = DISC + $07
+DISC_SVC    = DISC + $08
+DISC_NODE   = DISC + $0A
+DISC_STATE  = DISC + $0C
+SVC_VALIDATION = $0004
+SVC_BLOCK   = $4000
+SVC_GPU     = $6000
+EP_ACTIVE   = 1                     ; atarix_mailbox_endpoint_state_t
+EP_SUSPENDED = 2
+EP_QUARANTINED = 6
+DIR_COUNT   = 5                     ; cards in the simulated chassis
 RX          = $D2C0
 HDR         = 16
 
@@ -78,14 +112,15 @@ S_UNKNOWN   = 8
 S_RING      = 9
 S_POLICY    = 10
 S_CAP       = 11
+S_QUAR      = 12
+S_BUSY      = 13
+S_UNAVAIL   = 15
 
-; Nodes (include/atarix/sim_types.h; 0x0404 has no endpoint)
-N_SUPER     = $0000
-N_FABRIC    = $0001
-N_ECHO      = $FF00
-N_NONE      = $0404
-N_GPU       = $0300                 ; display card: GPU compute service (granted READ)
-N_GPU2      = $0301                 ; second GPU service: no capability granted
+; Probe nodes: deliberately addressed although the directory does not list
+; them, to show that an unlisted node is still checked, not merely hidden.
+N_SUPER     = $0000                 ; supervisor (ring -2)
+N_FABRIC    = $0001                 ; fabric control (ring -1)
+N_NONE      = $0404                 ; no endpoint
 
 ; Direct-page variables
 crc_lo      = $00
@@ -100,6 +135,20 @@ tmp         = $10
 test_no     = $12
 irq_count   = $14                   ; interrupts taken (16-bit)
 expp        = $16                   ; pointer to the expected GPU reply
+want_type   = $18                   ; find_service in: service type
+want_index  = $1A                   ;                  instance (nth match)
+found_node  = $1C                   ; find_service out: node id
+found_state = $1E                   ;                   lifecycle state (8-bit)
+found_cap   = $1F                   ;                   capability id (8-bit)
+disc_n      = $20                   ; 8-bit work: entry count, index, matches
+disc_i      = $21
+match_n     = $22
+n_echo      = $24                   ; nodes bound through Discovery Services
+n_echo2     = $26
+n_gpu       = $28
+n_gpu2      = $2A
+n_store     = $2C
+sres        = $2E                   ; gateway result (8-bit) and status (8-bit)
 irq_log     = $0300                 ; dispatch level of each interrupt taken
 sup_args    = $0310                 ; supervisor ARG0-3 captured by the level-0 handler
 
@@ -251,13 +300,68 @@ reset:
     jsr report_ok
 
 ; ---------------------------------------------------------------------------
+; T20: bind services by type through Discovery Services. The directory must
+; hold exactly the five chassis services, none in a platform ring, with the
+; lifecycle state and capability the supervisor's boot chain produced.
+; ---------------------------------------------------------------------------
+.macro BIND type, index, var, state, hascap
+    lda #type
+    sta want_type
+    lda #index
+    sta want_index
+    jsr find_service
+    JCS fail
+    lda found_node
+    sta var
+    sep #$20
+    .a8
+    lda found_state
+    cmp #state
+    JNE fail8
+    lda found_cap
+.if hascap
+    JEQ fail8
+.else
+    JNE fail8
+.endif
+    rep #$20
+    .a16
+.endmacro
+
+    lda #$0020
+    sta test_no
+    sep #$20
+    .a8
+    lda DISC_COUNT
+    cmp #DIR_COUNT
+    JNE fail8
+    ldx #$0000
+@ring:
+    txa
+    sta DISC_SELECT
+    lda DISC_RING                   ; wire value: $FE/$FF would be a platform ring
+    cmp #$04
+    JCS fail8
+    inx
+    cpx #DIR_COUNT
+    bne @ring
+    rep #$20
+    .a16
+    BIND SVC_VALIDATION, 0, n_echo,  EP_ACTIVE,      1
+    BIND SVC_VALIDATION, 1, n_echo2, EP_SUSPENDED,   1
+    BIND SVC_GPU,        0, n_gpu,   EP_ACTIVE,      1
+    BIND SVC_GPU,        1, n_gpu2,  EP_ACTIVE,      0   ; homebrew: no capability
+    BIND SVC_BLOCK,      0, n_store, EP_QUARANTINED, 0   ; identity failed at boot
+    jsr report_ok
+
+; ---------------------------------------------------------------------------
 ; Mailbox cases. Each: destination, type, sequence, corrupt-CRC flag, expected
 ; Northbridge status. Order and values must match the host's expected audit.
 ; ---------------------------------------------------------------------------
 .macro MBCASE num, dst, typ, seq, corrupt, expect
     lda #num
     sta test_no
-    lda #dst
+    lda dst
     sta dstv
     lda #typ
     sta typv
@@ -276,34 +380,44 @@ reset:
 :
 .endmacro
 
-    MBCASE $11, N_ECHO,   T_PING,      1, 0, S_OK
+.macro SUPCASE num, cmd, expect
+    lda #num
+    sta test_no
+    lda #cmd
+    jsr sup_request
+    cmp #expect
+    JNE fail
+    jsr report_ok
+.endmacro
+
+    MBCASE $11, n_echo,      T_PING,      1, 0, S_OK
     jsr check_pong
     jsr report_ok
-    MBCASE $12, N_SUPER,  T_PING,      2, 0, S_RING
+    MBCASE $12, {#N_SUPER},  T_PING,      2, 0, S_RING
     jsr check_no_reply
     jsr report_ok
-    MBCASE $13, N_FABRIC, T_PING,      3, 0, S_RING
+    MBCASE $13, {#N_FABRIC}, T_PING,      3, 0, S_RING
     jsr check_no_reply
     jsr report_ok
-    MBCASE $14, N_ECHO,   T_WRITE_REG, 4, 0, S_CAP
+    MBCASE $14, n_echo,      T_WRITE_REG, 4, 0, S_CAP
     jsr check_no_reply
     jsr report_ok
-    MBCASE $15, N_ECHO,   T_PING,      5, 1, S_CRC
+    MBCASE $15, n_echo,      T_PING,      5, 1, S_CRC
     jsr check_no_reply
     jsr report_ok
-    MBCASE $16, N_ECHO,   T_PING,      5, 0, S_OK
+    MBCASE $16, n_echo,      T_PING,      5, 0, S_OK
     jsr check_pong
     jsr report_ok
-    MBCASE $17, N_ECHO,   T_PING,      5, 0, S_DUP
+    MBCASE $17, n_echo,      T_PING,      5, 0, S_DUP
     jsr check_no_reply
     jsr report_ok
-    MBCASE $18, N_NONE,   T_PING,      6, 0, S_POLICY
+    MBCASE $18, {#N_NONE},   T_PING,      6, 0, S_POLICY
     jsr check_no_reply
     jsr report_ok
-    MBCASE $19, N_ECHO,   T_PING,      8, 0, S_SEQ
+    MBCASE $19, n_echo,      T_PING,      8, 0, S_SEQ
     jsr check_no_reply
     jsr report_ok
-    MBCASE $1A, N_ECHO,   T_UNKNOWN,   7, 0, S_UNKNOWN
+    MBCASE $1A, n_echo,      T_UNKNOWN,   7, 0, S_UNKNOWN
     jsr check_no_reply
     jsr report_ok
 
@@ -323,7 +437,7 @@ reset:
     JNE fail8
     rep #$20
     .a16
-    MBCASE $22, N_ECHO, T_PING, 7, 0, S_OK
+    MBCASE $22, n_echo, T_PING, 7, 0, S_OK
     sep #$20
     .a8
     lda MB_STATUS
@@ -426,22 +540,9 @@ reset:
     .a16
     jsr report_ok
 
-    ; I6: the CPU may not reset the system through the supervisor register path.
-    lda #$0026
-    sta test_no
-    sep #$20
-    .a8
-    lda #SUP_RESET
-    sta SUP_CMD
-    lda SUP_STATUS
-    cmp #$80
-    JNE fail8
-    lda INT_PEND_LO
-    and #(1 << SRC_SUPER)
-    JNE fail8
-    rep #$20
-    .a16
-    jsr report_ok
+    ; I6: a reset request is a request, not a command: the gateway answers
+    ; REQUIRES_APPROVAL and nothing is reset.
+    SUPCASE $26, SUP_RESET, R_APPROVAL
 
 ; ---------------------------------------------------------------------------
 ; GPU compute service (cglm-backed display card), 16.16 fixed point.
@@ -449,7 +550,7 @@ reset:
 .macro GPUCASE num, dst, seq, req, reqlen, expect_status, exp
     lda #num
     sta test_no
-    lda #dst
+    lda dst
     sta dstv
     lda #T_GPU_REQ
     sta typv
@@ -468,20 +569,71 @@ reset:
     sta expp
 .endmacro
 
-    GPUCASE $31, N_GPU, 8, gpu_req_g1, GPU_REQ_LEN, S_OK, gpu_exp_g1
+    GPUCASE $31, n_gpu, 8, gpu_req_g1, GPU_REQ_LEN, S_OK, gpu_exp_g1
     jsr check_gpu_reply                 ; rotate 90 deg about Z, translate -> (2,4,4)
     jsr report_ok
-    GPUCASE $32, N_GPU, 9, gpu_req_g2, GPU_REQ_LEN, S_OK, gpu_exp_g2
+    GPUCASE $32, n_gpu, 9, gpu_req_g2, GPU_REQ_LEN, S_OK, gpu_exp_g2
     jsr check_gpu_reply                 ; general rotation, unnormalized axis
     jsr report_ok
-    GPUCASE $33, N_GPU, 10, gpu_req_badop, GPU_REQ_LEN, S_OK, gpu_exp_badop
+    GPUCASE $33, n_gpu, 10, gpu_req_badop, GPU_REQ_LEN, S_OK, gpu_exp_badop
     jsr check_gpu_reply                 ; service rejects operation 7 (status 2)
     jsr report_ok
-    GPUCASE $34, N_GPU, 11, gpu_req_g1, GPU_REQ_SHORT_LEN, S_OK, gpu_exp_badlen
+    GPUCASE $34, n_gpu, 11, gpu_req_g1, GPU_REQ_SHORT_LEN, S_OK, gpu_exp_badlen
     jsr check_gpu_reply                 ; service rejects a 40-byte request (status 1)
     jsr report_ok
-    GPUCASE $35, N_GPU2, 12, gpu_req_g1, GPU_REQ_LEN, S_CAP, gpu_exp_g1
-    jsr check_no_reply                  ; no capability for the second GPU
+    GPUCASE $35, n_gpu2, 12, gpu_req_g1, GPU_REQ_LEN, S_CAP, gpu_exp_g1
+    jsr check_no_reply                  ; homebrew GPU: policy withheld the capability
+    jsr report_ok
+
+; ---------------------------------------------------------------------------
+; ATX-SPEC-005 validation after authority: lifecycle state, then resources.
+; ---------------------------------------------------------------------------
+    MBCASE $36, n_store, T_PING, 13, 0, S_CAP
+    jsr check_no_reply                  ; listed, but quarantined at boot: no capability
+    jsr report_ok
+    MBCASE $37, n_echo2, T_PING, 14, 0, S_UNAVAIL
+    jsr check_no_reply                  ; capability held, endpoint SUSPENDED
+    jsr report_ok
+    MBCASE $38, n_echo,  T_PING, 15, 0, S_OK
+    MBCASE $38, n_echo,  T_PING, 16, 0, S_BUSY   ; reply to 15 not yet acknowledged
+    lda #15
+    sta seqv
+    jsr check_pong                      ; the slot still holds the reply to 15
+    jsr report_ok
+
+; ---------------------------------------------------------------------------
+; Supervisor Request Gateway: each command gets its ATX-SPEC-016 result.
+; ---------------------------------------------------------------------------
+    SUPCASE $41, SUP_RECOVER,  R_DENIED
+    SUPCASE $42, SUP_FAULTLOG, R_UNSUPP
+    SUPCASE $43, SUP_FPGA,     R_DENIED
+    SUPCASE $44, $7E,          R_UNKNOWN
+    lda #N_SUPER                        ; a kernel may not report the supervisor
+    jsr sup_set_arg
+    SUPCASE $45, SUP_REPORT,   R_DENIED
+    lda n_gpu                           ; report the GPU as faulty: quarantined
+    jsr sup_set_arg
+    SUPCASE $46, SUP_REPORT,   R_EXECUTED
+
+    ; T47: the directory now shows the GPU quarantined, and the mailbox
+    ; refuses it although the kernel still holds its capability.
+    lda #$0047
+    sta test_no
+    lda #SVC_GPU
+    sta want_type
+    lda #0
+    sta want_index
+    jsr find_service
+    JCS fail
+    sep #$20
+    .a8
+    lda found_state
+    cmp #EP_QUARANTINED
+    JNE fail8
+    rep #$20
+    .a16
+    GPUCASE $47, n_gpu, 17, gpu_req_g1, GPU_REQ_LEN, S_QUAR, gpu_exp_g1
+    jsr check_no_reply
     jsr report_ok
 
     ldx #msg_pass
@@ -611,8 +763,12 @@ irq_level0:                         ; supervisor
     sep #$20
     .a8
     lda SUP_STATUS                  ; consumes the completion, deasserts the source
-    and #$02
-    JEQ fail8
+    and #$82
+    cmp #$02                        ; done, and executed
+    JNE fail8
+    lda SUP_RESULT
+    cmp #R_EXECUTED
+    JNE fail8
     lda SUP_ARG
     sta sup_args
     lda SUP_ARG + 1
@@ -663,6 +819,111 @@ log_irq:                            ; A (8-bit) = level; X 16-bit free
     sta irq_log,x
     inx
     stx irq_count
+    rts
+
+; ---------------------------------------------------------------------------
+; find_service: nth entry (want_index) of service type want_type in the
+; Discovery Services directory. Out: carry clear and found_node,
+; found_state, found_cap; carry set if there is no such entry.
+; ---------------------------------------------------------------------------
+find_service:
+    .a16
+    .i16
+    sep #$20
+    .a8
+    lda DISC_COUNT
+    sta disc_n
+    stz disc_i
+    stz match_n
+@loop:
+    lda disc_i
+    cmp disc_n
+    beq @none
+    sta DISC_SELECT
+    lda DISC_SVC
+    cmp want_type
+    bne @next
+    lda DISC_SVC + 1
+    cmp want_type + 1
+    bne @next
+    lda match_n
+    cmp want_index
+    beq @hit
+    inc match_n
+@next:
+    inc disc_i
+    bra @loop
+@hit:
+    lda DISC_NODE
+    sta found_node
+    lda DISC_NODE + 1
+    sta found_node + 1
+    lda DISC_STATE
+    sta found_state
+    lda DISC_CAP
+    sta found_cap
+    rep #$20
+    .a16
+    clc
+    rts
+@none:
+    rep #$20
+    .a16
+    sec
+    rts
+
+; ---------------------------------------------------------------------------
+; sup_set_arg: A (16-bit) -> gateway ARG0 (low), ARG1 (high).
+; ---------------------------------------------------------------------------
+sup_set_arg:
+    .a16
+    .i16
+    sep #$20
+    .a8
+    sta SUP_ARG
+    xba
+    sta SUP_ARG + 1
+    rep #$20
+    .a16
+    rts
+
+; ---------------------------------------------------------------------------
+; sup_request: submit gateway command A (low byte). Checks that the request
+; completed (STATUS done; reading it deasserts the source), that STATUS bit 7
+; ("not executed") agrees with RESULT, and acknowledges the interrupt.
+; Out: A = RESULT (16-bit, high 0).
+; ---------------------------------------------------------------------------
+sup_request:
+    .a16
+    .i16
+    sep #$20
+    .a8
+    sta SUP_CMD
+    lda SUP_STATUS
+    sta sres + 1
+    and #$02
+    JEQ fail8
+    lda #SRC_SUPER
+    sta INT_ACK
+    lda INT_PEND_LO
+    and #(1 << SRC_SUPER)
+    JNE fail8                       ; completion consumed: no longer pending
+    lda SUP_RESULT
+    sta sres
+    beq @executed
+    lda sres + 1
+    and #$80
+    JEQ fail8                       ; not executed, so bit 7 must be set
+    bra @done
+@executed:
+    lda sres + 1
+    and #$80
+    JNE fail8
+@done:
+    rep #$20
+    .a16
+    lda sres
+    and #$00FF
     rts
 
 ; ---------------------------------------------------------------------------
@@ -738,10 +999,10 @@ check_pong:
     cmp #>T_PONG
     JNE pong_bad
     lda MB_SRC
-    cmp #<N_ECHO
+    cmp dstv
     JNE pong_bad
     lda MB_SRC_HI
-    cmp #>N_ECHO
+    cmp dstv + 1
     JNE pong_bad
     lda MB_LEN
     cmp #PAYLOAD_LEN

@@ -71,6 +71,84 @@ uint32_t Northbridge::operation_for(uint16_t message_type) {
 	}
 }
 
+bool Northbridge::set_state(uint16_t node, atarix_mailbox_endpoint_state_t state) {
+	for(auto &e: endpoints_) {
+		if(e.node_id == node) {
+			e.state = state;
+			return true;
+		}
+	}
+	return false;
+}
+
+uint32_t Northbridge::granted_capability(const Endpoint &endpoint) const {
+	atarix_capability_request_t request{};
+	request.target_handle = handle_for(endpoint);
+	request.operation_id = ATARIX_OPERATION_READ;
+	request.requester_ring = cpu_ring_;
+	request.trust_level = cpu_trust_;
+	atarix_capability_evaluation_t evaluation{};
+	if(atarix_capability_evaluate(capabilities_.data(), capabilities_.size(), &request, &evaluation) == 0 &&
+		evaluation.decision == ATARIX_DECISION_ALLOW && evaluation.matched_capability) {
+		return evaluation.matched_capability->capability_id;
+	}
+	return 0;
+}
+
+void Northbridge::publish_directory() {
+	// Ring filtering (service-directory-format-v1.md): the CPU card's view
+	// lists only endpoints in its own ring or less privileged rings. A listed
+	// endpoint is still subject to every mailbox check.
+	directory_.clear();
+	for(const auto &e: endpoints_) {
+		if(e.ring >= cpu_ring_ || injection_ == Injection::ListPlatformRings) directory_.push_back(e.node_id);
+	}
+	select_ = 0;
+}
+
+bool Northbridge::read_discovery(uint32_t offset, uint8_t &value, uint64_t cycle) {
+	if(offset == DiscCount) {
+		value = uint8_t(directory_.size());
+		return true;
+	}
+	if(offset == DiscSelect) {
+		value = select_;
+		return true;
+	}
+	if(select_ >= directory_.size()) {
+		value = 0;
+		fault(cycle, DiscoveryBase + offset, false, "discovery read with SELECT beyond COUNT");
+		return true;
+	}
+	const Endpoint *e = find(directory_[select_]);
+	switch(offset) {
+		case DiscVendorLo: value = uint8_t(e->vendor); break;
+		case DiscVendorHi: value = uint8_t(e->vendor >> 8); break;
+		case DiscDeviceLo: value = uint8_t(e->device); break;
+		case DiscDeviceHi: value = uint8_t(e->device >> 8); break;
+		case DiscCapability: value = uint8_t(granted_capability(*e)); break;
+		case DiscRing: value = uint8_t(atarix_ring_to_wire(e->ring)); break;
+		case DiscServiceLo: value = uint8_t(e->service_type); break;
+		case DiscServiceHi: value = uint8_t(e->service_type >> 8); break;
+		case DiscNodeLo: value = uint8_t(e->node_id); break;
+		case DiscNodeHi: value = uint8_t(e->node_id >> 8); break;
+		case DiscState: value = uint8_t(e->state); break;
+		case DiscInstance: value = e->instance; break;
+		default: value = 0; break;
+	}
+	return true;
+}
+
+bool Northbridge::write_discovery(uint32_t offset, uint8_t value, uint64_t cycle) {
+	if(offset == DiscSelect) {
+		select_ = value;
+	} else {
+		// The directory is published by the fabric; the CPU cannot edit it.
+		fault(cycle, DiscoveryBase + offset, true, "write to read-only discovery register");
+	}
+	return true;
+}
+
 const Endpoint *Northbridge::find(uint16_t node) const {
 	for(const auto &e: endpoints_) {
 		if(e.node_id == node) return &e;
@@ -84,6 +162,7 @@ void Northbridge::fault(uint64_t cycle, uint32_t address, bool write, std::strin
 }
 
 bool Northbridge::read(uint32_t address, uint8_t &value, uint64_t cycle) {
+	if(address >= DiscoveryBase && address <= DiscoveryLimit) return read_discovery(address - DiscoveryBase, value, cycle);
 	if(address < MailboxBase || address > MailboxLimit) return false;
 
 	if(address >= RxWindow && address < RxWindow + WindowSize) {
@@ -119,6 +198,7 @@ bool Northbridge::read(uint32_t address, uint8_t &value, uint64_t cycle) {
 }
 
 bool Northbridge::write(uint32_t address, uint8_t value, uint64_t cycle) {
+	if(address >= DiscoveryBase && address <= DiscoveryLimit) return write_discovery(address - DiscoveryBase, value, cycle);
 	if(address < MailboxBase || address > MailboxLimit) return false;
 
 	if(address >= TxWindow && address < TxWindow + WindowSize) {
@@ -159,10 +239,18 @@ void Northbridge::submit(uint64_t cycle) {
 	header.sequence = le32(frame + 8);
 	header.crc32 = le32(frame + 12);
 
-	AuditRecord record{cycle, cpu_node_, destination_, header.type, header.sequence, ATARIX_MAILBOX_STATUS_OK, ""};
-	const auto finish = [&](atarix_mailbox_status_t status, const char *stage) {
+	AuditRecord record{};
+	record.cycle = cycle;
+	record.source = cpu_node_;
+	record.destination = destination_;
+	record.type = header.type;
+	record.sequence = header.sequence;
+	record.actor_ring = cpu_ring_;
+	record.operation = operation_for(header.type);
+	const auto finish = [&](atarix_mailbox_status_t status, const char *stage, std::string reason) {
 		record.status = status;
 		record.stage = stage;
+		record.reason = std::move(reason);
 		result_ = uint8_t(status);
 		audit_.push_back(record);
 	};
@@ -179,35 +267,37 @@ void Northbridge::submit(uint64_t cycle) {
 		status = ATARIX_MAILBOX_STATUS_OK;
 	}
 	if(status != ATARIX_MAILBOX_STATUS_OK) {
-		finish(status, "header");
+		finish(status, "header", "frame rejected by Mailbox v1 header validation");
 		return;
 	}
 
 	status = atarix_mailbox_sequence_accept(&rx_window_, header.sequence);
 	if(status != ATARIX_MAILBOX_STATUS_OK) {
-		finish(status, "sequence");
+		finish(status, "sequence", "sequence not the next expected value");
 		return;
 	}
 
 	const Endpoint *target = find(destination_);
 	if(!target) {
 		// A known endpoint is not authority, and an unknown one is denied by default.
-		finish(ATARIX_MAILBOX_STATUS_POLICY_DENIED, "endpoint");
+		finish(ATARIX_MAILBOX_STATUS_POLICY_DENIED, "endpoint", "no endpoint at this node: default deny");
 		return;
 	}
+	record.target_ring = target->ring;
 
 	status = atarix_mailbox_ring_authorize(cpu_ring_, target->ring, header.type);
 	if(injection_ == Injection::SkipRing && status == ATARIX_MAILBOX_STATUS_RING_DENIED) {
 		status = ATARIX_MAILBOX_STATUS_OK;
 	}
 	if(status != ATARIX_MAILBOX_STATUS_OK) {
-		finish(status, "ring");
+		finish(status, "ring", std::string("ring ") + atarix_ring_name(cpu_ring_) + " may not request ring " +
+			atarix_ring_name(target->ring));
 		return;
 	}
 
 	atarix_capability_request_t request{};
 	request.target_handle = handle_for(*target);
-	request.operation_id = operation_for(header.type);
+	request.operation_id = record.operation;
 	request.requester_ring = cpu_ring_;
 	request.trust_level = cpu_trust_;
 	atarix_capability_evaluation_t evaluation{};
@@ -215,13 +305,32 @@ void Northbridge::submit(uint64_t cycle) {
 		atarix_capability_evaluate(capabilities_.data(), capabilities_.size(), &request, &evaluation) == 0 &&
 		evaluation.decision == ATARIX_DECISION_ALLOW;
 	if(!capability_ok && injection_ != Injection::SkipCapability) {
-		finish(ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, "capability");
+		finish(ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, "capability",
+			evaluation.matched_capability ? "capability does not allow this ring or trust level"
+			                              : "no capability grants this operation on this target");
+		return;
+	}
+	record.authority = evaluation.matched_capability ? evaluation.matched_capability->capability_id : 0;
+	record.allowed = true;
+
+	// ATX-SPEC-005: lifecycle state, then resource availability. Neither is
+	// authority; both are checked only after authority is established.
+	status = atarix_mailbox_endpoint_admit(target->state);
+	if(injection_ == Injection::SkipLifecycle) status = ATARIX_MAILBOX_STATUS_OK;
+	if(status != ATARIX_MAILBOX_STATUS_OK) {
+		finish(status, "lifecycle", status == ATARIX_MAILBOX_STATUS_QUARANTINED
+			? "target endpoint is quarantined" : "target endpoint is not ACTIVE");
+		return;
+	}
+	if(rx_ready_ && injection_ != Injection::SkipResource) {
+		// One reply slot: an unacknowledged reply means no room for another.
+		finish(ATARIX_MAILBOX_STATUS_BUSY, "resource", "reply slot occupied: previous reply not acknowledged");
 		return;
 	}
 
 	if(target->echo_service && header.type == ATARIX_MAILBOX_MESSAGE_PING) {
 		deliver_reply(target->node_id, ATARIX_MAILBOX_MESSAGE_PONG, header.sequence, payload, header.length);
-		finish(ATARIX_MAILBOX_STATUS_OK, "dispatch");
+		finish(ATARIX_MAILBOX_STATUS_OK, "dispatch", "delivered");
 		return;
 	}
 
@@ -234,12 +343,12 @@ void Northbridge::submit(uint64_t cycle) {
 		gpu_log_.push_back({cycle, target->node_id, header.sequence, reply.status});
 		deliver_reply(target->node_id, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REPLY, header.sequence,
 			reply.payload.data(), GpuReplyLength);
-		finish(ATARIX_MAILBOX_STATUS_OK, "dispatch");
+		finish(ATARIX_MAILBOX_STATUS_OK, "dispatch", "delivered");
 		return;
 	}
 
 	// Authorized but no handler: explicit, observable failure.
-	finish(ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE, "dispatch");
+	finish(ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE, "dispatch", "target has no handler for this message type");
 }
 
 void Northbridge::deliver_reply(uint16_t source, uint16_t type, uint32_t sequence, const uint8_t *payload, uint16_t length) {

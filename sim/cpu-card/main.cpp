@@ -3,12 +3,19 @@
 //
 // ATARIX CPU card software test bench.
 //
-// Boots the test ROM on the emulated CPU card and checks, independently of
+// The supervisor first runs the boot authority chain for the simulated
+// chassis (identity -> enumeration -> capability policy -> binding ->
+// transport activation -> reset release, supervisor.hpp). Then the test ROM
+// boots on the emulated CPU card, binds services by service type through
+// Discovery Services, and runs its tests. The bench checks, independently of
 // anything the firmware reports about itself:
 //   1. the CPU reached STP (the firmware ran to completion);
 //   2. the UART transcript ends with the firmware's PASS line;
-//   3. the Northbridge audit log equals the expected decision sequence;
-//   4. the only bus faults are the ones the firmware provokes on purpose.
+//   3. the Northbridge audit log equals the expected decision sequence,
+//      including the authority (capability) used for each allowed request;
+//   4. the only bus faults are the ones the firmware provokes on purpose;
+//   5. vector pulls; 6. supervisor events (boot chain and gateway requests)
+//      and gateway results; 7. GPU service results.
 //
 // Usage: atarix-cpu-card --rom FILE [--trace FILE] [--report FILE] [--max-cycles N]
 // Exit status: 0 pass, 1 fail, 2 usage or setup error.
@@ -39,38 +46,100 @@ using atarix::sim::Endpoint;
 using atarix::sim::Northbridge;
 
 constexpr uint16_t CpuNode = ATARIX_SIM_NODE_CPU_BASE;          // 0x0100, slot 0
-constexpr uint16_t EchoNode = ATARIX_SIM_NODE_TEST_BASE;        // 0xFF00, test range
+constexpr uint16_t EchoNode = ATARIX_SIM_NODE_TEST_BASE;        // 0xFF00, test card: echo service
+constexpr uint16_t Echo2Node = ATARIX_SIM_NODE_TEST_BASE + 1;   // 0xFF01, echo service, firmware not ready
 constexpr uint16_t UnknownNode = 0x0404;                        // no endpoint
 constexpr uint16_t GpuNode = ATARIX_SIM_NODE_DISPLAY_BASE;      // 0x0300, display card: GPU compute
-constexpr uint16_t GpuNode2 = ATARIX_SIM_NODE_DISPLAY_BASE + 1; // 0x0301, second GPU: no capability
+constexpr uint16_t GpuNode2 = ATARIX_SIM_NODE_DISPLAY_BASE + 1; // 0x0301, homebrew GPU: identified only
+constexpr uint16_t StorageNode = ATARIX_SIM_NODE_STORAGE_BASE;  // 0x0200, storage card: identity fails
+constexpr uint16_t SupervisorNode = ATARIX_SIM_NODE_SUPERVISOR;
+constexpr uint16_t FabricNode = ATARIX_SIM_NODE_FABRIC_BASE;
 constexpr const char *PassLine = "ATARIX CPU CARD TEST: PASS";
+
+// Capability ids the supervisor's policy issues, in chassis order.
+constexpr uint32_t CapGpu = 1;
+constexpr uint32_t CapEcho = 2;
+constexpr uint32_t CapEcho2 = 3;
 
 struct Expected {
 	uint16_t destination;
 	uint16_t type;
 	uint32_t sequence;
 	atarix_mailbox_status_t status;
+	uint32_t authority;   // capability id used; 0 when none was established
 	const char *why;
 };
 
+constexpr uint16_t Ping = ATARIX_MAILBOX_MESSAGE_PING;
+constexpr uint16_t GpuRequest = ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST;
+
 // The firmware's mailbox test plan, as the Northbridge must decide it.
 const Expected ExpectedAudit[] = {
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 1, ATARIX_MAILBOX_STATUS_OK, "PING to granted echo service -> PONG"},
-	{ATARIX_SIM_NODE_SUPERVISOR, ATARIX_MAILBOX_MESSAGE_PING, 2, ATARIX_MAILBOX_STATUS_RING_DENIED, "kernel ring cannot request supervisor ring"},
-	{ATARIX_SIM_NODE_FABRIC_BASE, ATARIX_MAILBOX_MESSAGE_PING, 3, ATARIX_MAILBOX_STATUS_RING_DENIED, "kernel ring cannot request fabric ring"},
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_WRITE_REGISTER, 4, ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, "READ capability does not grant WRITE"},
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 5, ATARIX_MAILBOX_STATUS_CRC_MISMATCH, "corrupted payload CRC rejected before sequence"},
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 5, ATARIX_MAILBOX_STATUS_OK, "same sequence accepted once CRC is valid"},
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 5, ATARIX_MAILBOX_STATUS_DUPLICATE, "replay of sequence 5 rejected"},
-	{UnknownNode, ATARIX_MAILBOX_MESSAGE_PING, 6, ATARIX_MAILBOX_STATUS_POLICY_DENIED, "unknown endpoint denied by default"},
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 8, ATARIX_MAILBOX_STATUS_SEQUENCE_ERROR, "sequence gap rejected"},
-	{EchoNode, 0x0099, 7, ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE, "unknown message type rejected"},
-	{EchoNode, ATARIX_MAILBOX_MESSAGE_PING, 7, ATARIX_MAILBOX_STATUS_OK, "PING whose reply raises the mailbox interrupt (I2)"},
-	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 8, ATARIX_MAILBOX_STATUS_OK, "GPU transform G1"},
-	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 9, ATARIX_MAILBOX_STATUS_OK, "GPU transform G2"},
-	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 10, ATARIX_MAILBOX_STATUS_OK, "GPU bad operation (service-level error)"},
-	{GpuNode, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 11, ATARIX_MAILBOX_STATUS_OK, "GPU bad length (service-level error)"},
-	{GpuNode2, ATARIX_MAILBOX_MESSAGE_GPU_TRANSFORM_REQUEST, 12, ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, "no capability for the second GPU"},
+	{EchoNode, Ping, 1, ATARIX_MAILBOX_STATUS_OK, CapEcho, "PING to granted echo service -> PONG"},
+	{SupervisorNode, Ping, 2, ATARIX_MAILBOX_STATUS_RING_DENIED, 0, "kernel ring cannot request supervisor ring"},
+	{FabricNode, Ping, 3, ATARIX_MAILBOX_STATUS_RING_DENIED, 0, "kernel ring cannot request fabric ring"},
+	{EchoNode, ATARIX_MAILBOX_MESSAGE_WRITE_REGISTER, 4, ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, 0, "READ capability does not grant WRITE"},
+	{EchoNode, Ping, 5, ATARIX_MAILBOX_STATUS_CRC_MISMATCH, 0, "corrupted payload CRC rejected before sequence"},
+	{EchoNode, Ping, 5, ATARIX_MAILBOX_STATUS_OK, CapEcho, "same sequence accepted once CRC is valid"},
+	{EchoNode, Ping, 5, ATARIX_MAILBOX_STATUS_DUPLICATE, 0, "replay of sequence 5 rejected"},
+	{UnknownNode, Ping, 6, ATARIX_MAILBOX_STATUS_POLICY_DENIED, 0, "unknown endpoint denied by default"},
+	{EchoNode, Ping, 8, ATARIX_MAILBOX_STATUS_SEQUENCE_ERROR, 0, "sequence gap rejected"},
+	{EchoNode, 0x0099, 7, ATARIX_MAILBOX_STATUS_UNKNOWN_TYPE, 0, "unknown message type rejected"},
+	{EchoNode, Ping, 7, ATARIX_MAILBOX_STATUS_OK, CapEcho, "PING whose reply raises the mailbox interrupt (I2)"},
+	{GpuNode, GpuRequest, 8, ATARIX_MAILBOX_STATUS_OK, CapGpu, "GPU transform G1"},
+	{GpuNode, GpuRequest, 9, ATARIX_MAILBOX_STATUS_OK, CapGpu, "GPU transform G2"},
+	{GpuNode, GpuRequest, 10, ATARIX_MAILBOX_STATUS_OK, CapGpu, "GPU bad operation (service-level error)"},
+	{GpuNode, GpuRequest, 11, ATARIX_MAILBOX_STATUS_OK, CapGpu, "GPU bad length (service-level error)"},
+	{GpuNode2, GpuRequest, 12, ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, 0, "homebrew GPU: policy withheld the capability"},
+	{StorageNode, Ping, 13, ATARIX_MAILBOX_STATUS_CAPABILITY_DENIED, 0, "listed in the directory but quarantined at boot: lookup is not access"},
+	{Echo2Node, Ping, 14, ATARIX_MAILBOX_STATUS_TARGET_UNAVAILABLE, CapEcho2, "capability held, endpoint SUSPENDED"},
+	{EchoNode, Ping, 15, ATARIX_MAILBOX_STATUS_OK, CapEcho, "reply left unacknowledged"},
+	{EchoNode, Ping, 16, ATARIX_MAILBOX_STATUS_BUSY, CapEcho, "reply slot occupied: resource unavailable"},
+	{GpuNode, GpuRequest, 17, ATARIX_MAILBOX_STATUS_QUARANTINED, CapGpu, "GPU quarantined by the supervisor after a fault report"},
+};
+
+// Supervisor audit (ATX-SPEC-016): the boot authority chain, then every
+// gateway request as received and decided.
+struct ExpectedEvent {
+	const char *event;
+	uint16_t subject;
+};
+const ExpectedEvent ExpectedEvents[] = {
+	{"power-on", 0},
+	{"identity-validated", GpuNode}, {"identity-validated", GpuNode2}, {"identity-failed", StorageNode},
+	{"identity-validated", EchoNode}, {"identity-validated", Echo2Node},
+	{"enumeration-complete", 0},
+	{"capability-granted", GpuNode}, {"capability-withheld", GpuNode2}, {"capability-withheld", StorageNode},
+	{"capability-granted", EchoNode}, {"capability-granted", Echo2Node},
+	{"service-binding", 0},
+	{"transport-activated", 0},
+	{"reset-released", 0},
+	{"request-received", CpuNode}, {"request-executed", CpuNode},           // I3 Read Board ID
+	{"request-received", CpuNode}, {"request-requires-approval", CpuNode},  // I6 Reset Request
+	{"request-received", CpuNode}, {"request-denied", CpuNode},             // Recovery Mode
+	{"request-received", CpuNode}, {"request-unsupported", CpuNode},        // Read Fault Log
+	{"request-received", CpuNode}, {"request-denied", CpuNode},             // FPGA Reload
+	{"request-received", CpuNode}, {"request-unknown", CpuNode},            // command $7E
+	{"request-received", CpuNode}, {"request-denied", CpuNode},             // Report Fault: supervisor node
+	{"request-received", CpuNode}, {"endpoint-quarantined", GpuNode}, {"request-executed", CpuNode},  // Report Fault: GPU
+};
+
+// Gateway requests and the ATX-SPEC-016 result each must get.
+struct ExpectedRequest {
+	uint8_t command;
+	uint16_t argument;
+	atarix::sim::GatewayResult result;
+};
+using GR = atarix::sim::GatewayResult;
+const ExpectedRequest ExpectedRequests[] = {
+	{0x03, 0x0000, GR::Executed},          // Read Board ID
+	{0x01, 0x0000, GR::RequiresApproval},  // Reset Request
+	{0x02, 0x0000, GR::Denied},            // Recovery Mode
+	{0x04, 0x0000, GR::Unsupported},       // Read Fault Log
+	{0x05, 0x0000, GR::Denied},            // FPGA Reload
+	{0x7E, 0x0000, GR::Unknown},           // not in the command table
+	{0x06, SupervisorNode, GR::Denied},    // Report Fault on a more privileged ring
+	{0x06, GpuNode, GR::Executed},         // Report Fault on the GPU: quarantined
 };
 
 // GPU service decisions (reply status) for the requests it received.
@@ -87,16 +156,6 @@ const ExpectedPull ExpectedPulls[] = {
 	{0x00FFFC, 0x00FFFC}, {0x00FFFD, 0x00FFFD},
 	{0x00FFEE, 0x00FFEE}, {0x00FFEF, 0x00FFEF},
 	{0x00FFEE, 0x00FFF2}, {0x00FFEF, 0x00FFF3},
-};
-
-// Supervisor register-path commands: Read Board ID accepted, Reset rejected.
-struct ExpectedCommand {
-	uint8_t command;
-	bool accepted;
-};
-const ExpectedCommand ExpectedCommands[] = {
-	{0x03, true},
-	{0x01, false},
 };
 
 // Faults the firmware provokes deliberately (ROM write-protect check).
@@ -135,7 +194,9 @@ int usage() {
 	std::fprintf(stderr,
 		"usage: atarix-cpu-card --rom FILE [--trace FILE] [--report FILE] [--max-cycles N]\n"
 		"                       [--inject skip-capability|skip-ring|accept-bad-crc|corrupt-pong|\n"
+		"                                 skip-lifecycle|skip-resource|list-platform-rings|\n"
 		"                                 no-vector-rewrite|ignore-mask|mailbox-level7|supervisor-accepts-reset|\n"
+		"                                 release-before-enumeration|grant-by-discovery|skip-identity-validation|\n"
 		"                                 gpu-wrong-math|gpu-off-by-3]\n");
 	return 2;
 }
@@ -147,6 +208,7 @@ int main(int argc, char **argv) {
 	uint64_t max_cycles = 20'000'000;
 	atarix::sim::Injection injection = atarix::sim::Injection::None;
 	atarix::sim::InterruptInjection interrupt_injection = atarix::sim::InterruptInjection::None;
+	atarix::sim::SupervisorInjection supervisor_injection = atarix::sim::SupervisorInjection::None;
 	for(int i = 1; i < argc; ++i) {
 		const std::string_view arg(argv[i]);
 		if(i + 1 >= argc) return usage();
@@ -164,10 +226,16 @@ int main(int argc, char **argv) {
 			else if(which == "corrupt-pong") injection = Injection::CorruptPong;
 			else if(which == "gpu-wrong-math") injection = Injection::GpuWrongMath;
 			else if(which == "gpu-off-by-3") injection = Injection::GpuOffBy3;
+			else if(which == "skip-lifecycle") injection = Injection::SkipLifecycle;
+			else if(which == "skip-resource") injection = Injection::SkipResource;
+			else if(which == "list-platform-rings") injection = Injection::ListPlatformRings;
+			else if(which == "supervisor-accepts-reset") supervisor_injection = atarix::sim::SupervisorInjection::ExecutesReset;
+			else if(which == "release-before-enumeration") supervisor_injection = atarix::sim::SupervisorInjection::ReleaseBeforeEnumeration;
+			else if(which == "grant-by-discovery") supervisor_injection = atarix::sim::SupervisorInjection::GrantByDiscovery;
+			else if(which == "skip-identity-validation") supervisor_injection = atarix::sim::SupervisorInjection::SkipIdentityValidation;
 			else if(which == "no-vector-rewrite") interrupt_injection = atarix::sim::InterruptInjection::NoVectorRewrite;
 			else if(which == "ignore-mask") interrupt_injection = atarix::sim::InterruptInjection::IgnoreMask;
 			else if(which == "mailbox-level7") interrupt_injection = atarix::sim::InterruptInjection::MailboxLevel7;
-			else if(which == "supervisor-accepts-reset") interrupt_injection = atarix::sim::InterruptInjection::SupervisorAcceptsReset;
 			else return usage();
 		}
 		else return usage();
@@ -181,44 +249,77 @@ int main(int argc, char **argv) {
 	}
 	std::vector<uint8_t> rom((std::istreambuf_iterator<char>(rom_file)), std::istreambuf_iterator<char>());
 
-	// Topology: the CPU card (kernel ring) in slot 0, the supervisor and fabric
-	// control endpoints, and one test echo service in the test node range.
+	// The CPU card runs the kernel (ring 0) in slot 0. Its identity and ring
+	// are assigned by its slot, never claimed by the CPU.
 	Northbridge northbridge(CpuNode, ATARIX_RING_KERNEL, ATARIX_TRUST_IDENTIFIED);
 	northbridge.inject(injection);
 	atarix::sim::InterruptController interrupts;
 	interrupts.inject(interrupt_injection);
 	northbridge.set_interrupts(&interrupts);
 	const atarix::sim::BoardIdentity identity{};
-	atarix::sim::SupervisorMailbox supervisor(interrupts, {
+	atarix::sim::Supervisor supervisor(interrupts, northbridge, CpuNode, ATARIX_RING_KERNEL, {
 		uint8_t(identity.vendor), uint8_t(identity.vendor >> 8), uint8_t(identity.board), uint8_t(identity.board >> 8)});
-	supervisor.inject(interrupt_injection);
-	if(injection != atarix::sim::Injection::None || interrupt_injection != atarix::sim::InterruptInjection::None) {
-		std::printf("NEGATIVE CONTROL: deliberate Northbridge defect injected\n");
+	supervisor.inject(supervisor_injection);
+	if(injection != atarix::sim::Injection::None || interrupt_injection != atarix::sim::InterruptInjection::None ||
+		supervisor_injection != atarix::sim::SupervisorInjection::None) {
+		std::printf("NEGATIVE CONTROL: deliberate defect injected\n");
 	}
-	northbridge.add_endpoint({ATARIX_SIM_NODE_SUPERVISOR, ATARIX_RING_SUPERVISOR, ATARIX_SERVICE_RECOVERY, false, "supervisor"});
-	northbridge.add_endpoint({ATARIX_SIM_NODE_FABRIC_BASE, ATARIX_RING_FABRIC, ATARIX_SERVICE_MAILBOX, false, "fabric-control"});
-	const Endpoint echo{EchoNode, ATARIX_RING_SERVICE, ATARIX_SERVICE_VALIDATION, true, "test-echo"};
-	northbridge.add_endpoint(echo);
 
-	// Display cards offering SERVICE_GPU_COMPUTE (cglm-backed, gpu_service.hpp).
-	const Endpoint gpu{GpuNode, ATARIX_RING_SERVICE, ATARIX_SERVICE_GPU_COMPUTE, false, "gpu-compute", true};
-	northbridge.add_endpoint(gpu);
-	northbridge.add_endpoint({GpuNode2, ATARIX_RING_SERVICE, ATARIX_SERVICE_GPU_COMPUTE, false, "gpu-compute-2", true});
+	// Platform endpoints (rings -2 and -1): part of the platform, not cards.
+	Endpoint supervisor_endpoint{SupervisorNode, ATARIX_RING_SUPERVISOR, ATARIX_SERVICE_RECOVERY, false, "supervisor"};
+	supervisor_endpoint.state = ATARIX_MAILBOX_ENDPOINT_ACTIVE;
+	northbridge.add_endpoint(supervisor_endpoint);
+	Endpoint fabric_endpoint{FabricNode, ATARIX_RING_FABRIC, ATARIX_SERVICE_MAILBOX, false, "fabric-control"};
+	fabric_endpoint.state = ATARIX_MAILBOX_ENDPOINT_ACTIVE;
+	northbridge.add_endpoint(fabric_endpoint);
 
-	// The CPU card's capabilities: READ on the echo service and on the first GPU.
-	atarix_capability_record_v1_t read_echo{};
-	read_echo.capability_id = 1;
-	read_echo.operation_id = ATARIX_OPERATION_READ;
-	read_echo.target_handle = Northbridge::handle_for(echo);
-	read_echo.minimum_ring = ATARIX_RING_WIRE_KERNEL;
-	read_echo.maximum_ring = ATARIX_RING_WIRE_APPLICATION;
-	read_echo.trust_requirement = ATARIX_TRUST_IDENTIFIED;
-	read_echo.issuer_handle = atarix_discovery_make_handle(ATARIX_SIM_NODE_SUPERVISOR, ATARIX_SERVICE_PROVISIONING, 0);
-	northbridge.grant(read_echo);
-	atarix_capability_record_v1_t read_gpu = read_echo;
-	read_gpu.capability_id = 2;
-	read_gpu.target_handle = Northbridge::handle_for(gpu);
-	northbridge.grant(read_gpu);
+	// The chassis: each card's Identity EEPROM and the service its discovery
+	// ROM declares. Nothing here grants anything: the supervisor's policy
+	// decides from validated identity (supervisor.cpp).
+	using atarix::sim::Card;
+	using atarix::sim::make_identity;
+	constexpr uint32_t Vendor = 0x0000A7A1u;                         // simulator vendor id, not registered
+	constexpr uint32_t Homebrew = ATARIX_VENDOR_HOMEBREW_BASE + 0x42u;
+	std::vector<Card> cards;
+	{
+		// Display card, factory identity: GPU compute at the driver ring.
+		Card c{"display-gpu", make_identity(Vendor, 0x2350, ATARIX_BOARD_CLASS_PROTOTYPE_CARD,
+			ATARIX_TRUST_CLASS_FACTORY, "display-gpu"), GpuNode, ATARIX_SERVICE_GPU_COMPUTE, ATARIX_RING_DRIVER};
+		c.gpu_compute = true;
+		cards.push_back(c);
+	}
+	{
+		// Homebrew display card: valid identity, but only "identified".
+		Card c{"homebrew-gpu", make_identity(Homebrew, 0x2350, ATARIX_BOARD_CLASS_HOMEBREW_CARD,
+			ATARIX_TRUST_CLASS_HOMEBREW, "homebrew-gpu"), GpuNode2, ATARIX_SERVICE_GPU_COMPUTE, ATARIX_RING_DRIVER, 1};
+		c.gpu_compute = true;
+		cards.push_back(c);
+	}
+	{
+		// Storage card whose Identity EEPROM is corrupted (one bit, CRC stale).
+		Card c{"storage", make_identity(Vendor, 0x0400, ATARIX_BOARD_CLASS_STORAGE_CARD,
+			ATARIX_TRUST_CLASS_FACTORY, "storage"), StorageNode, ATARIX_SERVICE_BLOCK_STORAGE, ATARIX_RING_DRIVER};
+		c.identity.board_name[0] ^= 0x01;
+		cards.push_back(c);
+	}
+	{
+		// Test card: echo validation service at the user-service ring.
+		Card c{"test-echo", make_identity(Vendor, 0x0E00, ATARIX_BOARD_CLASS_DEVELOPMENT_CARD,
+			ATARIX_TRUST_CLASS_DEVELOPMENT, "test-echo"), EchoNode, ATARIX_SERVICE_VALIDATION, ATARIX_RING_USER_SERVICE};
+		c.echo_service = true;
+		cards.push_back(c);
+	}
+	{
+		// Second echo service whose firmware is not ready: enumerated and
+		// granted, but left SUSPENDED by transport activation.
+		Card c{"test-echo-2", make_identity(Vendor, 0x0E00, ATARIX_BOARD_CLASS_DEVELOPMENT_CARD,
+			ATARIX_TRUST_CLASS_DEVELOPMENT, "test-echo-2"), Echo2Node, ATARIX_SERVICE_VALIDATION,
+			ATARIX_RING_USER_SERVICE, 1};
+		c.echo_service = true;
+		c.firmware_ready = false;
+		cards.push_back(c);
+	}
+	supervisor.boot(cards);
 
 	FILE *trace = nullptr;
 	if(!trace_path.empty()) {
@@ -260,13 +361,14 @@ int main(int argc, char **argv) {
 	for(size_t i = 0; i < audit.size() && i < expected_count; ++i) {
 		const auto &got = audit[i];
 		const auto &want = ExpectedAudit[i];
-		if(got.destination != want.destination || got.type != want.type ||
-			got.sequence != want.sequence || got.status != want.status || got.source != CpuNode) {
+		if(got.destination != want.destination || got.type != want.type || got.sequence != want.sequence ||
+			got.status != want.status || got.source != CpuNode || got.authority != want.authority ||
+			got.actor_ring != ATARIX_RING_KERNEL || got.allowed != (want.authority != 0)) {
 			std::ostringstream s;
 			s << "audit[" << i << "] (" << want.why << "): got dst=" << got.destination << " type=" << got.type
 				<< " seq=" << got.sequence << " status=" << got.status << " stage=" << got.stage
-				<< ", want dst=" << want.destination << " type=" << want.type << " seq=" << want.sequence
-				<< " status=" << want.status;
+				<< " authority=" << got.authority << ", want dst=" << want.destination << " type=" << want.type
+				<< " seq=" << want.sequence << " status=" << want.status << " authority=" << want.authority;
 			failures.push_back(s.str());
 		}
 	}
@@ -302,18 +404,36 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// 6. Supervisor register path: only Read Board ID may succeed.
-	const auto &commands = supervisor.commands();
-	const size_t expected_commands = sizeof ExpectedCommands / sizeof ExpectedCommands[0];
-	if(commands.size() != expected_commands) {
-		failures.push_back(std::to_string(commands.size()) + " supervisor commands, expected " + std::to_string(expected_commands));
+	// 6. Supervisor: boot chain and gateway events in order, then each
+	// gateway request's result. A reset request must never execute.
+	const auto &events = supervisor.events();
+	const size_t expected_events = sizeof ExpectedEvents / sizeof ExpectedEvents[0];
+	if(events.size() != expected_events) {
+		failures.push_back(std::to_string(events.size()) + " supervisor events, expected " + std::to_string(expected_events));
 	}
-	for(size_t i = 0; i < commands.size() && i < expected_commands; ++i) {
-		if(commands[i].command != ExpectedCommands[i].command || commands[i].accepted != ExpectedCommands[i].accepted) {
-			failures.push_back("supervisor command " + std::to_string(i) + " decided unexpectedly");
+	for(size_t i = 0; i < events.size() && i < expected_events; ++i) {
+		if(events[i].event != ExpectedEvents[i].event || events[i].subject != ExpectedEvents[i].subject) {
+			failures.push_back("supervisor event " + std::to_string(i) + ": got " + events[i].event + " (" +
+				events[i].detail + "), want " + ExpectedEvents[i].event);
+			break;
 		}
 	}
-	if(supervisor.reset_requested()) failures.push_back("CPU reset the system through the supervisor register path");
+	const auto &requests = supervisor.requests();
+	const size_t expected_requests = sizeof ExpectedRequests / sizeof ExpectedRequests[0];
+	if(requests.size() != expected_requests) {
+		failures.push_back(std::to_string(requests.size()) + " gateway requests, expected " + std::to_string(expected_requests));
+	}
+	for(size_t i = 0; i < requests.size() && i < expected_requests; ++i) {
+		const auto &got = requests[i];
+		const auto &want = ExpectedRequests[i];
+		if(got.command != want.command || got.argument != want.argument || got.result != want.result ||
+			got.caller != CpuNode || got.caller_ring != ATARIX_RING_KERNEL) {
+			failures.push_back("gateway request " + std::to_string(i) + " (command " + std::to_string(got.command) +
+				"): result " + atarix::sim::gateway_result_name(got.result) + ", want " +
+				atarix::sim::gateway_result_name(want.result));
+		}
+	}
+	if(supervisor.reset_executed()) failures.push_back("CPU reset the system through the supervisor gateway");
 
 	// 4. Faults: exactly the provoked ones, from both the card and the Northbridge.
 	std::vector<BusFault> all_faults = faults;
@@ -342,7 +462,10 @@ int main(int argc, char **argv) {
 			const auto &a = audit[i];
 			out << "    {\"cycle\": " << a.cycle << ", \"source\": " << a.source << ", \"destination\": " << a.destination
 				<< ", \"type\": " << a.type << ", \"sequence\": " << a.sequence << ", \"status\": " << a.status
-				<< ", \"stage\": \"" << a.stage << "\"}" << (i + 1 < audit.size() ? ",\n" : "\n");
+				<< ", \"stage\": \"" << a.stage << "\", \"actor_ring\": \"" << atarix_ring_name(a.actor_ring)
+				<< "\", \"target_ring\": \"" << atarix_ring_name(a.target_ring) << "\", \"operation\": " << a.operation
+				<< ", \"authority\": " << a.authority << ", \"policy\": \"" << (a.allowed ? "allow" : "deny")
+				<< "\", \"reason\": \"" << json_escape(a.reason) << "\"}" << (i + 1 < audit.size() ? ",\n" : "\n");
 		}
 		out << "  ],\n  \"vector_pulls\": [\n";
 		for(size_t i = 0; i < pulls.size(); ++i) {
@@ -351,11 +474,19 @@ int main(int argc, char **argv) {
 				<< ", \"level\": " << v.level << ", \"emulation\": " << (v.emulation ? "true" : "false") << "}"
 				<< (i + 1 < pulls.size() ? ",\n" : "\n");
 		}
-		out << "  ],\n  \"supervisor_commands\": [\n";
-		for(size_t i = 0; i < commands.size(); ++i) {
-			out << "    {\"cycle\": " << commands[i].cycle << ", \"command\": " << unsigned(commands[i].command)
-				<< ", \"accepted\": " << (commands[i].accepted ? "true" : "false") << "}"
-				<< (i + 1 < commands.size() ? ",\n" : "\n");
+		out << "  ],\n  \"supervisor_events\": [\n";
+		for(size_t i = 0; i < events.size(); ++i) {
+			out << "    {\"cycle\": " << events[i].cycle << ", \"event\": \"" << events[i].event << "\", \"subject\": "
+				<< events[i].subject << ", \"detail\": \"" << json_escape(events[i].detail) << "\"}"
+				<< (i + 1 < events.size() ? ",\n" : "\n");
+		}
+		out << "  ],\n  \"gateway_requests\": [\n";
+		for(size_t i = 0; i < requests.size(); ++i) {
+			const auto &r = requests[i];
+			out << "    {\"cycle\": " << r.cycle << ", \"command\": " << unsigned(r.command) << ", \"caller\": "
+				<< r.caller << ", \"caller_ring\": \"" << atarix_ring_name(r.caller_ring) << "\", \"argument\": "
+				<< r.argument << ", \"result\": \"" << atarix::sim::gateway_result_name(r.result)
+				<< "\", \"reason\": \"" << json_escape(r.reason) << "\"}" << (i + 1 < requests.size() ? ",\n" : "\n");
 		}
 		out << "  ],\n  \"faults\": [\n";
 		for(size_t i = 0; i < all_faults.size(); ++i) {

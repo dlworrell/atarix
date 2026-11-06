@@ -26,7 +26,7 @@ bool is_ram(uint32_t address) {
 }  // namespace
 
 CpuCard::CpuCard(std::vector<uint8_t> rom, Northbridge &northbridge, InterruptController &interrupts,
-	SupervisorMailbox &supervisor, BoardIdentity identity)
+	Supervisor &supervisor, BoardIdentity identity)
 	: rom_(std::move(rom)), ram_(RamTop, 0), northbridge_(northbridge), interrupts_(interrupts),
 	  supervisor_(supervisor), identity_(identity) {
 	if(rom_.size() != RomSize) {

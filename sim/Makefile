@@ -25,6 +25,7 @@ LD65      ?= ld65
 LIB_SRCS  := $(ROOT)/src/mailbox/mailbox.c \
              $(ROOT)/src/ring/ring.c \
              $(ROOT)/src/capability/capability_evaluator.c \
+             $(ROOT)/src/identity/identity_validate.c \
              $(ROOT)/src/firmware/display-card/gpu_core.c
 CLK_SRCS  := $(CLK)/Processors/65816/Implementation/65816Base.cpp \
              $(CLK)/Processors/65816/Implementation/65816Storage.cpp \
@@ -56,7 +57,7 @@ $(BUILD)/obj/sim/%.o: $(ROOT)/sim/%.cpp $(wildcard $(ROOT)/sim/cpu/*.hpp $(ROOT)
 $(VECTORS): $(BUILD)/obj/sim/cpu/vector_runner.o $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o $(BUILD)/obj/sim/cpu-card/interrupts.o $(BUILD)/obj/sim/cpu-card/gpu_service.o \
+$(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o $(BUILD)/obj/sim/cpu-card/interrupts.o $(BUILD)/obj/sim/cpu-card/gpu_service.o $(BUILD)/obj/sim/cpu-card/supervisor.o \
          $(BUILD)/obj/sim/cpu-card/main.o $(LIB_OBJS) $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
 
