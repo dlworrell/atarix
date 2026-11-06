@@ -2,7 +2,7 @@
 
 - Schema: `catalyst.atarix.document-authority-census.v2`
 - Repository: `dlworrell/atarix`
-- Documents found: `178`
+- Documents found: `179`
 - Placement violations: `0`
 - Strict authority check passed: `True`
 
@@ -142,6 +142,7 @@
 | `docs/reviews/ATX-SPEC-015-Reconciliation-Review.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/reviews/Architecture-Review-002.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/reviews/Architecture-Review-003.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `docs/reviews/Architecture-Review-004.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/reviews/architecture-review-001.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/reviews/architecture-review-template.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/reviews/capability-sprint-1-review.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
