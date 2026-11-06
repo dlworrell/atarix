@@ -54,6 +54,11 @@ and for the fit check yosys and nextpnr-ecp5.
 | `sim/cpu-card/cpu_card.cpp` | Rev A CPU card: memory map, UART, board identity, faults, bus trace. |
 | `sim/cpu-card/northbridge.cpp` | Mailbox Engine register block calling libatarix. |
 | `sim/cpu-card/interrupts.cpp` | Interrupt controller, Vega816 Vector Pull Rewrite, supervisor register mailbox. |
+| `sim/cpu-card/gpu_service.cpp` | GPU compute service on the display card, backed by the vendored cglm. |
+| `sim/cpu-card/firmware/gen_gpu_vectors.py` | GPU requests and independently computed expected results for the test ROM. |
+| `third_party/cglm/` | Vendored cglm headers (MIT), pinned. See its README. |
+| `rtl/atarix/atx_mailbox_tx_assembler.v` | Builds frames from the shim's writes on SUBMIT. |
+| `sim/formal/bus_shim_formal.sv` | Formal harness for the bus shim. |
 | `scripts/rtl/run_ecp5_fit.sh` | Synthesis and place-and-route on the ULX3S ECP5-85F. |
 | `sim/cpu-card/firmware/test_rom.s` | 65816 test ROM: boot, self-checks, mailbox cases, CRC32 in firmware. |
 | `sim/rtl-cosim/` | Replays the CPU bus trace into the bus shim RTL. |
@@ -148,8 +153,43 @@ raises the Supervisor interrupt) and rejects every other command with STATUS
 | `0x0000` supervisor | supervisor | must be unreachable from the kernel ring |
 | `0x0001` fabric control | fabric | must be unreachable from the kernel ring |
 | `0xFF00` test echo service | service | replies PONG to PING with the request's sequence and payload |
+| `0x0300` display card, `SERVICE_GPU_COMPUTE` | service | GPU compute service (cglm) |
+| `0x0301` second display card, `SERVICE_GPU_COMPUTE` | service | identical service with no capability granted |
 
-The CPU card holds exactly one capability: `READ` on the echo service.
+The CPU card holds exactly two capabilities: `READ` on the echo service and
+`READ` on the GPU at `0x0300`.
+
+## GPU compute service
+
+cglm is single-precision C, so it cannot run on the W65C816. Here it stands in
+for the boot-ROM firmware of a display card's own processor (a soft RISC-V core
+with floating point in the ECP5, or an RP2350). The CPU card reaches it only
+through the mailbox, with the same header, sequence, ring and capability checks
+as any other service.
+
+- **Messages** (proposed; added to `mailbox.h` and `mailbox-protocol-v1.md`):
+  `GPU_TRANSFORM_REQUEST` `0x0040` and `GPU_TRANSFORM_REPLY` `0x0041`.
+- **Authority:** a transform computes a result and changes no state, so it
+  needs `READ` (proposed) on the target GPU's handle.
+- **Number format:** signed 16.16 fixed point, which the W65C816 builds and
+  reads with integer arithmetic. The service converts to `float`, runs cglm
+  and rounds back.
+- **Request** (44 bytes, little-endian):
+
+  ```text
+  +0  u16 operation (1 = TRANSFORM_POINT)   +2  u16 flags (0)
+  +4  point x, y, z                         +16 axis x, y, z (normalized; zero rejected)
+  +28 angle (radians)                       +32 translation x, y, z
+  ```
+
+  The point is rotated about the axis, then translated (cglm
+  `glm_translate_make`, `glm_rotate`, `glm_mat4_mulv3`).
+- **Reply** (16 bytes): `u32 status` then x, y, z. Status: 0 ok, 1 bad length,
+  2 bad operation, 3 out of range, 4 zero axis. Service errors are carried in
+  the reply; the mailbox decision is still a successful dispatch.
+- **Independent expected values:** `gen_gpu_vectors.py` computes them in Python
+  double precision with Rodrigues' formula, not with cglm. The firmware accepts
+  ±2 LSB. Measured difference from cglm: **0 LSB on every coordinate**.
 
 ## What is checked
 
@@ -179,6 +219,20 @@ Interrupt cases:
 | T24 | Unmask both: the supervisor IRQ is taken first at `$FFEE` (level 0), then the mailbox IRQ rewritten to `$FFF2` (level 2), each in its own handler; board ID delivered; nothing left pending |
 | T25 | Mask everything: IRQ deasserts |
 | T26 | A CPU Reset Request through the supervisor register path is rejected |
+
+GPU cases (sequence numbers 8–12):
+
+| # | Request | Expected |
+|---|---|---|
+| T31 | Rotate (1,0,0) 90° about Z, translate (2,3,4) | (2,4,4) within ±2 LSB |
+| T32 | Rotate (1,2,3) 30° about the unnormalized axis (1,1,0), translate (0.5,0,−1) | (2.627661, 0.872339, 1.951624) within ±2 LSB |
+| T33 | Unsupported operation 7 | reply status 2 |
+| T34 | 40-byte request | reply status 1 |
+| T35 | Request to the second GPU | `CAPABILITY_DENIED`, no reply |
+
+For each reply the firmware checks the reply type, source node, length,
+sequence and recomputed CRC. The host checks the GPU service log independently
+(statuses 0, 0, 2, 1 from `0x0300` only).
 
 The host independently checks the exact vector-fetch sequence: reset
 `$FFFC/D`, then `$FFEE/F` unchanged, then `$FFEE/F` → `$FFF2/3`. It also checks
@@ -216,6 +270,9 @@ does:
 | Formal: PHI2 phases of 3 steps (ratio too low) | counterexample |
 | Formal: latency bound of 5 steps | counterexample (6 is tight) |
 | Formal: shim reads the live bus instead of the held capture | counterexample |
+| RTL never sees one SUBMIT | 15 of 16 frames; audit mismatch |
+| GPU service rotates the wrong way | T31 |
+| GPU result 3 LSB off (just outside the tolerance) | T31 |
 
 ## Evidence (2026-11-06)
 
@@ -235,20 +292,23 @@ For all 6502-family (8-bit) sets, the runner ignores the P register's B bit
 Values of B pushed to the stack are still compared exactly through RAM and
 bus cycles. The 65816 comparison uses all bits.
 
-CPU card: PASS in 35,000 CPU cycles; 11 of 11 audit decisions as expected; 6
-vector fetches exactly as expected; 1 expected fault.
+CPU card: PASS in 125,000 CPU cycles; 16 of 16 audit decisions as expected; 6
+vector fetches exactly as expected; 4 GPU requests served as expected; 1
+expected fault.
 
-RTL co-simulation, functional timing: 242 of 242 mailbox bytes captured by the
-shim, in order.
+RTL co-simulation (shim + TX frame assembler), functional timing: every
+mailbox-block write (address and data) and all 16 frames match the C model.
+Each RTL frame's message type and sequence number also match the C
+Northbridge audit log, SUBMIT by SUBMIT.
 
 RTL co-simulation at W65C816 datasheet timing (10 ns write-data and address
 hold, edges not aligned to the system clock):
 
-| PHI2 | System clock | Original shim | Current shim |
+| PHI2 | System clock | Original shim (TX bytes only) | Current shim + assembler |
 |---|---|---|---|
-| 4 MHz (bring-up) | 25 MHz (ULX3S oscillator) | 118 of 242 captured, 15 correct | **242 of 242 correct** |
-| 14 MHz (target) | 62.5 MHz (PLL) | not run | **242 of 242 correct** |
-| 14 MHz | 25 MHz | not run | 165 of 242: below the proven ratio, rejected as a negative control |
+| 4 MHz (bring-up) | 25 MHz (ULX3S oscillator) | 118 of 242 captured, 15 correct | **all writes and all frames match** |
+| 14 MHz (target) | 62.5 MHz (PLL) | not run | **all writes and all frames match** |
+| 14 MHz | 25 MHz | not run | writes and frames corrupted: below the proven ratio, rejected as a negative control |
 
 ## Bus shim formal proof
 
@@ -262,12 +322,12 @@ The model and properties:
 
 - The system clock toggles every step. Every PHI2 phase lasts at least *H*
   steps.
-- Chip select, R/W and data are unconstrained: they may change at any step,
-  including at the PHI2 edge.
+- Chip select, R/W, the address and the data are unconstrained: they may
+  change at any step, including at the PHI2 edge.
 - For all such inputs:
   1. no write is delivered twice;
   2. no write is lost;
-  3. each delivered byte and frame flag equal what the CPU wrote at the PHI2 fall;
+  3. each delivered address and data byte equal what the CPU wrote at the PHI2 fall;
   4. delivery takes at most 3 system-clock periods.
 
 Results:
@@ -278,7 +338,7 @@ Results:
 | *H* = 3, 2, 1 | counterexample: the ratio is the true minimum |
 | Latency bound 3 clock periods | proven; 2.5 gives a counterexample |
 | Mutant: reads the live bus | counterexample |
-| Original scaffold, same properties (*H* = 4, 8 and 16) | counterexample at every ratio |
+| Original scaffold, the same data properties (*H* = 4, 8 and 16) | counterexample at every ratio |
 
 **Clock requirement:** each PHI2 phase must last at least two system-clock
 periods, so f_clk ≥ 4 × f_PHI2 at 50% duty:
@@ -299,7 +359,8 @@ routed out of context, with a 25 MHz target (the ULX3S oscillator):
 
 | Top | Fmax | LUT4 | FF | DSP |
 |---|---|---|---|---|
-| `atx_northbridge_bus_shim` | 411 MHz system clock, 723 MHz PHI2 domain | 31 / 83,640 | 24 / 83,640 | 0 |
+| `atx_northbridge_bus_shim` | 365 MHz | 41 / 83,640 | 37 / 83,640 | 0 |
+| `atx_mailbox_tx_assembler` | 108 MHz (needs 56 MHz for 14 MHz PHI2) | 1,509 / 83,640 | 1,051 / 83,640 | 0 |
 | `atx_spec_020_system_wrapper` | 76.7 MHz | 726 / 83,640 | 188 / 83,640 | 1 MULT18X18D / 156 |
 
 Out of context means no I/O pins: no pinout is decided, and the ATX-SPEC-020
@@ -307,14 +368,16 @@ wrapper has more ports than the ULX3S has GPIO.
 
 ## Findings
 
-1. **Bus shim framing (RTL).** `atx_northbridge_bus_shim.v` starts a frame
-   (SOF) whenever chip select deasserts. A real W65C816 fetches instructions
-   between stores, so chip select drops between most mailbox writes. The
-   result is 140 SOF markers for 10 actual frames. Byte capture is correct;
-   frame boundaries are not usable. The co-simulation reports this rather than
-   failing until the framing rule is specified (for example, frame on CONTROL
-   submit as the C model does). `--expect-sof-per-frame` makes it a hard
-   failure once fixed.
+1. **Bus shim framing (RTL): resolved.** The scaffold started a frame (SOF)
+   on the first write after chip select deasserted, which marked 154 starts for
+   11 frames, because a real W65C816 fetches instructions between stores. A
+   byte stream cannot carry framing: firmware writes the TX window in any
+   order. The shim now delivers (address, data) pairs for the whole mailbox
+   block. `atx_mailbox_tx_assembler.v` keeps the window and emits a frame on
+   SUBMIT, the same rule as the C model. All frames match the C model and its
+   audit at functional and datasheet timing. The assembler copies the window
+   in one cycle, so both buffers are registers (1,509 LUTs); a block-RAM design
+   is possible if area matters.
 2. **Public headers are not C++-clean.** They use C11 `_Static_assert`. The
    header gate compiles them as C++ only with `-D_Static_assert=static_assert`,
    and this bench does the same. Fixing it properly belongs in the headers, as a
@@ -352,6 +415,11 @@ wrapper has more ports than the ULX3S has GPIO.
 8. **Audit log window is built from registers, not block RAM.** yosys reports
    `storage_matrix` in `atx_audit_log_window.v` mapped to registers. That is
    fine at its current size; it will not scale to a large audit window.
+9. **ATX-SPEC-020 index messages are rejected by the mailbox validator.**
+   `mailbox.h` declares `INDEX_QUERY` to `INDEX_STATUS` (`0x0020`–`0x0023`), but
+   `atarix_mailbox_message_type_known()` in `src/mailbox/mailbox.c` does not
+   list them. Every such message fails with `UNKNOWN_TYPE` before dispatch.
+   Not changed here, because whether it is intended is not recorded.
 
 ## Open decisions for review
 
@@ -366,7 +434,10 @@ wrapper has more ports than the ULX3S has GPIO.
 - The interrupt level mapping, native-only rewrite, and the ban on level 7 in native mode.
 - Which interrupt controller layout is authoritative (finding 5).
 - Which supervisor commands, if any, the CPU may issue by register (finding 6).
-- The shim's framing rule (finding 1). Capture timing is resolved (finding 4).
+- The framing rule adopted for the RTL (frame on SUBMIT, as the C model; finding 1).
+- The GPU message types `0x0040`/`0x0041`, their payload layout, the 16.16
+  format, and `READ` as the operation a GPU transform needs.
+- Whether the ATX-SPEC-020 index messages should be accepted by the validator (finding 9).
 - Whether a 62.5 MHz (or other PLL) system clock is accepted for 8 and 14 MHz operation.
 - The board pinout for the Northbridge on the ULX3S GPIO.
 
@@ -379,7 +450,7 @@ wrapper has more ports than the ULX3S has GPIO.
 | `dlworrell/Vega816` | Source of the Vector Pull Rewrite rule and IRQ-level layout modeled here |
 | `dlworrell/ulx3s` (`14cac31`) | Target FPGA (LFE5U-85F, CABGA381) and 25 MHz clock for the fit check |
 | `dlworrell/BB816-MATX-PCIE` | Not modeled. Its connector is the BB816 bus that `vega816-analysis.md` says not to keep as the ATARIX interface. Its bank-zero board (per-CPU bank-zero isolation) is the next candidate, with DMA. |
-| `dlworrell/cglm` | Not used yet. Intended as video-chip ROM content. It is single-precision `float` C, so it cannot run on the W65C816. It fits as the boot-ROM firmware of a display or GPU card's own processor (a soft RISC-V core with floating point in the ECP5, or an RP2350, whose Cortex-M33 has a single-precision FPU), exposed to the CPU card as `SERVICE_GPU_COMPUTE` (`0x6000`) over the mailbox. In the simulator, the same service can call cglm directly as the reference model. |
+| `dlworrell/cglm` (`58d8c15`) | Vendored headers (`third_party/cglm`). Intended as video-chip ROM content: the firmware of a display card's own processor, not the W65C816. Modeled as `SERVICE_GPU_COMPUTE` on display-card nodes; see "GPU compute service". |
 
 ## Closure units
 
