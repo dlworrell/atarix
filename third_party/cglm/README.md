@@ -27,8 +27,10 @@ SSE/AVX, NEON, WASM or scalar.
 - Do not edit these files. Re-vendor with
   `scripts/sim/vendor_cglm.sh <cglm checkout> <commit>` and update this table.
 - cglm cannot run on the W65C816: it needs single-precision floating point.
-  In ATARIX it belongs to a display or GPU card's own processor (a soft RISC-V
-  core with floating point in the ECP5, or an RP2350), reached over the mailbox.
+  In ATARIX it runs on the display card's dedicated RP2350, on its Cortex-M33
+  cores (ADR-0016), reached over the mailbox. There it takes cglm's scalar path
+  (the M33 has no NEON); results are bit-identical to the SSE path in the
+  simulator for the tested cases.
 - cglm enables SIMD automatically (SSE on x86); there is no switch to force
   scalar code. The service converts results to 16.16 fixed point, and tests
   compare with a ±2 LSB tolerance, which is far wider than single-precision

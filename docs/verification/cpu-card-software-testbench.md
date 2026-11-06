@@ -37,6 +37,7 @@ bash scripts/sim/run_cpu_vectors.sh          # pinned CPU vector sample (downloa
 bash scripts/sim/run_cpu_vectors.sh --full   # every opcode file (several GB)
 bash scripts/rtl/run_ecp5_fit.sh             # ULX3S LFE5U-85F fit and timing (yosys + nextpnr-ecp5)
 bash scripts/rtl/run_shim_formal.sh          # bus shim formal proof and its controls (yosys only)
+bash scripts/firmware/run_gpu_core_m33.sh    # display card GPU core on Cortex-M33 (RP2350 core, QEMU)
 bash scripts/engineering/run_gate.sh         # includes the offline test bench and the ECP5 fit as gate phases
 ```
 
@@ -54,7 +55,9 @@ and for the fit check yosys and nextpnr-ecp5.
 | `sim/cpu-card/cpu_card.cpp` | Rev A CPU card: memory map, UART, board identity, faults, bus trace. |
 | `sim/cpu-card/northbridge.cpp` | Mailbox Engine register block calling libatarix. |
 | `sim/cpu-card/interrupts.cpp` | Interrupt controller, Vega816 Vector Pull Rewrite, supervisor register mailbox. |
-| `sim/cpu-card/gpu_service.cpp` | GPU compute service on the display card, backed by the vendored cglm. |
+| `src/firmware/display-card/gpu_core.c` | Display card GPU core (C11, single precision, cglm), shared by the simulator and the RP2350 firmware. |
+| `src/firmware/display-card/m33/` | Cortex-M33 startup, linker script and test for QEMU `mps2-an505`. |
+| `sim/cpu-card/gpu_service.cpp` | Simulator wrapper around the GPU core (adds negative-control faults outside it). |
 | `sim/cpu-card/firmware/gen_gpu_vectors.py` | GPU requests and independently computed expected results for the test ROM. |
 | `third_party/cglm/` | Vendored cglm headers (MIT), pinned. See its README. |
 | `rtl/atarix/atx_mailbox_tx_assembler.v` | Builds frames from the shim's writes on SUBMIT. |
@@ -161,11 +164,25 @@ The CPU card holds exactly two capabilities: `READ` on the echo service and
 
 ## GPU compute service
 
-cglm is single-precision C, so it cannot run on the W65C816. Here it stands in
-for the boot-ROM firmware of a display card's own processor (a soft RISC-V core
-with floating point in the ECP5, or an RP2350). The CPU card reaches it only
-through the mailbox, with the same header, sequence, ring and capability checks
-as any other service.
+cglm is single-precision C, so it cannot run on the W65C816. Per
+[ADR-0016](../adr/ADR-0016-display-card-gpu-compute-rp2350.md), each display
+card has its own RP2350 (not the supervisor's), running this service on its
+Cortex-M33 cores. The service core, `src/firmware/display-card/gpu_core.c`, is
+the same C source in the simulator and in the card firmware. The CPU card
+reaches it only through the mailbox, with the same header, sequence, ring and
+capability checks as any other service.
+
+**On the RP2350's core:** `scripts/firmware/run_gpu_core_m33.sh` checks:
+
+- the core cross-compiles for `cortex-m33` / FPv5-SP with `-Werror`;
+- it contains 103 single-precision FPU instructions and no double-precision
+  arithmetic;
+- on QEMU `mps2-an505` it passes all 6 cases at **0 LSB**, bit-identical to the
+  simulator's x86 SSE build;
+- negative controls: a `double` probe is flagged, and a 3 LSB error is
+  rejected.
+
+QEMU is not an RP2350 (no RP2350 peripherals, boot ROM or timing).
 
 - **Messages** (proposed; added to `mailbox.h` and `mailbox-protocol-v1.md`):
   `GPU_TRANSFORM_REQUEST` `0x0040` and `GPU_TRANSFORM_REPLY` `0x0041`.
@@ -436,7 +453,10 @@ wrapper has more ports than the ULX3S has GPIO.
 - Which supervisor commands, if any, the CPU may issue by register (finding 6).
 - The framing rule adopted for the RTL (frame on SUBMIT, as the C model; finding 1).
 - The GPU message types `0x0040`/`0x0041`, their payload layout, the 16.16
-  format, and `READ` as the operation a GPU transform needs.
+  format, and `READ` as the operation a GPU transform needs. (The processor is
+  decided: a dedicated RP2350, ADR-0016.)
+- The display card firmware's signed-image policy (RP2350 secure boot), so the
+  GPU image behaves as ROM.
 - Whether the ATX-SPEC-020 index messages should be accepted by the validator (finding 9).
 - Whether a 62.5 MHz (or other PLL) system clock is accepted for 8 and 14 MHz operation.
 - The board pinout for the Northbridge on the ULX3S GPIO.
@@ -450,7 +470,7 @@ wrapper has more ports than the ULX3S has GPIO.
 | `dlworrell/Vega816` | Source of the Vector Pull Rewrite rule and IRQ-level layout modeled here |
 | `dlworrell/ulx3s` (`14cac31`) | Target FPGA (LFE5U-85F, CABGA381) and 25 MHz clock for the fit check |
 | `dlworrell/BB816-MATX-PCIE` | Not modeled. Its connector is the BB816 bus that `vega816-analysis.md` says not to keep as the ATARIX interface. Its bank-zero board (per-CPU bank-zero isolation) is the next candidate, with DMA. |
-| `dlworrell/cglm` (`58d8c15`) | Vendored headers (`third_party/cglm`). Intended as video-chip ROM content: the firmware of a display card's own processor, not the W65C816. Modeled as `SERVICE_GPU_COMPUTE` on display-card nodes; see "GPU compute service". |
+| `dlworrell/cglm` (`58d8c15`) | Vendored headers (`third_party/cglm`). The video chip's firmware: it runs on the display card's dedicated RP2350 (ADR-0016), not the W65C816. Shared core in `src/firmware/display-card/`, tested in the simulator and on an emulated Cortex-M33. |
 
 ## Closure units
 

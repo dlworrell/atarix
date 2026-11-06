@@ -8,10 +8,12 @@ related:
   - ATX-SIM-CLOSURE-INDEX
   - ATX-MBX-DENY-001
 implements:
+  - src/firmware/display-card/gpu_core.c
   - sim/cpu-card/gpu_service.cpp
   - sim/cpu-card/firmware/test_rom.s
 verified_by:
   - sim/cpu-card/firmware/gen_gpu_vectors.py
+  - scripts/firmware/run_gpu_core_m33.sh
   - sim/cpu-card/negative_control.sh
 ---
 <!--
@@ -37,15 +39,20 @@ closure_unit:
       - docs/resource-type-registry-v1.md (RESOURCE_GPU 0x6000)
       - docs/fabric-service-model-v1.md
       - docs/verification/cpu-card-software-testbench.md (GPU compute service)
+      - docs/adr/ADR-0016-display-card-gpu-compute-rp2350.md
   realizations:
     public_header: required            # GPU_TRANSFORM_REQUEST/REPLY 0x0040/0x0041 in mailbox.h (proposed)
-    emulator_service: required         # gpu_service.cpp with vendored cglm (58d8c15)
-    firmware: required                 # T31-T35 in the test ROM
-    display_card_firmware: deferred    # cglm in the boot ROM of a soft RISC-V core or an RP2350
+    service_core: required             # src/firmware/display-card/gpu_core.c (C11, single precision, cglm 58d8c15)
+    emulator_service: required         # gpu_service.cpp links the same core
+    firmware: required                 # T31-T35 in the CPU card test ROM
+    cortex_m33_build: required         # same core for the RP2350's M33 (FPv5-SP), run on QEMU mps2-an505
+    rp2350_firmware_image: deferred    # SDK build, startup, mailbox transport, signed image (ADR-0016)
     rtl: deferred
     physical_hardware: deferred
   evidence:
     independent_expected_values: required  # Python double precision (Rodrigues), not cglm: 0 LSB difference
+    m33_execution: required            # 6/6 on emulated Cortex-M33, 0 LSB; 103 f32 instructions, no double
+    m33_negative_controls: required    # double probe flagged; 3 LSB error rejected
     emulator_tests: required           # T31-T35 pass; host GPU log statuses 0, 0, 2, 1
     capability_denial: required        # T35: second GPU, no capability -> CAPABILITY_DENIED
     negative_controls: required        # wrong rotation and 3 LSB error: both detected at T31
@@ -66,5 +73,5 @@ closure_unit:
 - `READ` as the operation a compute request needs.
 - The 16.16 format, and whether later operations (matrix upload, batches)
   need larger payloads than the 48-byte TX window carries.
-- Which processor runs cglm on real hardware: a soft RISC-V core in the ECP5,
-  or an RP2350.
+- Processor decided: a dedicated RP2350, Cortex-M33 cores (ADR-0016).
+- Signed-image policy so the display card firmware behaves as ROM.
