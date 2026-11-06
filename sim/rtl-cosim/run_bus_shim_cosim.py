@@ -14,6 +14,7 @@ rtl/atarix/atx_northbridge_bus_shim.v under Icarus Verilog, and compares:
           until the shim's framing rule is specified (see the test-bench doc).
 
 Usage: run_bus_shim_cosim.py <trace> <work-dir> [--expect-sof-per-frame] [--negative-control]
+       [--datasheet-timing [--expect-datasheet-timing]]
        --negative-control hides one TX-window write from the RTL (deasserts its
        chip select) and requires the byte comparison to report a mismatch.
 Exit:  0 bytes match (and frames, if --expect-sof-per-frame), 1 mismatch, 2 setup error.
@@ -38,6 +39,8 @@ def main(argv):
     work = pathlib.Path(argv[2])
     strict_frames = "--expect-sof-per-frame" in argv[3:]
     negative = "--negative-control" in argv[3:]
+    timing = "--datasheet-timing" in argv[3:]
+    strict_timing = "--expect-datasheet-timing" in argv[3:]
     hidden = False
     root = pathlib.Path(__file__).resolve().parents[2]
     work.mkdir(parents=True, exist_ok=True)
@@ -94,7 +97,7 @@ def main(argv):
 
     run = subprocess.run(
         ["vvp", "-n", str(binary), f"+stimulus={stim_file}", f"+output={capture_file}",
-         f"+cycles={len(stimulus)}"],
+         f"+cycles={len(stimulus)}"] + (["+timing=1"] if timing else []),
         capture_output=True, text=True, timeout=600)
     print(run.stdout.strip())
     # vvp reports file errors as "ERROR:" lines yet still exits 0; treat them,
@@ -122,6 +125,7 @@ def main(argv):
         "rtl_sof_markers": sof_count,
         "frames_match": frames_match,
         "frame_rule_strict": strict_frames,
+        "datasheet_timing": timing,
     }
     if not bytes_match:
         for index, (got, want) in enumerate(zip(captured, expected_bytes)):
@@ -135,6 +139,14 @@ def main(argv):
     print(f"frames: C model {len(frames)} SUBMITs vs RTL {sof_count} SOF markers -> "
           f"{'MATCH' if frames_match else 'MISMATCH (known finding: shim framing rule unspecified)'}")
 
+    if timing:
+        good = sum(1 for got, want in zip(captured, expected_bytes) if got == want)
+        report["datasheet_bytes_correct"] = good
+        (work / "bus_shim_cosim_report.json").write_text(json.dumps(report, indent=2) + "\n")
+        print(f"datasheet timing (25 MHz clock, 4 MHz PHI2, 10 ns data hold): "
+              f"{good}/{len(expected_bytes)} bytes captured correctly, {len(captured)} captured -> "
+              f"{'MATCH' if bytes_match else 'MISMATCH (known finding: shim samples after write-data hold)'}")
+        return 1 if (strict_timing and not bytes_match) else 0
     if negative:
         if bytes_match:
             print("negative control FAILED: hidden byte was not detected", file=sys.stderr)
