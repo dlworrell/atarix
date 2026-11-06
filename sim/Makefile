@@ -24,7 +24,8 @@ LD65      ?= ld65
 
 LIB_SRCS  := $(ROOT)/src/mailbox/mailbox.c \
              $(ROOT)/src/ring/ring.c \
-             $(ROOT)/src/capability/capability_evaluator.c
+             $(ROOT)/src/capability/capability_evaluator.c \
+             $(ROOT)/src/firmware/display-card/gpu_core.c
 CLK_SRCS  := $(CLK)/Processors/65816/Implementation/65816Base.cpp \
              $(CLK)/Processors/65816/Implementation/65816Storage.cpp \
              $(CLK)/Processors/6502/Implementation/6502Storage.cpp
@@ -46,18 +47,18 @@ $(BUILD)/obj/third_party/%.o: $(ROOT)/third_party/%.cpp
 
 $(BUILD)/obj/src/%.o: $(ROOT)/src/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(WARN_C) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(WARN_C) $(CPPFLAGS) -isystem $(ROOT)/third_party/cglm $(CFLAGS) -c $< -o $@
 
 $(BUILD)/obj/sim/%.o: $(ROOT)/sim/%.cpp $(wildcard $(ROOT)/sim/cpu/*.hpp $(ROOT)/sim/cpu-card/*.hpp)
 	@mkdir -p $(dir $@)
-	$(CXX) $(WARN_CXX) $(CPPFLAGS) -isystem $(CLK) -isystem $(ROOT)/third_party/cglm $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(WARN_CXX) $(CPPFLAGS) -I$(ROOT)/src/firmware/display-card -isystem $(CLK) $(CXXFLAGS) -c $< -o $@
 
 $(VECTORS): $(BUILD)/obj/sim/cpu/vector_runner.o $(CLK_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(CARD): $(BUILD)/obj/sim/cpu-card/cpu_card.o $(BUILD)/obj/sim/cpu-card/northbridge.o $(BUILD)/obj/sim/cpu-card/interrupts.o $(BUILD)/obj/sim/cpu-card/gpu_service.o \
          $(BUILD)/obj/sim/cpu-card/main.o $(LIB_OBJS) $(CLK_OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -lm -o $@
 
 GPU_VECTORS := $(BUILD)/obj/firmware/gpu_vectors.inc
 
