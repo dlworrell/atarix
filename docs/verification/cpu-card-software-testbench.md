@@ -36,6 +36,7 @@ bash scripts/sim/run_testbench.sh            # offline: build, card test, negati
 bash scripts/sim/run_cpu_vectors.sh          # pinned CPU vector sample (downloads ~220 MB)
 bash scripts/sim/run_cpu_vectors.sh --full   # every opcode file (several GB)
 bash scripts/rtl/run_ecp5_fit.sh             # ULX3S LFE5U-85F fit and timing (yosys + nextpnr-ecp5)
+bash scripts/rtl/run_shim_formal.sh          # bus shim formal proof and its controls (yosys only)
 bash scripts/engineering/run_gate.sh         # includes the offline test bench and the ECP5 fit as gate phases
 ```
 
@@ -211,6 +212,10 @@ does:
 | ECP5 fit asked for an unreachable 1000 MHz | rejected |
 | Vector runner given corrupted register, RAM, cycle and bus-line expectations | each reported |
 | RTL never sees one mailbox byte | byte-stream mismatch |
+| 14 MHz PHI2 on the 25 MHz clock (below the proven ratio) | 165/242 bytes correct: rejected |
+| Formal: PHI2 phases of 3 steps (ratio too low) | counterexample |
+| Formal: latency bound of 5 steps | counterexample (6 is tight) |
+| Formal: shim reads the live bus instead of the held capture | counterexample |
 
 ## Evidence (2026-11-06)
 
@@ -236,16 +241,65 @@ vector fetches exactly as expected; 1 expected fault.
 RTL co-simulation, functional timing: 242 of 242 mailbox bytes captured by the
 shim, in order.
 
-RTL co-simulation, datasheet timing (25 MHz system clock, 4 MHz PHI2, 10 ns
-write-data hold): the shim captures 118 of 242 writes, and only 15 bytes are
-correct. See finding 4.
+RTL co-simulation at W65C816 datasheet timing (10 ns write-data and address
+hold, edges not aligned to the system clock):
+
+| PHI2 | System clock | Original shim | Current shim |
+|---|---|---|---|
+| 4 MHz (bring-up) | 25 MHz (ULX3S oscillator) | 118 of 242 captured, 15 correct | **242 of 242 correct** |
+| 14 MHz (target) | 62.5 MHz (PLL) | not run | **242 of 242 correct** |
+| 14 MHz | 25 MHz | not run | 165 of 242: below the proven ratio, rejected as a negative control |
+
+## Bus shim formal proof
+
+`scripts/rtl/run_shim_formal.sh` proves `atx_northbridge_bus_shim.v` with the
+harness `sim/formal/bus_shim_formal.sv`, using Yosys only: `clk2fflogic` for
+the two unrelated clocks, then built-in SAT k-induction. It needs no external
+solver; this Ubuntu's yosys-smtbmc did not work with z3 or boolector on this
+model.
+
+The model and properties:
+
+- The system clock toggles every step. Every PHI2 phase lasts at least *H*
+  steps.
+- Chip select, R/W and data are unconstrained: they may change at any step,
+  including at the PHI2 edge.
+- For all such inputs:
+  1. no write is delivered twice;
+  2. no write is lost;
+  3. each delivered byte and frame flag equal what the CPU wrote at the PHI2 fall;
+  4. delivery takes at most 3 system-clock periods.
+
+Results:
+
+| Run | Result |
+|---|---|
+| *H* = 4 steps (each PHI2 phase ≥ 2 system clocks) | **proven** (k-induction, depth 7) |
+| *H* = 3, 2, 1 | counterexample: the ratio is the true minimum |
+| Latency bound 3 clock periods | proven; 2.5 gives a counterexample |
+| Mutant: reads the live bus | counterexample |
+| Original scaffold, same properties (*H* = 4, 8 and 16) | counterexample at every ratio |
+
+**Clock requirement:** each PHI2 phase must last at least two system-clock
+periods, so f_clk ≥ 4 × f_PHI2 at 50% duty:
+
+| PHI2 (docs/rev-a-hardware-baseline.md) | Minimum system clock | On the ULX3S |
+|---|---|---|
+| 1 MHz debug | 4 MHz | 25 MHz oscillator |
+| 4 MHz bring-up | 16 MHz | 25 MHz oscillator |
+| 8 MHz conservative | 32 MHz | PLL needed |
+| 14 MHz target | 56 MHz | PLL needed (62.5 MHz verified) |
+
+The proof treats time in steps. It does not model metastability; the
+two-flop synchronizer is the standard protection for that. The datasheet-timing
+co-simulation covers sub-step timing.
 
 ECP5 fit on the LFE5U-85F-6BG381C (the ULX3S part, ADR-0001), placed and
 routed out of context, with a 25 MHz target (the ULX3S oscillator):
 
 | Top | Fmax | LUT4 | FF | DSP |
 |---|---|---|---|---|
-| `atx_northbridge_bus_shim` | 432 MHz | 17 / 83,640 | 12 / 83,640 | 0 |
+| `atx_northbridge_bus_shim` | 411 MHz system clock, 723 MHz PHI2 domain | 31 / 83,640 | 24 / 83,640 | 0 |
 | `atx_spec_020_system_wrapper` | 76.7 MHz | 726 / 83,640 | 188 / 83,640 | 1 MULT18X18D / 156 |
 
 Out of context means no I/O pins: no pinout is decided, and the ATX-SPEC-020
@@ -268,20 +322,18 @@ wrapper has more ports than the ULX3S has GPIO.
 3. **`atarix_ring_to_wire()` maps an invalid ring to APPLICATION** rather than
    failing closed (`include/atarix/rings.h`). Not exercised by this bench;
    recorded for review.
-4. **Bus shim timing (RTL, hardware-blocking).** The shim detects the PHI2
-   falling edge by sampling PHI2 in the system-clock domain. It then captures
-   data and checks chip select on that later clock edge, up to one clock (40 ns
-   at 25 MHz) after the fall. The W65C816 holds write data and the address
-   (hence chip select) for only about 10 ns after PHI2 falls. At datasheet
-   timing the shim misses about half the writes and corrupts almost all of the
-   rest. PHI2, CS and R/W also enter the clock domain with no synchronizer.
-   Candidate fixes:
-   - latch data and CS in I/O registers clocked by PHI2;
-   - or sample during the PHI2-high phase from a synchronized,
-     oversampling clock (an ECP5 PLL from the 25 MHz oscillator).
+4. **Bus shim timing (RTL): resolved.** The original shim sampled the PHI2
+   edge, chip select and data from the system clock, up to one clock (40 ns at
+   25 MHz) after the fall. The W65C816 holds them for only about 10 ns. It
+   missed or corrupted most writes at datasheet timing, and it fails the
+   formal properties at every clock ratio.
 
-   The co-simulation reports this. `--expect-datasheet-timing` makes it
-   gating once fixed.
+   The shim now registers data, chip select and R/W on the PHI2 falling edge.
+   It hands each byte to the system clock through a toggle and a two-flop
+   synchronizer. It is proven correct for f_clk ≥ 4 × f_PHI2, and the
+   datasheet-timing co-simulations are gating. Hardware consequence: PHI2 must
+   reach the FPGA on a clock-capable pin, and 8 or 14 MHz operation needs an
+   ECP5 PLL above the 25 MHz oscillator.
 5. **Interrupt controller layout conflict.** `register-map-v1.md` defines
    `+00 Pending, +01 Mask, +02 Priority, +03 Acknowledge`.
    `interrupt-architecture-v1.md` calls that a "compatibility subset" of its
@@ -314,7 +366,8 @@ wrapper has more ports than the ULX3S has GPIO.
 - The interrupt level mapping, native-only rewrite, and the ban on level 7 in native mode.
 - Which interrupt controller layout is authoritative (finding 5).
 - Which supervisor commands, if any, the CPU may issue by register (finding 6).
-- The shim's capture scheme and framing rule (findings 1 and 4).
+- The shim's framing rule (finding 1). Capture timing is resolved (finding 4).
+- Whether a 62.5 MHz (or other PLL) system clock is accepted for 8 and 14 MHz operation.
 - The board pinout for the Northbridge on the ULX3S GPIO.
 
 ## Related hardware projects
@@ -326,7 +379,7 @@ wrapper has more ports than the ULX3S has GPIO.
 | `dlworrell/Vega816` | Source of the Vector Pull Rewrite rule and IRQ-level layout modeled here |
 | `dlworrell/ulx3s` (`14cac31`) | Target FPGA (LFE5U-85F, CABGA381) and 25 MHz clock for the fit check |
 | `dlworrell/BB816-MATX-PCIE` | Not modeled. Its connector is the BB816 bus that `vega816-analysis.md` says not to keep as the ATARIX interface. Its bank-zero board (per-CPU bank-zero isolation) is the next candidate, with DMA. |
-| `dlworrell/cglm` | Not used. A C graphics-math library with no current ATARIX consumer. It could become a reference model for a future math accelerator. |
+| `dlworrell/cglm` | Not used yet. Intended as video-chip ROM content. It is single-precision `float` C, so it cannot run on the W65C816. It fits as the boot-ROM firmware of a display or GPU card's own processor (a soft RISC-V core with floating point in the ECP5, or an RP2350, whose Cortex-M33 has a single-precision FPU), exposed to the CPU card as `SERVICE_GPU_COMPUTE` (`0x6000`) over the mailbox. In the simulator, the same service can call cglm directly as the reference model. |
 
 ## Closure units
 

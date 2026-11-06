@@ -11,6 +11,7 @@ implements:
   - rtl/atarix/atx_northbridge_bus_shim.v
 verified_by:
   - sim/rtl-cosim/run_bus_shim_cosim.py
+  - scripts/rtl/run_shim_formal.sh
 ---
 <!--
 SPDX-FileCopyrightText: Donovan Worrell
@@ -35,12 +36,15 @@ closure_unit:
   realizations:
     rtl: required
     cosim_harness: required            # sim/rtl-cosim (Icarus)
+    formal_harness: required           # sim/formal/bus_shim_formal.sv
     physical_hardware: deferred
   evidence:
     byte_stream_equivalence: required  # E4: 242/242 bytes match the C model (functional timing)
-    frame_boundary_equivalence: required  # DIVERGENT: 154 SOF markers vs 11 frames
-    datasheet_timing_capture: required    # DIVERGENT: 118 of 242 writes captured, 15 correct (25 MHz clock, 4 MHz PHI2)
-    cosim_negative_control: required   # hidden byte detected
+    frame_boundary_equivalence: required  # DIVERGENT: SOF per chip-select burst, not per frame
+    datasheet_timing_capture: required    # 242/242 correct at 4 MHz PHI2 / 25 MHz and 14 MHz / 62.5 MHz (gating)
+    formal_capture_proof: required        # E3+: proven for f_clk >= 4 x f_PHI2; lost/duplicate/corrupt impossible
+    cosim_negative_control: required   # hidden byte detected; 14 MHz on 25 MHz rejected
+    formal_negative_controls: required # ratio 3 steps, latency 5 steps, live-data mutant: counterexamples
   security_impact: none directly; framing errors would corrupt mailbox frames upstream of validation
   compatibility_impact: none
   recovery_impact: none
@@ -54,18 +58,21 @@ real W65C816, instruction fetches separate almost every store, so chip select
 drops between mailbox writes. The shim marks 140 SOF for 10 frames. The C
 model frames on the CONTROL submit write.
 
-### Timing
+### Timing (resolved)
 
-The shim checks chip select and captures data on the first system-clock edge
-after it sees PHI2 low, which can be up to 40 ns after the fall at 25 MHz. The
-W65C816 holds write data and the address for about 10 ns. At datasheet timing,
-the shim misses about half the writes and corrupts nearly all of the rest.
-PHI2, CS and R/W also have no synchronizer. Fix the capture first:
+The original shim checked chip select and captured data on the first
+system-clock edge after it saw PHI2 low, up to 40 ns after the fall at 25 MHz.
+The W65C816 holds write data and the address for about 10 ns. It captured 118
+of 242 writes, only 15 correctly, and it fails the formal properties at every
+clock ratio.
 
-- latch data and CS in I/O registers on PHI2;
-- or oversample from a PLL clock and sample during PHI2 high.
+The shim now registers data, chip select and R/W on the PHI2 falling edge and
+crosses to the system clock with a toggle and a two-flop synchronizer. It is
+proven for f_clk ≥ 4 × f_PHI2 (each PHI2 phase at least two system clocks),
+with delivery within three system clocks. Remaining hardware conditions:
 
-Then run with `--datasheet-timing --expect-datasheet-timing`.
+- PHI2 must reach a clock-capable FPGA pin;
+- 8 and 14 MHz operation needs an ECP5 PLL above the 25 MHz oscillator.
 
 ### Framing
 

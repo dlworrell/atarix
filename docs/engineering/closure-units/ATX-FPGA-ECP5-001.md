@@ -39,7 +39,7 @@ closure_unit:
     bitstream: deferred
     physical_hardware: deferred
   evidence:
-    synthesis_and_pnr: required        # E3: shim 432 MHz, 17 LUT; ATX-SPEC-020 wrapper 76.7 MHz, 726 LUT, 1 DSP
+    synthesis_and_pnr: required        # E3: shim 411 MHz clk / 723 MHz PHI2, 31 LUT; ATX-SPEC-020 wrapper 76.7 MHz, 726 LUT, 1 DSP
     negative_control: required         # unreachable 1000 MHz target rejected
     on_board_execution: deferred       # E5
   security_impact: none
