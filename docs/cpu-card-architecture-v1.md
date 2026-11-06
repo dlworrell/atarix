@@ -91,6 +91,11 @@ MX
 
 The CPU card should expose these signals for diagnostics, but they are not all backplane signals.
 
+The fabric needs some of them, not only diagnostics headers: PHI2 (on an
+ECP5 clock-capable pin), RWB, D0–D7, A0–A7 and a decoded chip select for the
+mailbox page, VPB and A1–A4 for Vector Pull Rewrite, and IRQB. See
+[Rev A Hardware in Simulation](hardware/rev-a-hardware-in-simulation.md#signals-the-fabric-needs-from-the-cpu-card).
+
 ### Local ROM / Bootstrap ROM
 
 The CPU card should contain local boot ROM or a reliable ROM mapping path.

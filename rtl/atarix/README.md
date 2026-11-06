@@ -6,6 +6,21 @@ Catalyst-File-ID: urn:uuid:b8427170-f4d8-4277-bdb0-a5e947774da6
 
 # Atarix RTL Scaffolds
 
+## CPU Card Bus Capture and Mailbox Framing
+
+The bus shim and TX frame assembler are checked against a real W65C816 bus
+trace, formally proven, and fitted to the ULX3S ECP5:
+
+```sh
+bash scripts/sim/run_testbench.sh     # co-simulation from the CPU card bench, datasheet timing
+bash scripts/rtl/run_shim_formal.sh   # formal proof and counterexamples
+bash scripts/rtl/run_ecp5_fit.sh      # LFE5U-85F fit and timing
+```
+
+Board requirements that follow (PHI2 on a clock-capable pin, fabric clock
+at least 4 x PHI2) are in
+[Rev A Hardware in Simulation](../../docs/hardware/rev-a-hardware-in-simulation.md).
+
 ## ATX-SPEC-020 Lookup Accelerator
 
 Files:
@@ -46,7 +61,13 @@ The simulations are intentionally verbose. They print log lines for starts, step
 
 ```text
 atx_northbridge_bus_shim.v
-    Physical W65C816-style bus sampling scaffold.
+    W65C816 bus capture: registers address, data, chip select and R/W on
+    the PHI2 falling edge, then hands each write to the fabric clock through
+    a two-flop synchronizer. Formally proven for f_clk >= 4 x f_PHI2.
+
+atx_mailbox_tx_assembler.v
+    Mailbox TX framing: keeps the 64-byte TX window and emits one frame
+    when the CPU writes SUBMIT, the same rule as the C Northbridge model.
 
 atx_spec_020_system_wrapper.v
     Structural integration point for accelerator + audit window.

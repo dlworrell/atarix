@@ -117,6 +117,12 @@ Fabric services should not assume CPU and FPGA clocks are identical.
 
 Clock-domain crossing must be explicit.
 
+The CPU bus capture is clocked by PHI2 itself and crosses into the fabric
+clock through a two-flop synchronizer. This is proven correct only when the
+fabric clock is at least 4 × PHI2, so 8 and 14 MHz CPU operation needs a
+PLL-derived fabric clock. See
+[Rev A Hardware in Simulation](hardware/rev-a-hardware-in-simulation.md#cpu-to-fabric-clocking).
+
 ## Reset Sources
 
 Possible reset sources:
@@ -173,7 +179,10 @@ Fabric services initialized.
 
 ### Phase 6
 
-CPU released from reset.
+CPU released from reset. Before this, the supervisor validates card
+identities and the fabric enumerates services; capabilities are evaluated,
+services bound and transport activated (ADR-RING-SECURITY-MODEL boot-time
+authority chain). The CPU card software test bench runs this order.
 
 ### Phase 7
 

@@ -227,6 +227,19 @@ The goal is not to guarantee maximum frequency on the first board.
 
 The goal is to design the card so frequency limits are set by measurable timing margins rather than by poor observability, weak clocking, or avoidable signal-integrity problems.
 
+Fabric clock requirement (found by simulation, 2026-11-06): the fabric
+captures CPU writes on the PHI2 falling edge, so PHI2 must reach the ECP5 on a
+clock-capable pin, and the fabric clock must be at least 4 × PHI2:
+
+```text
+PHI2  1 MHz debug        fabric clock >= 4 MHz    ULX3S 25 MHz oscillator
+PHI2  4 MHz bring-up     fabric clock >= 16 MHz   ULX3S 25 MHz oscillator
+PHI2  8 MHz conservative fabric clock >= 32 MHz   ECP5 PLL required
+PHI2 14 MHz target       fabric clock >= 56 MHz   ECP5 PLL required (62.5 MHz verified)
+```
+
+See [Rev A Hardware in Simulation](hardware/rev-a-hardware-in-simulation.md#cpu-to-fabric-clocking).
+
 ## Design Implications
 
 These selections imply:
@@ -263,6 +276,7 @@ docs/card-identity-eeprom.md
 - Whether boot flash and FPGA bitstream flash are separate.
 - CPU-card oscillator strategy.
 - Maximum verified W65C816 frequency target after timing tests.
+- Which PLL frequency the fabric uses for 8 and 14 MHz operation (62.5 MHz is verified in simulation for 14 MHz).
 - Whether the first Rev A board should include selectable voltage-domain measurement jumpers.
 - Whether W5500 is placed on the CPU card or implemented as a boot-critical network service card.
 

@@ -41,6 +41,11 @@ Deny by default.
 Knowledge is not authority.
 ```
 
+Each phase below already has a software equivalent, run on every push by the
+Engineering Gate; see
+[Rev A Hardware in Simulation](rev-a-hardware-in-simulation.md#relation-to-the-hardware-bench-plan).
+Use its expected results as the reference for the bench.
+
 A hardware test is not complete merely because communication works.
 
 It must also avoid creating bypass paths around the service and capability model.

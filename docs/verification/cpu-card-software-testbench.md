@@ -612,6 +612,10 @@ wrapper has more ports than the ULX3S has GPIO.
 
 ## Related hardware projects
 
+The hardware-side summary of this build (each board part, the requirements it
+exposed, and what is left to build) is
+[Rev A Hardware in Simulation](../hardware/rev-a-hardware-in-simulation.md).
+
 | Repository | Role in this bench |
 |---|---|
 | `dlworrell/CLK` | Vendored W65C816 core (`third_party/clk`) |
