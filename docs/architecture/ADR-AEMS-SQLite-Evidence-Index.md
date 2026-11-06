@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: Donovan Worrell
+SPDX-License-Identifier: Apache-2.0
+Catalyst-File-ID: urn:uuid:3ea4c913-bf9d-4fc7-a701-6f633e8bb5a1
+-->
+
 # ADR: SQLite as the AEMS Engineering Evidence Index
 
 Status: Accepted (direction only; rollout gated)

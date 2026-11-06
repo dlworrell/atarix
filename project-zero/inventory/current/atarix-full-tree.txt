@@ -18,6 +18,7 @@
 .github/workflows/release.yml
 .github/workflows/rtl-atx-spec-020.yml
 CODE_OF_CONDUCT.md
+LICENSES/Apache-2.0.txt
 Makefile
 Makefile.am
 README.md
@@ -310,6 +311,7 @@ tests/sim/test_sim_ping_pong.c
 tests/sim/test_sim_reject_invalid.c
 tests/sim/test_sim_version_query.c
 tests/test_aems_release_evidence.py
+tests/test_document_authority_census.py
 tests/test_publish_signed_pr.py
 tools/Makefile.am
 tools/aems/aems.py
