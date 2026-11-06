@@ -29,7 +29,7 @@ for tool in yosys nextpnr-ecp5 python3; do
 done
 
 mapfile -t sources < <(find rtl/atarix -name '*.v' ! -name '*_tb.v' | LC_ALL=C sort)
-tops=(atx_northbridge_bus_shim atx_spec_020_system_wrapper)
+tops=(atx_northbridge_bus_shim atx_mailbox_tx_assembler atx_spec_020_system_wrapper)
 summary="${out_dir}/summary.txt"
 : > "${summary}"
 status=0

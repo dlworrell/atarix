@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: Donovan Worrell
 # SPDX-License-Identifier: Apache-2.0
-"""Co-simulate the Northbridge bus shim RTL against the C CPU-card model.
+"""Co-simulate the Northbridge bus shim and TX frame assembler RTL against the
+C CPU-card model.
 
 Reads the CPU card's bus trace (sim/cpu-card), drives every CPU bus cycle into
-rtl/atarix/atx_northbridge_bus_shim.v under Icarus Verilog, and compares:
+rtl/atarix/atx_northbridge_bus_shim.v -> rtl/atarix/atx_mailbox_tx_assembler.v
+under Icarus Verilog, and requires:
 
-  bytes   The RTL must capture exactly the bytes the C model received in its
-          mailbox TX window, in order (pass/fail).
-  frames  Frame boundaries: the C model frames on each SUBMIT; the shim marks a
-          start-of-frame (SOF) after chip select deasserts. Both counts are
-          reported. A mismatch is recorded as a known finding, not a pass,
-          until the shim's framing rule is specified (see the test-bench doc).
+  writes  every write to the $00D2xx mailbox block, address and data, in order;
+  frames  every frame the assembler emits equals the TX window at that SUBMIT
+          (16-byte header plus the claimed payload, capped at 48 bytes);
+  audit   with --audit-report, the frames' message types and sequence numbers
+          equal the decisions in the C Northbridge's audit log, one per SUBMIT;
+  overrun the assembler never sees a SUBMIT while still streaming.
 
-Usage: run_bus_shim_cosim.py <trace> <work-dir> [--expect-sof-per-frame] [--negative-control]
-       [--datasheet-timing [--phi2-mhz=F] [--clk-mhz=F]
-        [--expect-datasheet-timing | --expect-timing-failure]]
-       --negative-control hides one TX-window write from the RTL (deasserts its
-       chip select) and requires the byte comparison to report a mismatch.
-Exit:  0 bytes match (and frames, if --expect-sof-per-frame), 1 mismatch, 2 setup error.
+Usage: run_bus_shim_cosim.py <trace> <work-dir> [--audit-report=FILE]
+       [--negative-control | --negative-control-submit]
+       [--datasheet-timing [--phi2-mhz=F] [--clk-mhz=F] [--expect-timing-failure]]
+
+  --negative-control         hide one TX-window data write from the RTL;
+  --negative-control-submit  hide one SUBMIT from the RTL;
+  --expect-timing-failure    the run is outside the proven clock ratio;
+each of these requires the comparison to FAIL (exit 0 when it does).
+Exit: 0 pass (or expected failure seen), 1 mismatch, 2 setup error.
 """
 
 import json
@@ -27,42 +32,18 @@ import shutil
 import subprocess
 import sys
 
-TX_WINDOW = range(0x00D280, 0x00D2C0)
+MAILBOX_BLOCK = range(0x00D200, 0x00D300)
+TX_BASE = 0x00D280
+WINDOW = 64
+HEADER = 16
 MB_CONTROL = 0x00D201
 CONTROL_SUBMIT = 0x01
 
 
-def main(argv):
-    if len(argv) < 3:
-        print(__doc__, file=sys.stderr)
-        return 2
-    trace_path = pathlib.Path(argv[1])
-    work = pathlib.Path(argv[2])
-    strict_frames = "--expect-sof-per-frame" in argv[3:]
-    negative = "--negative-control" in argv[3:]
-    timing = "--datasheet-timing" in argv[3:]
-    strict_timing = "--expect-datasheet-timing" in argv[3:]
-    expect_timing_fail = "--expect-timing-failure" in argv[3:]
-    phi2_mhz = 4.0
-    clk_mhz = 25.0
-    for arg in argv[3:]:
-        if arg.startswith("--phi2-mhz="):
-            phi2_mhz = float(arg.split("=", 1)[1])
-        elif arg.startswith("--clk-mhz="):
-            clk_mhz = float(arg.split("=", 1)[1])
+def expected_from_trace(trace_path, hide_data, hide_submit):
+    stimulus, writes, frames = [], [], []
+    window = [0] * WINDOW
     hidden = False
-    root = pathlib.Path(__file__).resolve().parents[2]
-    work.mkdir(parents=True, exist_ok=True)
-
-    for tool in ("iverilog", "vvp"):
-        if shutil.which(tool) is None:
-            print(f"{tool} not found on PATH", file=sys.stderr)
-            return 2
-
-    stimulus = []
-    expected_bytes = []
-    frames = []
-    current = []
     with trace_path.open() as handle:
         for line in handle:
             parts = line.split()
@@ -72,20 +53,54 @@ def main(argv):
             address = int(address_text, 16)
             data = int(data_text, 16)
             is_write = kind == "W"
-            selected = address in TX_WINDOW
+            selected = address in MAILBOX_BLOCK
             cs_n = 0 if selected else 1
-            if negative and selected and is_write and not hidden and len(expected_bytes) == 17:
-                cs_n = 1  # the RTL never sees this byte; the C model still expects it
-                hidden = True
-            rw = 0 if is_write else 1
-            stimulus.append((cs_n << 9) | (rw << 8) | data)
-            if selected and is_write:
-                expected_bytes.append(data)
-                current.append(data)
-            if is_write and address == MB_CONTROL and data == CONTROL_SUBMIT:
-                frames.append(current)
-                current = []
+            in_window = TX_BASE <= address < TX_BASE + WINDOW
+            is_submit = is_write and address == MB_CONTROL and data == CONTROL_SUBMIT
+            # Negative controls: the RTL never sees one write the C model saw.
+            if not hidden and is_write and selected:
+                if (hide_data and in_window and len(writes) >= 40) or (hide_submit and is_submit and frames):
+                    cs_n = 1
+                    hidden = True
+            stimulus.append(((address & 0xFF) << 10) | (cs_n << 9) | ((0 if is_write else 1) << 8) | data)
+            if is_write and selected:
+                writes.append((address & 0xFF, data))
+                if in_window:
+                    window[address - TX_BASE] = data
+                if is_submit:
+                    claimed = window[6] | (window[7] << 8)
+                    frames.append(window[:HEADER + min(claimed, WINDOW - HEADER)])
+    return stimulus, writes, frames
 
+
+def main(argv):
+    if len(argv) < 3:
+        print(__doc__, file=sys.stderr)
+        return 2
+    trace_path = pathlib.Path(argv[1])
+    work = pathlib.Path(argv[2])
+    flags = argv[3:]
+    hide_data = "--negative-control" in flags
+    hide_submit = "--negative-control-submit" in flags
+    timing = "--datasheet-timing" in flags
+    expect_timing_fail = "--expect-timing-failure" in flags
+    phi2_mhz, clk_mhz, audit_path = 4.0, 25.0, None
+    for arg in flags:
+        if arg.startswith("--phi2-mhz="):
+            phi2_mhz = float(arg.split("=", 1)[1])
+        elif arg.startswith("--clk-mhz="):
+            clk_mhz = float(arg.split("=", 1)[1])
+        elif arg.startswith("--audit-report="):
+            audit_path = pathlib.Path(arg.split("=", 1)[1])
+    root = pathlib.Path(__file__).resolve().parents[2]
+    work.mkdir(parents=True, exist_ok=True)
+
+    for tool in ("iverilog", "vvp"):
+        if shutil.which(tool) is None:
+            print(f"{tool} not found on PATH", file=sys.stderr)
+            return 2
+
+    stimulus, expected_writes, expected_frames = expected_from_trace(trace_path, hide_data, hide_submit)
     if not stimulus:
         print("empty trace", file=sys.stderr)
         return 2
@@ -98,7 +113,8 @@ def main(argv):
     build = subprocess.run(
         ["iverilog", "-g2012", "-Wall", "-o", str(binary),
          str(root / "sim/rtl-cosim/bus_shim_cosim_tb.v"),
-         str(root / "rtl/atarix/atx_northbridge_bus_shim.v")],
+         str(root / "rtl/atarix/atx_northbridge_bus_shim.v"),
+         str(root / "rtl/atarix/atx_mailbox_tx_assembler.v")],
         capture_output=True, text=True)
     if build.returncode != 0:
         print(build.stdout + build.stderr, file=sys.stderr)
@@ -109,76 +125,70 @@ def main(argv):
          f"+cycles={len(stimulus)}"]
         + ([f"+timing=1", f"+clk_half_ps={round(500000 / clk_mhz)}",
             f"+phi2_half_ps={round(500000 / phi2_mhz)}"] if timing else []),
-        capture_output=True, text=True, timeout=600)
-    print(run.stdout.strip())
+        capture_output=True, text=True, timeout=900)
+    print(run.stdout.strip().splitlines()[0] if run.stdout.strip() else "")
     # vvp reports file errors as "ERROR:" lines yet still exits 0; treat them,
     # a testbench FAIL, or a missing capture file as a setup failure.
     if run.returncode != 0 or "FAIL" in run.stdout or "ERROR" in run.stdout or not capture_file.exists():
-        print(run.stderr, file=sys.stderr)
+        print(run.stdout + run.stderr, file=sys.stderr)
         print("co-simulation did not run to completion", file=sys.stderr)
         return 2
+    overrun = "overrun=1" in run.stdout
 
-    captured = []
-    sof_count = 0
+    rtl_writes, rtl_frames = [], []
     for line in capture_file.read_text().splitlines():
-        value, sof = line.split()
-        captured.append(int(value, 16))
-        sof_count += int(sof)
+        parts = line.split()
+        if parts and parts[0] == "W":
+            rtl_writes.append((int(parts[1], 16), int(parts[2], 16)))
+        elif parts and parts[0] == "F":
+            rtl_frames.append([int(x, 16) for x in parts[1:]])
 
-    bytes_match = captured == expected_bytes
-    frames_match = sof_count == len(frames)
+    writes_match = rtl_writes == expected_writes
+    frames_match = rtl_frames == expected_frames
+    good_writes = sum(1 for got, want in zip(rtl_writes, expected_writes) if got == want)
+
+    audit_match = None
+    if audit_path is not None:
+        audit = json.loads(audit_path.read_text())["audit"]
+        decoded = [(f[4] | (f[5] << 8), f[8] | (f[9] << 8) | (f[10] << 16) | (f[11] << 24)) for f in rtl_frames]
+        audit_match = decoded == [(a["type"], a["sequence"]) for a in audit]
+
+    ok = writes_match and frames_match and not overrun and audit_match is not False
     report = {
         "cpu_cycles": len(stimulus),
-        "c_model_tx_bytes": len(expected_bytes),
-        "rtl_captured_bytes": len(captured),
-        "bytes_match": bytes_match,
-        "c_model_frames": len(frames),
-        "rtl_sof_markers": sof_count,
-        "frames_match": frames_match,
-        "frame_rule_strict": strict_frames,
         "datasheet_timing": timing,
+        "phi2_mhz": phi2_mhz if timing else None,
+        "clk_mhz": clk_mhz if timing else None,
+        "c_model_writes": len(expected_writes),
+        "rtl_writes": len(rtl_writes),
+        "rtl_writes_correct": good_writes,
+        "writes_match": writes_match,
+        "c_model_frames": len(expected_frames),
+        "rtl_frames": len(rtl_frames),
+        "frames_match": frames_match,
+        "audit_match": audit_match,
+        "overrun": overrun,
+        "result": "pass" if ok else "mismatch",
     }
-    if not bytes_match:
-        for index, (got, want) in enumerate(zip(captured, expected_bytes)):
-            if got != want:
-                report["first_byte_mismatch"] = {"index": index, "rtl": got, "c_model": want}
-                break
     (work / "bus_shim_cosim_report.json").write_text(json.dumps(report, indent=2) + "\n")
 
-    print(f"bytes: RTL {len(captured)} vs C model {len(expected_bytes)} -> "
-          f"{'MATCH' if bytes_match else 'MISMATCH'}")
-    print(f"frames: C model {len(frames)} SUBMITs vs RTL {sof_count} SOF markers -> "
-          f"{'MATCH' if frames_match else 'MISMATCH (known finding: shim framing rule unspecified)'}")
+    label = f"{clk_mhz:g} MHz clock, {phi2_mhz:g} MHz PHI2, 10 ns hold" if timing else "functional timing"
+    print(f"[{label}] writes: {good_writes}/{len(expected_writes)} correct "
+          f"({len(rtl_writes)} captured) -> {'MATCH' if writes_match else 'MISMATCH'}")
+    print(f"[{label}] frames: RTL {len(rtl_frames)} vs C model {len(expected_frames)} SUBMITs -> "
+          f"{'MATCH' if frames_match else 'MISMATCH'}"
+          + ("" if audit_match is None else f"; audit {'MATCH' if audit_match else 'MISMATCH'}")
+          + ("; OVERRUN" if overrun else ""))
 
-    if timing:
-        good = sum(1 for got, want in zip(captured, expected_bytes) if got == want)
-        report["datasheet_bytes_correct"] = good
-        (work / "bus_shim_cosim_report.json").write_text(json.dumps(report, indent=2) + "\n")
-        report["phi2_mhz"] = phi2_mhz
-        report["clk_mhz"] = clk_mhz
-        (work / "bus_shim_cosim_report.json").write_text(json.dumps(report, indent=2) + "\n")
-        print(f"datasheet timing ({clk_mhz:g} MHz clock, {phi2_mhz:g} MHz PHI2, 10 ns data hold): "
-              f"{good}/{len(expected_bytes)} bytes captured correctly, {len(captured)} captured -> "
-              f"{'MATCH' if bytes_match else 'MISMATCH'}")
-        if expect_timing_fail:
-            # Negative control: a clock ratio below the proven minimum must fail.
-            if bytes_match:
-                print("negative control FAILED: an out-of-spec clock ratio was accepted", file=sys.stderr)
-                return 1
-            print("negative control passed: out-of-spec clock ratio detected")
-            return 0
-        return 1 if (strict_timing and not bytes_match) else 0
-    if negative:
-        if bytes_match:
-            print("negative control FAILED: hidden byte was not detected", file=sys.stderr)
+    if hide_data or hide_submit or expect_timing_fail:
+        what = ("hidden data write" if hide_data else "hidden SUBMIT" if hide_submit
+                else "out-of-spec clock ratio")
+        if ok:
+            print(f"negative control FAILED: {what} was not detected", file=sys.stderr)
             return 1
-        print("negative control passed: hidden byte detected as a byte-stream mismatch")
+        print(f"negative control passed: {what} detected")
         return 0
-    if not bytes_match:
-        return 1
-    if strict_frames and not frames_match:
-        return 1
-    return 0
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

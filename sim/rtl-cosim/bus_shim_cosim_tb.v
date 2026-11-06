@@ -2,14 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // Co-simulation testbench: replays the emulated CPU card's recorded W65C816
-// bus cycles into rtl/atarix/atx_northbridge_bus_shim.v and logs every byte
-// the shim captures.
+// bus cycles into rtl/atarix/atx_northbridge_bus_shim.v feeding
+// rtl/atarix/atx_mailbox_tx_assembler.v, and logs every write the shim
+// delivers ("W aa dd") and every frame the assembler emits ("F <bytes>").
 //
 // Stimulus (one 32-bit hex word per CPU bus cycle, from
 // sim/rtl-cosim/run_bus_shim_cosim.py):
-//   bit 9    cs_n  (0 when the cycle addresses the mailbox TX frame window)
-//   bit 8    rw    (1 read, 0 write)
-//   bits 7:0 data
+//   bits 17:10 address A7-A0
+//   bit 9      cs_n  (0 when the cycle addresses the $00D2xx mailbox block)
+//   bit 8      rw    (1 read, 0 write)
+//   bits 7:0   data
 // Default (functional) mode: each CPU cycle is one PHI2 period of 8 system
 // clocks at 100 MHz, with data held for the whole cycle.
 //
@@ -32,9 +34,15 @@ module bus_shim_cosim_tb;
     reg        phi2 = 1'b0;
     reg        cs_n = 1'b1;
     reg        rw = 1'b1;
+    reg  [7:0] addr = 8'h00;
     wire [7:0] shim_data_out;
+    wire [7:0] shim_addr_out;
     wire       shim_valid;
-    wire       shim_sof;
+    wire       frame_valid;
+    wire [7:0] frame_data;
+    wire       frame_first;
+    wire       frame_last;
+    wire       frame_overrun;
 
     reg [31:0] stimulus [0:MAX_CYCLES-1];
     integer cycle_count;
@@ -50,12 +58,26 @@ module bus_shim_cosim_tb;
         .clk(clk),
         .rst_n(rst_n),
         .phi2_d_in(phi2_d_in),
+        .addr_in(addr),
         .phi2(phi2),
         .cs_n(cs_n),
         .rw(rw),
         .shim_data_out(shim_data_out),
-        .shim_valid(shim_valid),
-        .shim_sof(shim_sof)
+        .shim_addr_out(shim_addr_out),
+        .shim_valid(shim_valid)
+    );
+
+    atx_mailbox_tx_assembler assembler (
+        .clk(clk),
+        .rst_n(rst_n),
+        .wr_valid(shim_valid),
+        .wr_addr(shim_addr_out),
+        .wr_data(shim_data_out),
+        .frame_valid(frame_valid),
+        .frame_data(frame_data),
+        .frame_first(frame_first),
+        .frame_last(frame_last),
+        .frame_overrun(frame_overrun)
     );
 
     // Clock and PHI2 half periods in ps. Functional mode: 100 MHz system clock.
@@ -70,8 +92,13 @@ module bus_shim_cosim_tb;
 
     always @(posedge clk) begin
         if (shim_valid) begin
-            $fwrite(out, "%02x %0d\n", shim_data_out, shim_sof);
+            $fwrite(out, "W %02x %02x\n", shim_addr_out, shim_data_out);
             captured = captured + 1;
+        end
+        if (frame_valid) begin
+            if (frame_first) $fwrite(out, "F");
+            $fwrite(out, " %02x", frame_data);
+            if (frame_last) $fwrite(out, "\n");
         end
     end
 
@@ -116,8 +143,10 @@ module bus_shim_cosim_tb;
                 #(t_hold_ps * 0.001);
                 phi2_d_in = ~phi2_d_in;            // write-data hold time expired
                 cs_n = 1'b1;                        // address hold expired: decode invalid
+                addr = ~addr;
                 #((t_valid_ps - t_hold_ps) * 0.001);
                 cs_n = stimulus[i][9];              // address valid (tADS)
+                addr = stimulus[i][17:10];
                 rw = stimulus[i][8];
                 #((phi2_half_ps - t_valid_ps) * 0.001);
                 phi2 = 1'b1;                        // PHI2 rises
@@ -133,6 +162,7 @@ module bus_shim_cosim_tb;
             phi2 = 1'b0;
             #1;
             cs_n = stimulus[i][9];
+            addr = stimulus[i][17:10];
             rw = stimulus[i][8];
             phi2_d_in = stimulus[i][7:0];
             for (k = 0; k < 4; k = k + 1) @(posedge clk);
@@ -146,7 +176,7 @@ module bus_shim_cosim_tb;
         repeat (8) @(posedge clk);
 
         $fclose(out);
-        $display("COSIM cycles=%0d captured=%0d", cycle_count, captured);
+        $display("COSIM cycles=%0d captured=%0d overrun=%0d", cycle_count, captured, frame_overrun);
         $finish;
     end
 endmodule
