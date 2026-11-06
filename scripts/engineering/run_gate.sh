@@ -203,6 +203,25 @@ else
     fail 'bus shim formal proof or its negative controls failed'
 fi
 
+phase 'Engineering Gate: display card GPU core on Cortex-M33 (RP2350, ADR-0016)'
+missing_m33_tools=''
+for tool in arm-none-eabi-gcc arm-none-eabi-objdump qemu-system-arm; do
+    command -v "${tool}" >/dev/null 2>&1 || missing_m33_tools="${missing_m33_tools} ${tool}"
+done
+if [ -n "${missing_m33_tools}" ]; then
+    if [ -n "${CI:-}" ]; then
+        fail "Cortex-M33 tools missing in CI:${missing_m33_tools}"
+    else
+        warn "Cortex-M33 GPU core check skipped; missing:${missing_m33_tools}"
+    fi
+elif bash scripts/firmware/run_gpu_core_m33.sh; then
+    pass 'GPU core: single-precision only, all cases pass on Cortex-M33, controls rejected'
+    mkdir -p "${ARTIFACT_DIR}/display-card"
+    cp build/firmware/display-card-m33/run.log "${ARTIFACT_DIR}/display-card/m33-run.log"
+else
+    fail 'display card GPU core failed on Cortex-M33'
+fi
+
 phase 'Engineering Gate: summary'
 {
     printf '%s\n' 'Engineering Gate Summary'
