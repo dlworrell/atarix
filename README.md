@@ -488,6 +488,12 @@ Doctrine and review process:
 - [NuBus and UPA Architectural Influences](docs/nubus-upa-influences-v1.md)
 - [Fabric Service Model v1](docs/fabric-service-model-v1.md)
 
+### Verification and Simulation
+
+- [CPU Card Software Test Bench](docs/verification/cpu-card-software-testbench.md): W65C816 (vendored CLK) on the emulated Rev A CPU card, mailbox path through libatarix, negative controls, and RTL co-simulation. Run `bash scripts/sim/run_testbench.sh`.
+- [Closure Units: CPU Card Software Test Bench](docs/engineering/closure-units/ATX-SIM-CLOSURE-INDEX.md)
+- [ATX-SPEC-020 RTL CI](docs/verification/ATX-SPEC-020-rtl-ci.md)
+
 ## Project Governance
 
 Repository governance and workflow are documented in [GitHub Project Organization v1](docs/github-project-organization-v1.md).
