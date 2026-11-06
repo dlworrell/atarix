@@ -167,6 +167,27 @@ else
     fail 'CPU card software test bench failed'
 fi
 
+phase 'Engineering Gate: ECP5 (ULX3S LFE5U-85F) fit and timing'
+if ! command -v yosys >/dev/null 2>&1 || ! command -v nextpnr-ecp5 >/dev/null 2>&1; then
+    if [ -n "${CI:-}" ]; then
+        fail 'yosys/nextpnr-ecp5 missing in CI'
+    else
+        warn 'yosys/nextpnr-ecp5 not found; skipping ECP5 fit'
+    fi
+elif bash scripts/rtl/run_ecp5_fit.sh; then
+    pass 'RTL fits the LFE5U-85F and meets the 25 MHz ULX3S clock'
+    mkdir -p "${ARTIFACT_DIR}/ecp5"
+    cp build/rtl/ecp5/summary.txt build/rtl/ecp5/*-report.json "${ARTIFACT_DIR}/ecp5/"
+    # Negative control: an unreachable target must fail, or the check proves nothing.
+    if ATARIX_ECP5_TARGET_MHZ=1000 bash scripts/rtl/run_ecp5_fit.sh > /dev/null 2>&1; then
+        fail 'ECP5 fit negative control: an unreachable 1000 MHz target passed'
+    else
+        pass 'ECP5 fit negative control: unreachable timing target rejected'
+    fi
+else
+    fail 'RTL does not fit or misses timing on the LFE5U-85F'
+fi
+
 phase 'Engineering Gate: summary'
 {
     printf '%s\n' 'Engineering Gate Summary'
