@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # ATARIX machine driver for MAME
 
-This directory holds the MAME machine driver that emulates the ATARIX CPU card as [ATX-SPEC-022](../../docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md) defines it (profile EP-A), under [ADR-0016](../../docs/adr/ADR-0016-cpu-card-emulation-with-mame.md).
+This directory holds the MAME machine driver that emulates the ATARIX CPU card as [ATX-SPEC-022](../../../docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md) defines it (profile EP-A), under [ADR-0016](../../../docs/adr/ADR-0016-cpu-card-emulation-with-mame.md).
 
 The driver is an overlay. It is copied into a pinned MAME release, and only the ATARIX driver is built. There is no MAME fork.
 
@@ -45,7 +45,7 @@ You need cc65 for the monitor, and MAME's usual build dependencies (SDL2 and fon
 
    ```sh
    git clone --depth 1 --branch mame0289 https://github.com/mamedev/mame build/mame
-   emulation/mame/overlay.sh build/mame
+   src/emulator/mame/overlay.sh build/mame
    ```
 
 3. Build only the ATARIX driver:

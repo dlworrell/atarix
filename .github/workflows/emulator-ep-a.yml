@@ -7,7 +7,7 @@ name: EP-A emulator (MAME)
 on:
   pull_request:
     paths:
-      - "emulation/**"
+      - "src/emulator/mame/**"
       - "src/firmware/monitor/**"
       - ".github/workflows/emulator-ep-a.yml"
   workflow_dispatch:
@@ -54,12 +54,12 @@ jobs:
           fi
 
       - name: Overlay ATARIX driver
-        run: emulation/mame/overlay.sh build/mame
+        run: src/emulator/mame/overlay.sh build/mame
 
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cache/ccache
-          key: ccache-mame-${{ env.MAME_COMMIT }}-${{ hashFiles('emulation/mame/src/**') }}
+          key: ccache-mame-${{ env.MAME_COMMIT }}-${{ hashFiles('src/emulator/mame/src/**') }}
           restore-keys: |
             ccache-mame-${{ env.MAME_COMMIT }}-
 
@@ -86,9 +86,9 @@ jobs:
           ./atarix atarix -cart ../monitor/atarix-monitor.bin \
             -video none -sound none -nothrottle -skip_gameinfo \
             -seconds_to_run 5 \
-            -autoboot_script "$GITHUB_WORKSPACE/emulation/mame/conformance/capture_console.lua"
+            -autoboot_script "$GITHUB_WORKSPACE/src/emulator/mame/conformance/capture_console.lua"
           cd "$GITHUB_WORKSPACE"
-          python3 emulation/mame/conformance/check_banner.py build/console-check1.log
+          python3 src/emulator/mame/conformance/check_banner.py build/console-check1.log
 
       - name: Keep evidence
         if: always()
