@@ -33,7 +33,7 @@
       "path": "README.md",
       "placement": "canonical",
       "reason": "Approved repository-root project document.",
-      "size_bytes": 15807,
+      "size_bytes": 15939,
       "violation": false
     },
     {
@@ -196,6 +196,15 @@
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
       "size_bytes": 3628,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/adr/ADR-0016-cpu-card-emulation-with-mame.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 8045,
       "violation": false
     },
     {
@@ -466,6 +475,15 @@
       "placement": "canonical",
       "reason": "Approved Atarix documentation authority location.",
       "size_bytes": 10502,
+      "violation": false
+    },
+    {
+      "canonical_owner": "Atarix",
+      "location": "docs",
+      "path": "docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md",
+      "placement": "canonical",
+      "reason": "Approved Atarix documentation authority location.",
+      "size_bytes": 21847,
       "violation": false
     },
     {
@@ -1616,11 +1634,11 @@
   "root": "/home/runner/work/atarix/atarix",
   "schema": "catalyst.atarix.document-authority-census.v2",
   "summary": {
-    "document_count": 179,
+    "document_count": 181,
     "locations": {
       ".github": 1,
       "LICENSES": 1,
-      "docs": 156,
+      "docs": 158,
       "include": 1,
       "project-zero": 4,
       "repository-root": 2,
@@ -1630,7 +1648,7 @@
       "tests": 2
     },
     "placements": {
-      "canonical": 160,
+      "canonical": 162,
       "colocated": 19
     },
     "strict_passed": true,
