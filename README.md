@@ -487,6 +487,7 @@ Doctrine and review process:
 - [Boot Firmware and BIOS Architecture v1](docs/boot-firmware-architecture-v1.md)
 - [NuBus and UPA Architectural Influences](docs/nubus-upa-influences-v1.md)
 - [Fabric Service Model v1](docs/fabric-service-model-v1.md)
+- [ATX-SPEC-022 CPU Card Platform Contract (Rev A emulation profile)](docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md)
 
 ## Project Governance
 
