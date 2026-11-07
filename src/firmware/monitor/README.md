@@ -6,7 +6,11 @@ Catalyst-File-ID: urn:uuid:d1e156a6-3c35-49d8-81c9-f4e160a0d21a
 
 # ATARIX ROM Monitor
 
-This directory will contain the first ATARIX ROM monitor implementation.
+This directory contains the ATARIX ROM monitor, written for ca65 (cc65) against [ATX-SPEC-022](../../../docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md) EP-A.
+
+Build the 64 KiB boot ROM with `src/firmware/monitor/build.sh [output-directory]`. To run it, see [the MAME driver](../../../emulation/mame/README.md).
+
+Milestone M0 implements the reset path, the boot banner, RAM sizing and a console echo loop.
 
 Initial goals:
 

@@ -1,0 +1,104 @@
+name: EP-A emulator (MAME)
+
+# ATX-SPEC-022 conformance under ADR-0016. Builds the ROM monitor (cc65),
+# overlays the ATARIX machine driver on a pinned MAME release, builds only
+# that driver, and runs the conformance checks headless.
+
+on:
+  pull_request:
+    paths:
+      - "emulation/**"
+      - "src/firmware/monitor/**"
+      - ".github/workflows/emulator-ep-a.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: emulator-ep-a-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAME_TAG: mame0289
+  MAME_COMMIT: f34f02505e32c1993c6a782b6814232cbfc74e36
+
+jobs:
+  ep-a:
+    name: Build MAME driver and run conformance
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cc65 ccache \
+            libsdl2-dev libsdl2-ttf-dev libfontconfig1-dev libpulse-dev \
+            libxinerama-dev libxi-dev libasound2-dev
+
+      - name: Build ROM monitor
+        run: src/firmware/monitor/build.sh build/monitor
+
+      - name: Fetch pinned MAME
+        run: |
+          set -euo pipefail
+          git clone --quiet --depth 1 --branch "$MAME_TAG" https://github.com/mamedev/mame build/mame
+          actual="$(git -C build/mame rev-parse HEAD)"
+          if [[ "$actual" != "$MAME_COMMIT" ]]; then
+            echo "::error::$MAME_TAG resolved to $actual, expected $MAME_COMMIT"
+            exit 1
+          fi
+
+      - name: Overlay ATARIX driver
+        run: emulation/mame/overlay.sh build/mame
+
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ccache
+          key: ccache-mame-${{ env.MAME_COMMIT }}-${{ hashFiles('emulation/mame/src/**') }}
+          restore-keys: |
+            ccache-mame-${{ env.MAME_COMMIT }}-
+
+      - name: Build MAME (ATARIX driver only)
+        run: |
+          set -euo pipefail
+          export CCACHE_DIR="$HOME/.cache/ccache"
+          ccache --max-size=2G
+          make -C build/mame -j"$(nproc)" \
+            SUBTARGET=atarix SOURCES=src/mame/atarix/atarix.cpp \
+            OVERRIDE_CC="ccache gcc" OVERRIDE_CXX="ccache g++" \
+            NOWERROR=1 USE_QTDEBUG=0 TOOLS=0 \
+            NO_USE_PORTAUDIO=1 NO_USE_PULSEAUDIO=1 NO_USE_PIPEWIRE=1
+          ccache --show-stats
+
+      - name: Conformance check 1 (boot banner)
+        env:
+          SDL_VIDEODRIVER: dummy
+          SDL_AUDIODRIVER: dummy
+          ATARIX_CONSOLE_LOG: ${{ github.workspace }}/build/console-check1.log
+        run: |
+          set -euo pipefail
+          cd build/mame
+          ./atarix atarix -cart ../monitor/atarix-monitor.bin \
+            -video none -sound none -nothrottle -skip_gameinfo \
+            -seconds_to_run 5 \
+            -autoboot_script "$GITHUB_WORKSPACE/emulation/mame/conformance/capture_console.lua"
+          cd "$GITHUB_WORKSPACE"
+          python3 emulation/mame/conformance/check_banner.py build/console-check1.log
+
+      - name: Keep evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ep-a-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/monitor/atarix-monitor.bin
+            build/monitor/monitor.lst
+            build/monitor/monitor.map
+            build/console-check1.log
+          if-no-files-found: warn
+          retention-days: 30
