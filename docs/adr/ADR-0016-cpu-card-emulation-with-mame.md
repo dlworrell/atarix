@@ -9,7 +9,7 @@ Catalyst-File-ID: urn:uuid:62dd9700-ba38-4ddb-8b72-58cea38436df
 Status: Proposed
 Date: 2026-11-07
 Owner: ATARIX
-Acceptance: takes effect when the owner approves and merges the pull request that adds it
+Acceptance: remains Proposed after the pull request that adds it is merged (owner decision, 2026-11-07). Acceptance is a separate owner decision, expected once milestone M4 shows an OS kernel booting under MAME.
 
 ## Context
 
