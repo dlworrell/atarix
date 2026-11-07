@@ -36,6 +36,7 @@ docs/adr/ADR-0012-abstraction-and-compatibility.md
 docs/adr/ADR-0013-resource-oriented-architecture.md
 docs/adr/ADR-0014-testing-and-verification-strategy.md
 docs/adr/ADR-0015-consume-catylist-aes-aems-authority-chain.md
+docs/adr/ADR-0016-cpu-card-emulation-with-mame.md
 docs/adr/ADR-00X-capability-evaluation-model.md
 docs/adr/ADR-00Y-service-oriented-resource-access.md
 docs/adr/ADR-00Z-core-architectural-doctrines.md
@@ -66,6 +67,7 @@ docs/architecture/ATX-SPEC-019-Service-Model.md
 docs/architecture/ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.md
 docs/architecture/ATX-SPEC-020-Hash-Table-and-Lookup-Acceleration-Model.md
 docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md
+docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md
 docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md
 docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md
 docs/architecture/ATX-SPEC-092-Engineering-Release-and-Configuration-Management.md
