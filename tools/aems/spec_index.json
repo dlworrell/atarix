@@ -11,6 +11,14 @@
       "issues": [10]
     },
     {
+      "id": "ATX-SPEC-022",
+      "title": "CPU Card Platform Contract (Rev A emulation profile)",
+      "status": "draft",
+      "path": "docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md",
+      "depends_on": ["ATX-SPEC-005", "ATX-SPEC-014", "ATX-SPEC-016", "ATX-SPEC-021"],
+      "issues": []
+    },
+    {
       "id": "ATX-SPEC-090",
       "title": "Atarix Engineering Management System",
       "status": "draft",
