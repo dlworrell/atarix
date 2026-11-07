@@ -88,6 +88,22 @@ The CPU-visible machine was also undefined: the address map, registers, reset an
 | M4 | Quickload, monitor hand-off and BIB. OS development starts here. | 7 |
 | M5 | Headless conformance in CI, as evidence under ADR-0014 | all |
 
+## Status History
+
+| Date | Status | Decision |
+| --- | --- | --- |
+| 2026-11-07 | Proposed | Drafted with ATX-SPEC-022 in atarix #132. |
+| 2026-11-07 | Proposed | The owner approved merging #132, but kept this ADR Proposed. ATX-SPEC-022 merges as a Draft specification, and the MAME work continues under it. |
+
+**Acceptance.** Acceptance is a separate, later owner decision. It is expected once milestone M4 shows an OS kernel booted by the ROM monitor and running under MAME.
+
+**If that evidence is not good enough, the owner can choose another emulator.** ATX-SPEC-022 is unaffected, because it defines the machine, not the emulator.
+
+**While the ADR is Proposed:**
+
+- Changes to it go through pull requests, as for any draft.
+- Accepting it is a status change by the owner. That change is recorded here.
+
 ## Future Revisions
 
 Revisit this ADR in any of these cases:
