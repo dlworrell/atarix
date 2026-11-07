@@ -2,7 +2,7 @@
 
 - Schema: `catalyst.atarix.document-authority-census.v2`
 - Repository: `dlworrell/atarix`
-- Documents found: `179`
+- Documents found: `181`
 - Placement violations: `0`
 - Strict authority check passed: `True`
 
@@ -32,6 +32,7 @@
 | `docs/adr/ADR-0013-resource-oriented-architecture.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-0014-testing-and-verification-strategy.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-0015-consume-catylist-aes-aems-authority-chain.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `docs/adr/ADR-0016-cpu-card-emulation-with-mame.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-00X-capability-evaluation-model.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-00Y-service-oriented-resource-access.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/adr/ADR-00Z-core-architectural-doctrines.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
@@ -62,6 +63,7 @@
 | `docs/architecture/ATX-SPEC-020-Hardware-Mailbox-Integration-Notes.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/architecture/ATX-SPEC-020-Hash-Table-and-Lookup-Acceleration-Model.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/architecture/ATX-SPEC-021-Memory-and-Data-Movement-Model.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
+| `docs/architecture/ATX-SPEC-022-CPU-Card-Platform-Contract.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/architecture/ATX-SPEC-090-Atarix-Engineering-Management-System.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/architecture/ATX-SPEC-091-Requirements-and-Traceability-Model.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
 | `docs/architecture/ATX-SPEC-092-Engineering-Release-and-Configuration-Management.md` | `docs` | `canonical` | `False` | `Atarix` | Approved Atarix documentation authority location. |
